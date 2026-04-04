@@ -16,14 +16,22 @@ function Badge({ n }: { n: number }) {
   );
 }
 
+function Chevron({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`summary-chevron w-3.5 h-3.5 shrink-0 ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  );
+}
+
 function ResumeText({ text }: { text: string }) {
   return (
     <div className="text-sm leading-relaxed text-ink-700">
       {text.split("\n").map((line, i) => {
         const trimmed = line.trimStart();
-        const isBullet = trimmed.startsWith("•") || trimmed.startsWith("·") || trimmed.startsWith("‣") || trimmed.startsWith("- ");
+        const isBullet = trimmed.startsWith("\u2022") || trimmed.startsWith("\u00b7") || trimmed.startsWith("\u2023") || trimmed.startsWith("- ");
         if (isBullet) {
-          const bulletChar = trimmed.match(/^(•|·|‣|- )/)?.[0] ?? "•";
+          const bulletChar = trimmed.match(/^(\u2022|\u00b7|\u2023|- )/)?.[0] ?? "\u2022";
           const content = trimmed.slice(bulletChar.length).trimStart();
           return (
             <p key={i} className="m-0 ml-4">
@@ -33,7 +41,7 @@ function ResumeText({ text }: { text: string }) {
           );
         }
         if (line.trim() === "") return <div key={i} className="h-3" />;
-        const isHeader = line === line.toUpperCase() && line.trim().length > 2 && /^[A-ZÁÉÍÓÚÑÜ\s&/\-:]+$/.test(line.trim());
+        const isHeader = line === line.toUpperCase() && line.trim().length > 2 && /^[A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00dc\s&/\-:]+$/.test(line.trim());
         if (isHeader) return <p key={i} className="m-0 font-medium text-ink-900 mt-5 mb-1">{line}</p>;
         return <p key={i} className="m-0">{line}</p>;
       })}
@@ -84,12 +92,10 @@ export default function Home() {
         body: JSON.stringify({ cvText, targetRole: targetRole || undefined }),
       });
 
-      // Non-streaming error responses (rate limit, CORS, validation)
       if (res.status === 429) { setError(ui.errorLimit); return; }
       if (res.status === 403) { setError(ui.errorGeneric); return; }
       if (res.status === 400) { setError(ui.errorGeneric); return; }
 
-      // SSE streaming response
       const reader = res.body?.getReader();
       if (!reader) { setError(ui.errorGeneric); return; }
 
@@ -102,7 +108,6 @@ export default function Home() {
 
         buffer += decoder.decode(value, { stream: true });
 
-        // Parse SSE events from buffer
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
 
@@ -153,7 +158,6 @@ export default function Home() {
     track("reset_clicked");
   };
 
-  // Estimate progress: typical analysis is ~800-1200 tokens
   const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
 
   return (
@@ -267,7 +271,10 @@ export default function Home() {
           <div className="flex gap-3 items-center">
             <Badge n={1} />
             <details className="flex-1 border border-ink-100 rounded-lg">
-              <summary className="px-4 py-3 text-sm font-medium text-ink-700">{ui.originalCvTitle}</summary>
+              <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2">
+                <Chevron className="text-ink-300 hint-chevron" />
+                {ui.originalCvTitle}
+              </summary>
               <div className="px-4 pb-4 text-sm text-ink-500 whitespace-pre-wrap max-h-60 overflow-y-auto">{cvText}</div>
             </details>
           </div>
@@ -276,20 +283,29 @@ export default function Home() {
           <div className="flex gap-3 items-center">
             <Badge n={2} />
             <details className="flex-1 border border-ink-100 rounded-lg">
-              <summary className="px-4 py-3 text-sm font-medium text-ink-700">{ui.targetRoleTitle}</summary>
+              <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2">
+                <Chevron className="text-ink-300 hint-chevron" />
+                {ui.targetRoleTitle}
+              </summary>
               <p className="px-4 pb-3 text-sm text-ink-500">{targetRole || ui.notSpecified}</p>
             </details>
           </div>
 
-          {/* Step 3 — Analysis (open, dark header) */}
+          {/* Step 3 — Analysis (open, accent ghost header) */}
           <div className="flex gap-3 items-start">
             <div className="pt-3"><Badge n={3} /></div>
             <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
-              <summary className="px-4 py-3 text-sm font-medium text-white bg-ink-900 cursor-pointer">{ui.analysisTitle}</summary>
+              <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2">
+                <Chevron className="text-accent" />
+                {ui.analysisTitle}
+              </summary>
               <div className="p-4 space-y-4">
                 {/* Score + Summary */}
                 <details open className="border border-ink-100 rounded-lg">
-                  <summary className="px-4 py-3 text-sm font-medium text-ink-700">{ui.scoreSummaryTitle}</summary>
+                  <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2">
+                    <Chevron className="text-ink-300" />
+                    {ui.scoreSummaryTitle}
+                  </summary>
                   <div className="px-4 pb-4">
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
@@ -302,7 +318,10 @@ export default function Home() {
                 {/* Strengths (collapsed) */}
                 {result.analysis.strengths.length > 0 && (
                   <details className="border border-positive/20 rounded-lg bg-positive-ghost">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-700">{ui.strengthsTitle}</summary>
+                    <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2">
+                      <Chevron className="text-positive hint-chevron" />
+                      {ui.strengthsTitle}
+                    </summary>
                     <div className="px-4 pb-4 space-y-2">
                       {result.analysis.strengths.map((s, i) => (
                         <div key={i} className="border border-positive/20 rounded-lg p-3 bg-ink-000">
@@ -320,7 +339,10 @@ export default function Home() {
                 {/* Improvements (collapsed) */}
                 {result.analysis.improvements.length > 0 && (
                   <details className="border border-ink-100 rounded-lg">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-700">{ui.improvementsTitle}</summary>
+                    <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2">
+                      <Chevron className="text-ink-300 hint-chevron" />
+                      {ui.improvementsTitle}
+                    </summary>
                     <div className="px-4 pb-4 space-y-3">
                       {result.analysis.improvements.map((imp, i) => (
                         <div key={i} className="border border-ink-100 rounded-lg p-3 space-y-2">
@@ -351,16 +373,22 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 4 — Improved CV (open, dark header) */}
+          {/* Step 4 — Improved CV (open, accent solid header) */}
           <div className="flex gap-3 items-start">
             <div className="pt-3"><Badge n={4} /></div>
-            <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
-              <summary className="px-4 py-3 text-sm font-medium text-white bg-ink-900 cursor-pointer">{ui.improvedCvTitle}</summary>
+            <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
+              <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2">
+                <Chevron className="text-white/70" />
+                {ui.improvedCvTitle}
+              </summary>
               <div className="p-4 space-y-3">
                 {/* Changes applied */}
                 {result.improved_cv.changes.length > 0 && (
                   <details className="border border-ink-100 rounded-lg">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-600">{ui.changesTitle}</summary>
+                    <summary className="px-4 py-3 text-sm font-medium text-ink-600 flex items-center gap-2">
+                      <Chevron className="text-ink-300 hint-chevron" />
+                      {ui.changesTitle}
+                    </summary>
                     <ul className="px-4 pb-3 space-y-1">
                       {result.improved_cv.changes.map((c, i) => (
                         <li key={i} className="flex gap-2 text-sm text-ink-500"><span className="text-positive shrink-0">+</span>{c}</li>
@@ -371,7 +399,10 @@ export default function Home() {
 
                 {/* New text with accent border */}
                 <details open className="border border-accent/30 rounded-lg">
-                  <summary className="px-4 py-3 text-sm font-medium text-accent">{ui.newTextTitle}</summary>
+                  <summary className="px-4 py-3 text-sm font-medium text-accent flex items-center gap-2">
+                    <Chevron className="text-accent" />
+                    {ui.newTextTitle}
+                  </summary>
                   <div className="px-4 pb-4 space-y-3">
                     <ResumeText text={result.improved_cv.text} />
                     <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
