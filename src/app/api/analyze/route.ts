@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
         const response = await anthropic.messages.stream({
           model: process.env.CLAUDE_MODEL || "claude-opus-4-6",
-          max_tokens: 16_000,
+          max_tokens: 8_000,
           temperature: 0,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
           messages: [{ role: "user", content: userMsg }],
@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
           ) {
             full += event.delta.text;
             tokens++;
-            // Send progress every 20 tokens to avoid flooding
-            if (tokens % 20 === 0) {
+            // Send progress every 10 tokens for smoother bar
+            if (tokens % 10 === 0) {
               send("progress", JSON.stringify({ tokens }));
             }
           }
