@@ -16,6 +16,31 @@ function Badge({ n }: { n: number }) {
   );
 }
 
+function ResumeText({ text }: { text: string }) {
+  return (
+    <div className="text-sm leading-relaxed text-ink-700">
+      {text.split("\n").map((line, i) => {
+        const trimmed = line.trimStart();
+        const isBullet = trimmed.startsWith("•") || trimmed.startsWith("·") || trimmed.startsWith("‣") || trimmed.startsWith("- ");
+        if (isBullet) {
+          const bulletChar = trimmed.match(/^(•|·|‣|- )/)?.[0] ?? "•";
+          const content = trimmed.slice(bulletChar.length).trimStart();
+          return (
+            <p key={i} className="m-0 ml-4">
+              <span className="inline-block w-4 -ml-4 text-ink-400">{bulletChar.trim()}</span>
+              {content}
+            </p>
+          );
+        }
+        if (line.trim() === "") return <div key={i} className="h-3" />;
+        const isHeader = line === line.toUpperCase() && line.trim().length > 2 && /^[A-ZÁÉÍÓÚÑÜ\s&/\-:]+$/.test(line.trim());
+        if (isHeader) return <p key={i} className="m-0 font-medium text-ink-900 mt-5 mb-1">{line}</p>;
+        return <p key={i} className="m-0">{line}</p>;
+      })}
+    </div>
+  );
+}
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("es");
   const [cvText, setCvText] = useState("");
@@ -128,17 +153,6 @@ export default function Home() {
     track("reset_clicked");
   };
 
-  const renderResume = (text: string) =>
-    text.split("\n").map((line, i) => {
-      const trimmed = line.trim();
-      if (!trimmed) return <div key={i} className="h-3" />;
-      const isBullet = /^[\u2022\u00b7\u2023-]\s/.test(trimmed);
-      const isHeader = /^[A-Z\u00c1\u00c0\u00c2\u00c3\u00c7\u00c9\u00c8\u00ca\u00cb\u00cd\u00ce\u00cf\u00d3\u00d4\u00d5\u00da\u00d9\u00db\u00dc\u00dd\u0178\u0152\u00c6\u00d1\s&/]+$/.test(trimmed) && trimmed.length > 2;
-      if (isHeader) return <p key={i} className="font-medium text-ink-900 mt-4 mb-1 tracking-wide text-xs uppercase">{trimmed}</p>;
-      if (isBullet) return <p key={i} className="pl-5 -indent-3 text-sm text-ink-600 leading-relaxed">{trimmed}</p>;
-      return <p key={i} className="text-sm text-ink-600 leading-relaxed">{trimmed}</p>;
-    });
-
   // Estimate progress: typical analysis is ~800-1200 tokens
   const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
 
@@ -204,7 +218,7 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* \u2500\u2500 INPUT FORM \u2500\u2500 */}
+      {/* ── INPUT FORM ── */}
       {!result && !loading && !parsing && (
         <section className="space-y-4">
           <div className="flex gap-3 items-start">
@@ -244,12 +258,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* \u2500\u2500 RESULTS \u2500\u2500 */}
+      {/* ── RESULTS ── */}
       {result && (
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
-          {/* Step 1 \u2014 Original CV (collapsed) */}
+          {/* Step 1 — Original CV (collapsed) */}
           <div className="flex gap-3 items-center">
             <Badge n={1} />
             <details className="flex-1 border border-ink-100 rounded-lg">
@@ -258,7 +272,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 2 \u2014 Target role (collapsed) */}
+          {/* Step 2 — Target role (collapsed) */}
           <div className="flex gap-3 items-center">
             <Badge n={2} />
             <details className="flex-1 border border-ink-100 rounded-lg">
@@ -267,7 +281,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 3 \u2014 Analysis (open, dark header) */}
+          {/* Step 3 — Analysis (open, dark header) */}
           <div className="flex gap-3 items-start">
             <div className="pt-3"><Badge n={3} /></div>
             <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
@@ -337,7 +351,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 4 \u2014 Improved CV (open, dark header) */}
+          {/* Step 4 — Improved CV (open, dark header) */}
           <div className="flex gap-3 items-start">
             <div className="pt-3"><Badge n={4} /></div>
             <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
@@ -359,7 +373,7 @@ export default function Home() {
                 <details open className="border border-accent/30 rounded-lg">
                   <summary className="px-4 py-3 text-sm font-medium text-accent">{ui.newTextTitle}</summary>
                   <div className="px-4 pb-4 space-y-3">
-                    <div>{renderResume(result.improved_cv.text)}</div>
+                    <ResumeText text={result.improved_cv.text} />
                     <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
