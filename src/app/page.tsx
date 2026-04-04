@@ -25,6 +25,7 @@ export default function Home() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [streamTokens, setStreamTokens] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +50,7 @@ export default function Home() {
 
   const analyze = async () => {
     if (!ready) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true); setError(null); setResult(null); setStreamTokens(0);
     track("analysis_started", { has_role: targetRole.trim().length > 0 });
     try {
       const res = await fetch("/api/analyze", {
@@ -57,35 +58,62 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cvText, targetRole: targetRole || undefined }),
       });
+
+      // Non-streaming error responses (rate limit, CORS, validation)
       if (res.status === 429) { setError(ui.errorLimit); return; }
       if (res.status === 403) { setError(ui.errorGeneric); return; }
-      if (!res.ok) {
-        // Try to get specific error from server
-        try {
-          const errData = await res.json();
-          if (errData.error === "parse_error") {
-            setError(ui.errorRetry || ui.errorGeneric);
-          } else {
-            setError(ui.errorGeneric);
+      if (res.status === 400) { setError(ui.errorGeneric); return; }
+
+      // SSE streaming response
+      const reader = res.body?.getReader();
+      if (!reader) { setError(ui.errorGeneric); return; }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Parse SSE events from buffer
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        let currentEvent = "";
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            currentEvent = line.slice(7);
+          } else if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+
+              if (currentEvent === "progress") {
+                setStreamTokens(parsed.tokens || 0);
+              } else if (currentEvent === "result") {
+                const analysisResult = parsed as AnalysisResult;
+                setResult(analysisResult);
+                track("analysis_completed", { score: analysisResult.score.total, lang: analysisResult.detected_language });
+                const dl = analysisResult.detected_language as Lang;
+                if (LANGS.includes(dl)) setLang(dl);
+                setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+              } else if (currentEvent === "error") {
+                if (parsed.error === "parse_error") {
+                  setError(ui.errorRetry || ui.errorGeneric);
+                } else {
+                  setError(ui.errorGeneric);
+                }
+              }
+            } catch {
+              // ignore unparseable lines
+            }
+            currentEvent = "";
           }
-        } catch {
-          setError(ui.errorGeneric);
         }
-        return;
       }
-      let data: AnalysisResult;
-      try {
-        data = await res.json();
-      } catch {
-        setError(ui.errorRetry || ui.errorGeneric);
-        return;
-      }
-      setResult(data);
-      track("analysis_completed", { score: data.score.total, lang: data.detected_language });
-      const dl = data.detected_language as Lang;
-      if (LANGS.includes(dl)) setLang(dl);
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-    } catch { setError(ui.errorConnection); } finally { setLoading(false); }
+    } catch { setError(ui.errorConnection); } finally { setLoading(false); setStreamTokens(0); }
   };
 
   const copy = async () => {
@@ -104,12 +132,15 @@ export default function Home() {
     text.split("\n").map((line, i) => {
       const trimmed = line.trim();
       if (!trimmed) return <div key={i} className="h-3" />;
-      const isBullet = /^[•·‣-]\s/.test(trimmed);
-      const isHeader = /^[A-ZÁÀÂÃÇÉÈÊËÍÎÏÓÔÕÚÙÛÜÝŸŒÆÑ\s&/]+$/.test(trimmed) && trimmed.length > 2;
+      const isBullet = /^[\u2022\u00b7\u2023-]\s/.test(trimmed);
+      const isHeader = /^[A-Z\u00c1\u00c0\u00c2\u00c3\u00c7\u00c9\u00c8\u00ca\u00cb\u00cd\u00ce\u00cf\u00d3\u00d4\u00d5\u00da\u00d9\u00db\u00dc\u00dd\u0178\u0152\u00c6\u00d1\s&/]+$/.test(trimmed) && trimmed.length > 2;
       if (isHeader) return <p key={i} className="font-medium text-ink-900 mt-4 mb-1 tracking-wide text-xs uppercase">{trimmed}</p>;
       if (isBullet) return <p key={i} className="pl-5 -indent-3 text-sm text-ink-600 leading-relaxed">{trimmed}</p>;
       return <p key={i} className="text-sm text-ink-600 leading-relaxed">{trimmed}</p>;
     });
+
+  // Estimate progress: typical analysis is ~800-1200 tokens
+  const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-6">
@@ -145,23 +176,35 @@ export default function Home() {
 
       {/* Progress */}
       {(loading || parsing) && (
-        <div className="text-center py-6" aria-live="polite">
+        <div className="text-center py-6 space-y-3" aria-live="polite">
           {parsing ? (
             <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p>
           ) : (
-            <div className="relative h-5 analysis-msgs">
-              <span className="text-sm text-ink-400">{ui.analyzing1}</span>
-              <span className="text-sm text-ink-400">{ui.analyzing2}</span>
-              <span className="text-sm text-ink-400">{ui.analyzing3}</span>
-              <span className="text-sm text-ink-400">{ui.analyzing4}</span>
-            </div>
+            <>
+              <div className="relative h-5 analysis-msgs">
+                <span className="text-sm text-ink-400">{ui.analyzing1}</span>
+                <span className="text-sm text-ink-400">{ui.analyzing2}</span>
+                <span className="text-sm text-ink-400">{ui.analyzing3}</span>
+                <span className="text-sm text-ink-400">{ui.analyzing4}</span>
+              </div>
+              {streamTokens > 0 && (
+                <div className="max-w-xs mx-auto">
+                  <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-accent rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* ── INPUT FORM ── */}
+      {/* \u2500\u2500 INPUT FORM \u2500\u2500 */}
       {!result && !loading && !parsing && (
         <section className="space-y-4">
           <div className="flex gap-3 items-start">
@@ -201,12 +244,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* ── RESULTS ── */}
+      {/* \u2500\u2500 RESULTS \u2500\u2500 */}
       {result && (
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
-          {/* Step 1 — Original CV (collapsed) */}
+          {/* Step 1 \u2014 Original CV (collapsed) */}
           <div className="flex gap-3 items-center">
             <Badge n={1} />
             <details className="flex-1 border border-ink-100 rounded-lg">
@@ -215,7 +258,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 2 — Target role (collapsed) */}
+          {/* Step 2 \u2014 Target role (collapsed) */}
           <div className="flex gap-3 items-center">
             <Badge n={2} />
             <details className="flex-1 border border-ink-100 rounded-lg">
@@ -224,7 +267,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 3 — Analysis (open, dark header) */}
+          {/* Step 3 \u2014 Analysis (open, dark header) */}
           <div className="flex gap-3 items-start">
             <div className="pt-3"><Badge n={3} /></div>
             <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
@@ -294,7 +337,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Step 4 — Improved CV (open, dark header) */}
+          {/* Step 4 \u2014 Improved CV (open, dark header) */}
           <div className="flex gap-3 items-start">
             <div className="pt-3"><Badge n={4} /></div>
             <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
