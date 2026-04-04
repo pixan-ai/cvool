@@ -1,78 +1,78 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
 
 const T = {
   es: {
-    back: "\u2190 Inicio", title: "Seguridad", accent: "& privacidad",
-    sub: "Tu CV es tuyo. As\u00ed garantizamos que siga siendo as\u00ed.",
+    back: "← Inicio", title: "Seguridad", accent: "& privacidad",
+    sub: "Tu CV es tuyo. Así es como lo protegemos.",
     sections: [
-      { t: "Sin base de datos", b: "No hay una base de datos. Tu CV se procesa en tiempo real y se descarta inmediatamente. No hay nada que hackear." },
-      { t: "Sin cuentas ni registro", b: "No pedimos email, nombre, ni ning\u00fan dato personal. No hay login. No hay cookies de autenticaci\u00f3n." },
-      { t: "Cifrado en tr\u00e1nsito", b: "Toda comunicaci\u00f3n usa TLS/SSL. Tu CV viaja cifrado de tu navegador al servidor y de vuelta." },
-      { t: "Headers de seguridad", b: "HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy. Mozilla Observatory: A+." },
-      { t: "API key protegida", b: "La clave de API de Anthropic est\u00e1 solo en el servidor. Nunca se expone al navegador." },
-      { t: "Rate limiting", b: "7 peticiones por hora por IP. Protecci\u00f3n contra abuso sin afectar el uso normal." },
-      { t: "C\u00f3digo abierto", b: "Todo el c\u00f3digo es p\u00fablico y auditable en GitHub. El prompt de IA est\u00e1 en el repositorio." },
+      ["Sin base de datos", "No almacenamos CVs, resultados, ni datos personales. Tu CV existe solo en memoria durante el análisis y se descarta inmediatamente."],
+      ["Sin cuentas", "No hay registro, login, ni cookies de sesión. Nada que hackear porque no hay nada que almacenar."],
+      ["TLS/SSL", "Todas las comunicaciones están cifradas en tránsito con TLS 1.3."],
+      ["Headers de seguridad", "HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy."],
+      ["Sanitización de input", "Bytes nulos, caracteres de control, y contenido excesivo se eliminan antes de procesar."],
+      ["Rate limiting", "7 peticiones por hora por IP. Sin base de datos \u2014 en memoria."],
+      ["API key protegida", "La clave de Anthropic es server-side. Nunca se expone al cliente."],
+      ["Open source", "Todo el código es auditable en GitHub."],
     ],
     neverTitle: "Lo que NUNCA hacemos",
-    never: ["Almacenar tu CV o datos personales", "Vender o compartir informaci\u00f3n con terceros", "Usar cookies de tracking o fingerprinting", "Crear perfiles de usuario", "Entrenar modelos de IA con tu CV"],
-    contactTitle: "Reportar vulnerabilidad", contactBody: "Si descubres un problema de seguridad, escr\u00edbenos:",
+    never: ["Almacenar tu CV o datos personales", "Compartir datos con terceros para marketing", "Usar cookies de tracking o fingerprinting", "Crear perfiles de usuario", "Vender o monetizar tus datos"],
+    contactTitle: "Reportar vulnerabilidades", contactBody: "Si descubres una vulnerabilidad, repórtala responsablemente.",
     email: "security@cvool.org",
   },
   en: {
-    back: "\u2190 Home", title: "Security", accent: "& privacy",
-    sub: "Your resume is yours. Here\u2019s how we make sure it stays that way.",
+    back: "← Home", title: "Security", accent: "& privacy",
+    sub: "Your resume is yours. Here\u2019s how we protect it.",
     sections: [
-      { t: "No database", b: "There is no database. Your resume is processed in real time and discarded immediately. There\u2019s nothing to hack." },
-      { t: "No accounts or sign-up", b: "We don\u2019t ask for email, name, or any personal data. No login. No authentication cookies." },
-      { t: "Encryption in transit", b: "All communication uses TLS/SSL. Your resume travels encrypted from your browser to the server and back." },
-      { t: "Security headers", b: "HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy. Mozilla Observatory: A+." },
-      { t: "Protected API key", b: "The Anthropic API key is server-side only. It\u2019s never exposed to the browser." },
-      { t: "Rate limiting", b: "7 requests per hour per IP. Abuse protection without affecting normal use." },
-      { t: "Open source", b: "All code is public and auditable on GitHub. The AI prompt is in the repository." },
+      ["No database", "We don\u2019t store resumes, results, or personal data. Your CV exists only in memory during analysis and is discarded immediately."],
+      ["No accounts", "No sign-up, no login, no session cookies. Nothing to hack because there\u2019s nothing to store."],
+      ["TLS/SSL", "All communications encrypted in transit with TLS 1.3."],
+      ["Security headers", "HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy."],
+      ["Input sanitization", "Null bytes, control characters, and excessive content stripped before processing."],
+      ["Rate limiting", "7 requests per hour per IP. No database \u2014 in-memory."],
+      ["API key protected", "Anthropic key is server-side only. Never exposed to the client."],
+      ["Open source", "All code is auditable on GitHub."],
     ],
     neverTitle: "What we NEVER do",
-    never: ["Store your resume or personal data", "Sell or share information with third parties", "Use tracking cookies or fingerprinting", "Create user profiles", "Train AI models with your resume"],
-    contactTitle: "Report a vulnerability", contactBody: "If you find a security issue, write to us:",
+    never: ["Store your resume or personal data", "Share data with third parties for marketing", "Use tracking cookies or fingerprinting", "Create user profiles", "Sell or monetize your data"],
+    contactTitle: "Report vulnerabilities", contactBody: "If you discover a vulnerability, please report it responsibly.",
     email: "security@cvool.org",
   },
 } as const;
+type L = keyof typeof T;
 
 export default function SecurityPage() {
-  const [lang, setLang] = useState<"es"|"en">("es");
+  const lang: L = typeof window !== "undefined" && navigator.language.startsWith("en") ? "en" : "es";
   const t = T[lang];
   return (
-    <main className="max-w-2xl mx-auto px-5 py-8 space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="max-w-2xl mx-auto px-5 py-8 space-y-8">
+      <header className="flex items-center justify-between">
         <Link href="/" className="text-xs text-ink-400 hover:text-accent transition">{t.back}</Link>
-        <button onClick={() => setLang(lang === "es" ? "en" : "es")} className="text-xs font-medium text-ink-500 border border-ink-100 rounded-lg px-2 py-1 hover:border-accent cursor-pointer">{lang.toUpperCase()}</button>
-      </div>
-      <section className="text-center">
-        <h1 className="text-3xl font-light tracking-tight text-ink-900">{t.title} <span className="text-accent">{t.accent}</span></h1>
-        <p className="text-sm text-ink-500 mt-2 max-w-lg mx-auto leading-relaxed">{t.sub}</p>
+        <span className="font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>
+      </header>
+      <section className="text-center space-y-2">
+        <h1 className="text-2xl font-medium text-ink-900 tracking-tight">{t.title} <span className="text-accent">{t.accent}</span></h1>
+        <p className="text-sm text-ink-500">{t.sub}</p>
       </section>
-      <div className="space-y-3">
-        {t.sections.map((s, i) => (
-          <div key={i} className="border border-ink-100 rounded-lg p-5">
-            <h3 className="text-sm font-medium text-ink-900 mb-1">{s.t}</h3>
-            <p className="text-sm text-ink-500 leading-relaxed">{s.b}</p>
+      <div className="space-y-2">
+        {t.sections.map(([title, body], i) => (
+          <div key={i} className="border border-ink-100 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-ink-900 mb-0.5">{title}</h3>
+            <p className="text-sm text-ink-500 leading-relaxed">{body}</p>
           </div>
         ))}
       </div>
       <section>
-        <h2 className="text-lg font-medium text-ink-900 mb-4">{t.neverTitle}</h2>
-        <div className="border border-ink-100 rounded-lg p-5">
-          <ul className="space-y-3">
-            {t.never.map((item, i) => <li key={i} className="flex items-start gap-3 text-sm"><span className="text-red-500 shrink-0">\u2715</span><span className="text-ink-700">{item}</span></li>)}
-          </ul>
+        <h2 className="text-sm font-medium text-ink-900 mb-3">{t.neverTitle}</h2>
+        <div className="border border-ink-100 rounded-lg p-4">
+          <ul className="space-y-2">{t.never.map((item, i) => <li key={i} className="flex items-start gap-2 text-sm"><span className="text-red-500 shrink-0">✕</span><span className="text-ink-700">{item}</span></li>)}</ul>
         </div>
       </section>
-      <div className="bg-ink-050 rounded-lg p-6">
+      <div className="bg-ink-050 rounded-lg p-5">
         <h2 className="text-sm font-medium text-ink-900 mb-1">{t.contactTitle}</h2>
         <p className="text-sm text-ink-500 mb-2">{t.contactBody}</p>
         <a href={`mailto:${t.email}`} className="text-sm text-accent hover:text-accent-dim transition font-medium">{t.email}</a>
       </div>
-    </main>
+    </div>
   );
 }
