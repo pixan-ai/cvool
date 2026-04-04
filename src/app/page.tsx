@@ -58,8 +58,28 @@ export default function Home() {
         body: JSON.stringify({ cvText, targetRole: targetRole || undefined }),
       });
       if (res.status === 429) { setError(ui.errorLimit); return; }
-      if (!res.ok) { setError(ui.errorGeneric); return; }
-      const data: AnalysisResult = await res.json();
+      if (res.status === 403) { setError(ui.errorGeneric); return; }
+      if (!res.ok) {
+        // Try to get specific error from server
+        try {
+          const errData = await res.json();
+          if (errData.error === "parse_error") {
+            setError(ui.errorRetry || ui.errorGeneric);
+          } else {
+            setError(ui.errorGeneric);
+          }
+        } catch {
+          setError(ui.errorGeneric);
+        }
+        return;
+      }
+      let data: AnalysisResult;
+      try {
+        data = await res.json();
+      } catch {
+        setError(ui.errorRetry || ui.errorGeneric);
+        return;
+      }
       setResult(data);
       track("analysis_completed", { score: data.score.total, lang: data.detected_language });
       const dl = data.detected_language as Lang;

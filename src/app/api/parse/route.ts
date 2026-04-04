@@ -1,23 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { validateOrigin, corsHeaders } from "@/lib/cors";
 
 const anthropic = new Anthropic();
 
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders(req),
+  });
+}
+
 export async function POST(req: NextRequest) {
+  // CORS check
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   let formData: FormData;
   try {
     formData = await req.formData();
   } catch {
-    return NextResponse.json({ error: "invalid_form" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_form" }, { status: 400, headers: corsHeaders(req) });
   }
 
   const file = formData.get("file");
   if (!file || !(file instanceof File) || file.type !== "application/pdf") {
-    return NextResponse.json({ error: "invalid_file" }, { status: 400 });
+    return NextResponse.json({ error: "invalid_file" }, { status: 400, headers: corsHeaders(req) });
   }
 
   if (file.size > 5 * 1024 * 1024) {
-    return NextResponse.json({ error: "too_large" }, { status: 400 });
+    return NextResponse.json({ error: "too_large" }, { status: 400, headers: corsHeaders(req) });
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -45,9 +57,9 @@ export async function POST(req: NextRequest) {
     });
 
     const text = msg.content[0]?.type === "text" ? msg.content[0].text : "";
-    return NextResponse.json({ text });
+    return NextResponse.json({ text }, { headers: corsHeaders(req) });
   } catch (e: unknown) {
     console.error("PDF parse error:", e instanceof Error ? e.message : e);
-    return NextResponse.json({ error: "parse_failed" }, { status: 500 });
+    return NextResponse.json({ error: "parse_failed" }, { status: 500, headers: corsHeaders(req) });
   }
 }
