@@ -13,8 +13,8 @@ const Cv = () => <><span className="text-ink-900">cv</span><span className="text
 
 const FaviconIcon = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2" width="60" height="60" rx="12" fill="#262626" />
-    <circle cx="22" cy="32" r="10" fill="#ffffff" />
+    <rect x="2" y="2" width="60" height="60" rx="12" fill="#ffffff" />
+    <circle cx="22" cy="32" r="10" fill="#99bbee" />
     <circle cx="42" cy="32" r="10" fill="#4466cc" />
   </svg>
 );
