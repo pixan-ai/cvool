@@ -1,0 +1,43 @@
+# cvool
+
+> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Opus 4.6 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking. Available in Spanish, English, French, Portuguese, and Italian.
+
+cvool is built by Alfredo Arenas (Pixan.ai) from Mexico City. The project fills a gap: there was no good free resume analyzer in Spanish or Portuguese. cvool works in any language and is MIT licensed.
+
+Each analysis costs ~$0.05 USD in AI tokens. The service is funded by voluntary donations. The code is fully auditable on GitHub.
+
+## Key pages
+
+- [Home](https://cvool.org): Upload or paste your resume, get a score (0-100), 6-dimension analysis, and an improved CV
+- [How it works](https://cvool.org/how): Technical pipeline (6 steps), tech stack, design principles, fork instructions
+- [About](https://cvool.org/about): Founder story, mission, values
+- [Security](https://cvool.org/security): Security practices — no database, no accounts, TLS, rate limiting, open source
+- [Privacy](https://cvool.org/privacy): Privacy notice — LFPDPPP, GDPR, LGPD, CCPA, PIPEDA compliance by design
+- [Terms](https://cvool.org/terms): Terms of use
+- [Donate](https://cvool.org/donate): Support cvool — token costs, infrastructure, development
+
+## Technical details
+
+- Stack: Next.js 16, React 19, Tailwind CSS 4, Claude Opus 4.6 (Anthropic SDK), Vercel
+- Fonts: Geist + Geist Mono
+- Database: None — zero data stored
+- Auth: None — no accounts, no cookies
+- Rate limit: 7 requests/hour per IP (in-memory)
+- License: MIT
+- Source: https://github.com/pixan-ai/cvool
+
+## Scoring dimensions
+
+1. Content quality — achievements, metrics, impact
+2. Structure — sections, hierarchy, readability
+3. Language — grammar, tone, conciseness
+4. ATS compatibility — keywords, formatting, parsability
+5. Visual presentation — layout, whitespace, consistency
+6. Strategic positioning — targeting, differentiation, career narrative
+
+## Ethics
+
+- No discrimination for career gaps, non-linear paths, or non-traditional education
+- Anti-hallucination: every suggestion references real CV content
+- Temperature 0 for deterministic output
+- Constitutional prompt with explicit ethical principles (auditable in repo)
