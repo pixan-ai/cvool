@@ -57,7 +57,7 @@ export default function AboutPage() {
         {t.blocks.map((b, i) => <RichText key={i} text={b} />)}
       </div>
       <div className="flex items-center gap-3">
-        <Image src="/alfredo.jpg" alt="Alfredo Arenas" width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
+        <Image src="/founder.jpg" alt="Founder" width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
         <div>
           <p className="text-sm text-ink-700 font-medium">— {t.sig}</p>
           <p className="text-xs text-ink-400">{t.loc}</p>
