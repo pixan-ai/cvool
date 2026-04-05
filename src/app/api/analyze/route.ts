@@ -5,6 +5,8 @@ import { join } from "path";
 import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 import { validateOrigin, corsHeaders } from "@/lib/cors";
 
+export const maxDuration = 60;
+
 const PROMPT = readFileSync(join(process.cwd(), "src/lib/prompts/analyze.txt"), "utf-8");
 const anthropic = new Anthropic();
 
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
         let tokens = 0;
 
         const response = await anthropic.messages.stream({
-          model: process.env.CLAUDE_MODEL || "claude-opus-4-6",
+          model: process.env.CLAUDE_MODEL || "claude-sonnet-4-6-20260220",
           max_tokens: 8_000,
           temperature: 0,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
