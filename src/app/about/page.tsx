@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 
 const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
@@ -56,7 +57,7 @@ export default function AboutPage() {
         {t.blocks.map((b, i) => <RichText key={i} text={b} />)}
       </div>
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-ink-100 flex items-center justify-center text-xs font-medium text-ink-500">AA</div>
+        <Image src="/alfredo.jpg" alt="Alfredo Arenas" width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
         <div>
           <p className="text-sm text-ink-700 font-medium">— {t.sig}</p>
           <p className="text-xs text-ink-400">{t.loc}</p>
