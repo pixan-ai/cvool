@@ -41,6 +41,14 @@ function ResumeText({ text }: { text: string }) {
   );
 }
 
+const DONATION_COPY = {
+  es: { line1: "cvool siempre ser\u00e1 gratis.", line2: "Cuando encuentres ese trabajo que te cambia la vida, regresa a ayudar.", cta: "Apoyar cvool \u2192" },
+  en: { line1: "cvool will always be free.", line2: "When you land that life-changing job, come back and help keep it going.", cta: "Support cvool \u2192" },
+  fr: { line1: "cvool sera toujours gratuit.", line2: "Quand vous d\u00e9crochez le poste qui change votre vie, revenez nous aider.", cta: "Soutenir cvool \u2192" },
+  pt: { line1: "cvool ser\u00e1 sempre gratuito.", line2: "Quando voc\u00ea conseguir aquele emprego que muda sua vida, volte para ajudar.", cta: "Apoiar cvool \u2192" },
+  it: { line1: "cvool sar\u00e0 sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere cvool \u2192" },
+} as const;
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("es");
   const [cvText, setCvText] = useState("");
@@ -126,6 +134,7 @@ export default function Home() {
 
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
   const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
+  const donCopy = DONATION_COPY[lang] || DONATION_COPY.es;
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-6">
@@ -332,12 +341,14 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Donation */}
-          <div className="text-center border border-ink-100 rounded-lg p-6">
-            <p className="text-sm text-ink-500 mb-3">{ui.donationText}</p>
-            <a href="https://buymeacoffee.com/alfredoarenas" target="_blank" rel="noopener noreferrer" onClick={() => track("donation_clicked")}
-              className="inline-block bg-accent text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-accent-dim transition">{ui.donationBtn}</a>
-          </div>
+          {/* Donation — subtle, only visible after copy, emotional seed */}
+          {copied && (
+            <div className="text-center py-4 donation-fade-in">
+              <p className="text-xs text-ink-400 mb-1">{donCopy.line1}</p>
+              <p className="text-xs text-ink-300 mb-2">{donCopy.line2}</p>
+              <Link href="/donate" onClick={() => track("donation_clicked")} className="text-xs text-accent hover:text-accent-dim transition font-medium">{donCopy.cta}</Link>
+            </div>
+          )}
 
           {/* Reset */}
           <div className="text-center">
@@ -349,11 +360,11 @@ export default function Home() {
       {/* Footer */}
       <footer className="pt-12 pb-6 space-y-4">
         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1.5 text-xs text-ink-400">
-          <Link href="/how" className="hover:text-ink-700 transition">{lang === "es" ? "Cómo funciona" : "How it works"}</Link>
-          <Link href="/about" className="hover:text-ink-700 transition">{lang === "es" ? "Sobre mí" : "About"}</Link>
+          <Link href="/how" className="hover:text-ink-700 transition">{lang === "es" ? "C\u00f3mo funciona" : "How it works"}</Link>
+          <Link href="/about" className="hover:text-ink-700 transition">{lang === "es" ? "Sobre m\u00ed" : "About"}</Link>
           <Link href="/security" className="hover:text-ink-700 transition">{lang === "es" ? "Seguridad" : "Security"}</Link>
           <Link href="/privacy" className="hover:text-ink-700 transition">{lang === "es" ? "Privacidad" : "Privacy"}</Link>
-          <Link href="/terms" className="hover:text-ink-700 transition">{lang === "es" ? "Términos" : "Terms"}</Link>
+          <Link href="/terms" className="hover:text-ink-700 transition">{lang === "es" ? "T\u00e9rminos" : "Terms"}</Link>
         </div>
         <div className="flex items-center justify-center gap-4 text-xs text-ink-400">
           <span className="font-medium"><span className="text-ink-700">cv</span><span className="text-accent">ool</span></span>
