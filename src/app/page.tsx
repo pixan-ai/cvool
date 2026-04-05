@@ -9,7 +9,7 @@ import type { AnalysisResult } from "@/types/analysis";
 
 const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 
-const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
+const Cv = () => <span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>;
 
 const FaviconIcon = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
@@ -163,10 +163,7 @@ export default function Home() {
       {/* Header */}
       <header className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight">
-            <FaviconIcon />
-            <Cv />
-          </span>
+          <span className="inline-flex items-center font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><FaviconIcon /><span className="ml-1.5"><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span></span>
           <div className="flex items-center gap-3">
             <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
