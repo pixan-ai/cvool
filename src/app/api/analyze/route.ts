@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         let tokens = 0;
 
         const response = await anthropic.messages.stream({
-          model: process.env.CLAUDE_MODEL || "claude-sonnet-4-6-20260220",
+          model: process.env.CLAUDE_MODEL || "claude-sonnet-4-6",
           max_tokens: 8_000,
           temperature: 0,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
