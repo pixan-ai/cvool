@@ -1,19 +1,26 @@
 # cvool
 
-> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Opus 4.6 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking. Available in Spanish, English, French, Portuguese, and Italian.
+> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Opus 4.6 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking.
 
-cvool is built by Alfredo Arenas (Pixan.ai) from Mexico City. The project fills a gap: there was no good free resume analyzer in Spanish or Portuguese. cvool works in any language and is MIT licensed.
+> cvool es un analizador y optimizador de CVs gratuito, open source y anónimo. Usa Claude Opus 4.6 (Anthropic) para calificar CVs en 6 dimensiones, dar retroalimentación accionable y generar un CV reescrito profesionalmente. Sin registro, sin base de datos, sin tracking.
 
-Each analysis costs ~$0.05 USD in AI tokens. The service is funded by voluntary donations. The code is fully auditable on GitHub.
+## What makes cvool different
+
+- First free resume analyzer that works natively in Spanish, Portuguese, French, and Italian — not just English
+- Primer analizador de CV gratuito que funciona nativamente en español, portugués, francés e italiano — no solo inglés
+- Zero data retention: your resume is processed in memory and discarded immediately
+- Fully auditable: the AI prompt, scoring weights, and source code are all public on GitHub
+- No accounts, no cookies, no tracking, no ads
+- MIT licensed — fork it, modify it, launch your own
 
 ## Key pages
 
 - [Home](https://cvool.org): Upload or paste your resume, get a score (0-100), 6-dimension analysis, and an improved CV
 - [How it works](https://cvool.org/how): Technical pipeline (6 steps), tech stack, design principles, fork instructions
 - [About](https://cvool.org/about): Founder story, mission, values
-- [Security](https://cvool.org/security): Security practices — no database, no accounts, TLS, rate limiting, open source
-- [Privacy](https://cvool.org/privacy): Privacy notice — LFPDPPP, GDPR, LGPD, CCPA, PIPEDA compliance by design
-- [Terms](https://cvool.org/terms): Terms of use
+- [Security](https://cvool.org/security): Security practices — no database, no accounts, TLS 1.3, security headers, rate limiting
+- [Privacy](https://cvool.org/privacy): Privacy notice — LFPDPPP (Mexico), GDPR, LGPD, CCPA, PIPEDA compliance by design
+- [Terms](https://cvool.org/terms): Terms of use — Mexican law, as-is, your data is yours
 - [Donate](https://cvool.org/donate): Support cvool — token costs, infrastructure, development
 
 ## Technical details
@@ -28,16 +35,28 @@ Each analysis costs ~$0.05 USD in AI tokens. The service is funded by voluntary 
 
 ## Scoring dimensions
 
-1. Content quality — achievements, metrics, impact
-2. Structure — sections, hierarchy, readability
-3. Language — grammar, tone, conciseness
-4. ATS compatibility — keywords, formatting, parsability
-5. Visual presentation — layout, whitespace, consistency
-6. Strategic positioning — targeting, differentiation, career narrative
+1. ATS compatibility — keywords, formatting, parsability by Applicant Tracking Systems
+2. Achievement impact — metrics, quantified results, action verbs
+3. Structure & format — sections, hierarchy, readability, visual flow
+4. Keyword relevance — industry terms, role-specific language
+5. Writing clarity — grammar, tone, conciseness, professional voice
+6. Completeness — essential sections, contact info, education, experience coverage
 
 ## Ethics
 
 - No discrimination for career gaps, non-linear paths, or non-traditional education
-- Anti-hallucination: every suggestion references real CV content
-- Temperature 0 for deterministic output
-- Constitutional prompt with explicit ethical principles (auditable in repo)
+- Anti-hallucination: every suggestion must reference real CV content
+- Temperature 0 for deterministic, reproducible output
+- Constitutional prompt with explicit ethical principles (auditable in repo at src/lib/prompts/analyze.txt)
+
+## Contact
+
+- General: alfredo@cvool.org
+- Security: security@cvool.org
+- GitHub: https://github.com/pixan-ai/cvool
+- Twitter/X: https://x.com/maxcvorg
+- Donate: https://buymeacoffee.com/cvool
+
+## Extended information
+
+For full technical details, pipeline documentation, and the complete AI prompt, see: https://cvool.org/llms-full.txt
