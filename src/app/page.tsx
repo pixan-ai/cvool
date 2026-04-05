@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { t, dimName } from "@/lib/i18n";
@@ -8,6 +8,20 @@ import type { Lang } from "@/lib/i18n";
 import type { AnalysisResult } from "@/types/analysis";
 
 const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
+
+const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
+
+function CvoolText({ text, className }: { text: string; className?: string }) {
+  const parts = text.split("cvool");
+  if (parts.length === 1) return <span className={className}>{text}</span>;
+  return (
+    <span className={className}>
+      {parts.map((part, i) => (
+        <span key={i}>{part}{i < parts.length - 1 && <Cv />}</span>
+      ))}
+    </span>
+  );
+}
 
 function Badge({ n }: { n: number }) {
   return <span className="shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs font-medium flex items-center justify-center">{n}</span>;
@@ -344,9 +358,9 @@ export default function Home() {
           {/* Donation — subtle, only visible after copy, emotional seed */}
           {copied && (
             <div className="text-center py-4 donation-fade-in">
-              <p className="text-xs text-ink-400 mb-1">{donCopy.line1}</p>
+              <p className="text-xs text-ink-400 mb-1"><CvoolText text={donCopy.line1} /></p>
               <p className="text-xs text-ink-300 mb-2">{donCopy.line2}</p>
-              <Link href="/donate" onClick={() => track("donation_clicked")} className="text-xs text-accent hover:text-accent-dim transition font-medium">{donCopy.cta}</Link>
+              <Link href="/donate" onClick={() => track("donation_clicked")} className="text-xs text-accent hover:text-accent-dim transition font-medium"><CvoolText text={donCopy.cta} /></Link>
             </div>
           )}
 
