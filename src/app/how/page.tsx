@@ -1,40 +1,40 @@
 "use client";
-import Link from "next/link";
+import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 
 const T = {
   es: {
-    back: "← Inicio", title: "Cómo", accent: "funciona",
-    sub: "cvool es open source (MIT). Aquí puedes ver exactamente qué pasa cuando subes tu CV.",
+    title: "C\u00f3mo", accent: "funciona",
+    sub: "cvool es open source (MIT). Aqu\u00ed puedes ver exactamente qu\u00e9 pasa cuando subes tu CV.",
     pipeline: "El pipeline, paso a paso",
     steps: [
-      { n: "01", t: "Subes tu CV", b: "Pegas texto o adjuntas un PDF en tu navegador. Si es PDF, se envía al backend donde Claude lo lee nativamente. Tu archivo nunca se guarda en disco." },
-      { n: "02", t: "Sanitización de input", b: "El texto pasa por sanitizeInput() que elimina bytes nulos y caracteres de control. Se trunca a 35,000 caracteres máximo. Rate limiting: 7 peticiones/hora por IP." },
-      { n: "03", t: "Prompt constitucional", b: "Tu CV se envía a Claude con un system prompt que incluye principios éticos explícitos: no discriminar, no inventar, no inflar scores. El prompt completo está en src/lib/prompts/analyze.txt \u2014 es auditable." },
-      { n: "04", t: "Claude analiza y reescribe", b: "Un solo API call con temperature: 0 (determinístico). Claude devuelve JSON streamed via SSE con: score (0-100), análisis en 6 dimensiones, fortalezas, mejoras, y un CV completamente reescrito." },
-      { n: "05", t: "Validación y render", b: "El backend parsea el JSON, valida que tenga score + analysis + improved_cv, y lo devuelve al frontend. Si Claude no responde JSON válido, se muestra un error honesto." },
+      { n: "01", t: "Subes tu CV", b: "Pegas texto o adjuntas un PDF en tu navegador. Si es PDF, se env\u00eda al backend donde Claude lo lee nativamente. Tu archivo nunca se guarda en disco." },
+      { n: "02", t: "Sanitizaci\u00f3n de input", b: "El texto pasa por sanitizeInput() que elimina bytes nulos y caracteres de control. Se trunca a 35,000 caracteres m\u00e1ximo. Rate limiting: 7 peticiones/hora por IP." },
+      { n: "03", t: "Prompt constitucional", b: "Tu CV se env\u00eda a Claude con un system prompt que incluye principios \u00e9ticos expl\u00edcitos: no discriminar, no inventar, no inflar scores. El prompt completo est\u00e1 en src/lib/prompts/analyze.txt \u2014 es auditable." },
+      { n: "04", t: "Claude analiza y reescribe", b: "Un solo API call con temperature: 0 (determin\u00edstico). Claude devuelve JSON streamed via SSE con: score (0-100), an\u00e1lisis en 6 dimensiones, fortalezas, mejoras, y un CV completamente reescrito." },
+      { n: "05", t: "Validaci\u00f3n y render", b: "El backend parsea el JSON, valida que tenga score + analysis + improved_cv, y lo devuelve al frontend. Si Claude no responde JSON v\u00e1lido, se muestra un error honesto." },
       { n: "06", t: "Resultado en tu navegador", b: "Ves tu score, las 6 dimensiones, sugerencias con before/after, y tu CV mejorado listo para copiar. Todo en tu navegador. Nada se almacena." },
     ],
-    stack: "Stack técnico",
+    stack: "Stack t\u00e9cnico",
     stackItems: [
-      ["Frontend", "Next.js 16 + React 19 + Tailwind CSS 4"], ["Tipografía", "Geist + Geist Mono"],
+      ["Frontend", "Next.js 16 + React 19 + Tailwind CSS 4"], ["Tipograf\u00eda", "Geist + Geist Mono"],
       ["IA", "Claude Opus 4.6 (Anthropic SDK)"], ["Deploy", "Vercel (auto-deploy on push)"],
-      ["Analytics", "Vercel Analytics (anónimo)"], ["Base de datos", "Ninguna. Cero. Nada."],
-      ["Dependencias", "6 de producción, 0 librerías UI"], ["Licencia", "MIT"],
+      ["Analytics", "Vercel Analytics (an\u00f3nimo)"], ["Base de datos", "Ninguna. Cero. Nada."],
+      ["Dependencias", "6 de producci\u00f3n, 0 librer\u00edas UI"], ["Licencia", "MIT"],
     ],
-    principles: "Principios de diseño",
+    principles: "Principios de dise\u00f1o",
     princ: [
-      ["Transparencia radical", "El código fuente está público. El prompt de IA está en el repo. Los pesos del scoring están documentados."],
-      ["Anti-alucinación", "Cada sugerencia debe referenciar contenido real del CV. Si algo no está en tu CV, no se menciona."],
-      ["Cero discriminación", "No penalizamos career gaps, caminos no lineales ni educación no tradicional."],
-      ["Privacidad por diseño", "Sin base de datos, sin cuentas, sin cookies de tracking. Tu CV se descarta inmediatamente."],
+      ["Transparencia radical", "El c\u00f3digo fuente est\u00e1 p\u00fablico. El prompt de IA est\u00e1 en el repo. Los pesos del scoring est\u00e1n documentados."],
+      ["Anti-alucinaci\u00f3n", "Cada sugerencia debe referenciar contenido real del CV. Si algo no est\u00e1 en tu CV, no se menciona."],
+      ["Cero discriminaci\u00f3n", "No penalizamos career gaps, caminos no lineales ni educaci\u00f3n no tradicional."],
+      ["Privacidad por dise\u00f1o", "Sin base de datos, sin cuentas, sin cookies de tracking. Tu CV se descarta inmediatamente."],
     ],
     fork: "Fork, clona, contribuye",
-    forkBody: "cvool es MIT. Puedes clonarlo, modificarlo, y lanzar tu propia versión. Solo necesitas una API key de Anthropic.",
+    forkBody: "cvool es MIT. Puedes clonarlo, modificarlo, y lanzar tu propia versi\u00f3n. Solo necesitas una API key de Anthropic.",
     forkCode: "git clone https://github.com/pixan-ai/cvool.git\ncd cvool\nnpm install\necho \"ANTHROPIC_API_KEY=tu-key\" > .env.local\nnpm run dev",
     forkLink: "Ver repositorio en GitHub \u2192",
   },
   en: {
-    back: "← Home", title: "How it", accent: "works",
+    title: "How it", accent: "works",
     sub: "cvool is open source (MIT). Here\u2019s exactly what happens when you upload your resume.",
     pipeline: "The pipeline, step by step",
     steps: [
@@ -65,19 +65,13 @@ const T = {
     forkLink: "View repository on GitHub \u2192",
   },
 } as const;
-type L = keyof typeof T;
 
 export default function HowPage() {
-  const lang: L = typeof window !== "undefined" && navigator.language.startsWith("en") ? "en" : "es";
+  const [lang, setLang] = useSubLang();
   const t = T[lang];
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-8">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="text-xs text-ink-400 hover:text-accent transition">{t.back}</Link>
-        <span className="font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight">
-          <span className="text-ink-900">cv</span><span className="text-accent">ool</span>
-        </span>
-      </header>
+      <SubHeader lang={lang} setLang={setLang} />
       <section className="text-center space-y-2">
         <h1 className="text-2xl font-medium text-ink-900 tracking-tight">{t.title} <span className="text-accent">{t.accent}</span></h1>
         <p className="text-sm text-ink-500 max-w-lg mx-auto">{t.sub}</p>
@@ -125,7 +119,7 @@ export default function HowPage() {
         </div>
         <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:text-accent-dim transition font-medium">{t.forkLink}</a>
       </section>
-      <p className="text-[11px] text-ink-300">Last updated: April 2026</p>
+      <SubFooter lang={lang} />
     </div>
   );
 }
