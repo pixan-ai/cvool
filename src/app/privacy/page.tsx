@@ -1,11 +1,11 @@
 "use client";
-import Link from "next/link";
+import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 
 const T = {
   es: {
-    back: "← Inicio", title: "Aviso de", accent: "privacidad",
+    title: "Aviso de", accent: "privacidad",
     sub: "Cómo tratamos tus datos (spoiler: no los guardamos).",
-    responsable: ["Responsable", "cvool.org es operado por Alfredo Arenas (Pixan.ai) desde Ciudad de México, México. Contacto: privacy@cvool.org"],
+    responsable: ["Responsable", "cvool.org es operado por Alfredo Arenas (Pixan.ai) desde Ciudad de México, México. Contacto: security@cvool.org"],
     dataTitle: "Datos que recopilamos",
     data: [
       ["Tu CV (temporal)", "Se procesa en memoria durante el análisis y se descarta inmediatamente. Nunca se almacena en disco ni base de datos."],
@@ -29,12 +29,12 @@ const T = {
     ],
     intlNote: "El mismo principio aplica en todas las jurisdicciones: no almacenamos tus datos.",
     contactTitle: "Contacto", contactBody: "Para cualquier consulta sobre privacidad:",
-    email: "privacy@cvool.org",
+    email: "security@cvool.org",
   },
   en: {
-    back: "← Home", title: "Privacy", accent: "notice",
+    title: "Privacy", accent: "notice",
     sub: "How we handle your data (spoiler: we don\u2019t store it).",
-    responsable: ["Data controller", "cvool.org is operated by Alfredo Arenas (Pixan.ai) from Mexico City, Mexico. Contact: privacy@cvool.org"],
+    responsable: ["Data controller", "cvool.org is operated by Alfredo Arenas (Pixan.ai) from Mexico City, Mexico. Contact: security@cvool.org"],
     dataTitle: "Data we collect",
     data: [
       ["Your resume (temporary)", "Processed in memory during analysis and discarded immediately. Never stored on disk or database."],
@@ -58,20 +58,16 @@ const T = {
     ],
     intlNote: "The same principle applies across all jurisdictions: we don\u2019t store your data.",
     contactTitle: "Contact", contactBody: "For any privacy inquiries:",
-    email: "privacy@cvool.org",
+    email: "security@cvool.org",
   },
 } as const;
-type L = keyof typeof T;
 
 export default function PrivacyPage() {
-  const lang: L = typeof window !== "undefined" && navigator.language.startsWith("en") ? "en" : "es";
+  const [lang, setLang] = useSubLang();
   const t = T[lang];
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-8">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="text-xs text-ink-400 hover:text-accent transition">{t.back}</Link>
-        <span className="font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>
-      </header>
+      <SubHeader lang={lang} setLang={setLang} />
       <section className="text-center space-y-2">
         <h1 className="text-2xl font-medium text-ink-900 tracking-tight">{t.title} <span className="text-accent">{t.accent}</span></h1>
         <p className="text-sm text-ink-500">{t.sub}</p>
@@ -115,6 +111,7 @@ export default function PrivacyPage() {
         <a href={`mailto:${t.email}`} className="text-sm text-accent hover:text-accent-dim transition font-medium">{t.email}</a>
       </div>
       <p className="text-[11px] text-ink-300">Last updated: April 2026</p>
+      <SubFooter lang={lang} />
     </div>
   );
 }

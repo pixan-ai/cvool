@@ -1,9 +1,9 @@
 "use client";
-import Link from "next/link";
+import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 
 const T = {
   es: {
-    back: "← Inicio", title: "Seguridad", accent: "& privacidad",
+    title: "Seguridad", accent: "& privacidad",
     sub: "Tu CV es tuyo. Así es como lo protegemos.",
     sections: [
       ["Sin base de datos", "No almacenamos CVs, resultados, ni datos personales. Tu CV existe solo en memoria durante el análisis y se descarta inmediatamente."],
@@ -21,7 +21,7 @@ const T = {
     email: "security@cvool.org",
   },
   en: {
-    back: "← Home", title: "Security", accent: "& privacy",
+    title: "Security", accent: "& privacy",
     sub: "Your resume is yours. Here\u2019s how we protect it.",
     sections: [
       ["No database", "We don\u2019t store resumes, results, or personal data. Your CV exists only in memory during analysis and is discarded immediately."],
@@ -39,17 +39,13 @@ const T = {
     email: "security@cvool.org",
   },
 } as const;
-type L = keyof typeof T;
 
 export default function SecurityPage() {
-  const lang: L = typeof window !== "undefined" && navigator.language.startsWith("en") ? "en" : "es";
+  const [lang, setLang] = useSubLang();
   const t = T[lang];
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-8">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="text-xs text-ink-400 hover:text-accent transition">{t.back}</Link>
-        <span className="font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>
-      </header>
+      <SubHeader lang={lang} setLang={setLang} />
       <section className="text-center space-y-2">
         <h1 className="text-2xl font-medium text-ink-900 tracking-tight">{t.title} <span className="text-accent">{t.accent}</span></h1>
         <p className="text-sm text-ink-500">{t.sub}</p>
@@ -73,6 +69,7 @@ export default function SecurityPage() {
         <p className="text-sm text-ink-500 mb-2">{t.contactBody}</p>
         <a href={`mailto:${t.email}`} className="text-sm text-accent hover:text-accent-dim transition font-medium">{t.email}</a>
       </div>
+      <SubFooter lang={lang} />
     </div>
   );
 }

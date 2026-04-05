@@ -1,52 +1,69 @@
 "use client";
-import Link from "next/link";
+import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
+
+const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
 
 const T = {
   es: {
-    back: "← Inicio", strike: "¿Quiénes somos?", title: "¿Quién", accent: "soy?",
+    strike: "¿Quiénes somos?", title: "¿Quién", accent: "soy?",
     blocks: [
-      "Este es un proyecto de una persona con muchas horas de vuelo en tecnología y muchos años analizando cientos de CVs y entrevistando candidatos de múltiples perfiles e industrias. Construí cvool con una convicción simple: el acceso a un trabajo digno es un derecho humano reconocido globalmente, y las mejores herramientas deberían estar al alcance de todos.",
+      "Este es un proyecto de una persona con muchas horas de vuelo en tecnología y muchos años analizando cientos de CVs y entrevistando candidatos de múltiples perfiles e industrias. Construí {cvool} con una convicción simple: el acceso a un trabajo digno es un derecho humano reconocido globalmente, y las mejores herramientas deberían estar al alcance de todos.",
       "Alguien necesitaba un buen analizador de CV en español. No existía. Así que lo construimos. Y ¿por qué no?, también para cualquier idioma. Y después, buscamos optimizar ese CV a su máxima expresión con IA generativa de frontera. Buscamos ayudar a cualquier persona a encontrar ese trabajo que te cambia la vida.",
       "Esto no es un startup buscando la siguiente ronda de inversión. Es un café en la mano, una ThinkPad X1 hermosa, una API key de Anthropic, y la terquedad suficiente para hacer que funcione. El código es open source / MIT. La optimización es sin costo y anónima. Los datos se evaporan de inmediato.",
-      "Si te sirve para conseguir ese trabajo que estás buscando, ya valió toda la desvelada. Y si logras obtener ese trabajo que te cambió la vida, se vale regresar y donar para tokens, stack y crecimiento. cvool siempre será gratis, anónimo, honesto y transparente.",
+      "Si te sirve para conseguir ese trabajo que estás buscando, ya valió toda la desvelada. Y si logras obtener ese trabajo que te cambió la vida, se vale regresar y donar para tokens, stack y crecimiento. {cvool} siempre será gratis, anónimo, honesto y transparente.",
     ],
     sig: "Alfredo Arenas", loc: "Ciudad de México",
+    contact: "alfredo@cvool.org",
   },
   en: {
-    back: "← Home", strike: "About us", title: "About", accent: "me",
+    strike: "About us", title: "About", accent: "me",
     blocks: [
-      "This is a one-person project with many flight hours in technology and many years reviewing hundreds of resumes and interviewing candidates across multiple roles and industries. I built cvool with a simple conviction: access to dignified work is a globally recognized human right, and the best tools should be available to everyone.",
+      "This is a one-person project with many flight hours in technology and many years reviewing hundreds of resumes and interviewing candidates across multiple roles and industries. I built {cvool} with a simple conviction: access to dignified work is a globally recognized human right, and the best tools should be available to everyone.",
       "Someone needed a good resume analyzer in Spanish. It didn\u2019t exist. So we built it. And why not make it work in any language too? We set out to optimize any resume to its fullest potential with frontier generative AI. We\u2019re here to help anyone find the job that changes their life.",
       "This isn\u2019t a startup chasing the next funding round. It\u2019s a cup of coffee, a beautiful ThinkPad X1, an Anthropic API key, and enough stubbornness to make it work. The code is open source / MIT. The optimization is free and anonymous. Your data evaporates immediately.",
-      "If this helps you land the job you\u2019re looking for, every late night was worth it. And if you do land that life-changing job, feel free to come back and donate for tokens, stack, and growth. cvool will always be free, anonymous, honest, and transparent.",
+      "If this helps you land the job you\u2019re looking for, every late night was worth it. And if you do land that life-changing job, feel free to come back and donate for tokens, stack, and growth. {cvool} will always be free, anonymous, honest, and transparent.",
     ],
     sig: "Alfredo Arenas", loc: "Mexico City",
+    contact: "alfredo@cvool.org",
   },
 } as const;
-type L = keyof typeof T;
+
+function RichText({ text }: { text: string }) {
+  const parts = text.split("{cvool}");
+  return (
+    <p className="text-sm text-ink-700 leading-relaxed">
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 && <Cv />}
+        </span>
+      ))}
+    </p>
+  );
+}
 
 export default function AboutPage() {
-  const lang: L = typeof window !== "undefined" && navigator.language.startsWith("en") ? "en" : "es";
+  const [lang, setLang] = useSubLang();
   const t = T[lang];
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-8">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="text-xs text-ink-400 hover:text-accent transition">{t.back}</Link>
-        <span className="font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight">
-          <span className="text-ink-900">cv</span><span className="text-accent">ool</span>
-        </span>
-      </header>
+      <SubHeader lang={lang} setLang={setLang} />
       <section className="text-center space-y-1">
         <p className="text-xs text-ink-300 line-through">{t.strike}</p>
         <h1 className="text-2xl font-medium text-ink-900 tracking-tight">{t.title} <span className="text-accent">{t.accent}</span></h1>
       </section>
       <div className="space-y-5">
-        {t.blocks.map((b, i) => <p key={i} className="text-sm text-ink-700 leading-relaxed">{b}</p>)}
+        {t.blocks.map((b, i) => <RichText key={i} text={b} />)}
       </div>
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-ink-100 flex items-center justify-center text-xs font-medium text-ink-500">AA</div>
-        <div><p className="text-sm text-ink-700 font-medium">— {t.sig}</p><p className="text-xs text-ink-400">{t.loc}</p></div>
+        <div>
+          <p className="text-sm text-ink-700 font-medium">— {t.sig}</p>
+          <p className="text-xs text-ink-400">{t.loc}</p>
+          <a href={`mailto:${t.contact}`} className="text-xs text-accent hover:text-accent-dim transition">{t.contact}</a>
+        </div>
       </div>
+      <SubFooter lang={lang} />
     </div>
   );
 }
