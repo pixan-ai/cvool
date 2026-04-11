@@ -110,8 +110,10 @@ export default function Home() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cvText, targetRole: targetRole || undefined }),
       });
-      if (res.status === 429) { setError(ui.errorLimit); return; }
-      if (res.status === 403 || res.status === 400) { setError(ui.errorGeneric); return; }
+      if (!res.ok) {
+        setError(res.status === 429 ? ui.errorLimit : ui.errorGeneric);
+        return;
+      }
       const reader = res.body?.getReader();
       if (!reader) { setError(ui.errorGeneric); return; }
       const decoder = new TextDecoder();
