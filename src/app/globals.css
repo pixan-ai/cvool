@@ -17,6 +17,22 @@
   --color-accent-ghost: oklch(0.95 0.03 260);
   --color-positive: oklch(0.55 0.15 155);
   --color-positive-ghost: oklch(0.95 0.03 155);
+
+  /* UX v2 tokens — additive, do not conflict with legacy */
+  --color-ink: oklch(0.15 0 0);
+  --color-paper: oklch(0.985 0.003 80);
+  --color-mist: oklch(0.96 0.004 80);
+  --color-signal: oklch(0.55 0.2 260);
+  --color-signal-soft: oklch(0.95 0.03 260);
+  --color-ember: oklch(0.68 0.2 35);
+  --color-success: oklch(0.55 0.15 155);
+
+  --font-display: var(--font-instrument), Georgia, serif;
+}
+
+/* Hairline separators used by UX v2 flow */
+.hairline {
+  border-color: color-mix(in oklab, oklch(0.15 0 0) 12%, transparent);
 }
 
 /* Native <details> styling */

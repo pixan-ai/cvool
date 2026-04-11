@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -11,6 +11,14 @@ const geist = Geist({
 const mono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+});
+
+const instrument = Instrument_Serif({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -122,7 +130,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ))}
       </head>
       <body
-        className={`${geist.variable} ${mono.variable} font-[family-name:var(--font-geist)] antialiased`}
+        className={`${geist.variable} ${mono.variable} ${instrument.variable} font-[family-name:var(--font-geist)] antialiased`}
       >
         {children}
         <Analytics />
