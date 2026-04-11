@@ -118,13 +118,15 @@ export default function Home() {
       if (!reader) { setError(ui.errorGeneric); return; }
       const decoder = new TextDecoder();
       let buffer = "";
+      // currentEvent must persist across chunk reads: SSE "event:" and "data:"
+      // lines for the same message can arrive in different TCP chunks.
+      let currentEvent = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
-        let currentEvent = "";
         for (const line of lines) {
           if (line.startsWith("event: ")) { currentEvent = line.slice(7); }
           else if (line.startsWith("data: ")) {
@@ -142,6 +144,8 @@ export default function Home() {
                 setError(parsed.error === "parse_error" ? (ui.errorRetry || ui.errorGeneric) : ui.errorGeneric);
               }
             } catch { /* ignore */ }
+          } else if (line === "") {
+            // Empty line marks end of an SSE message — reset event type.
             currentEvent = "";
           }
         }
