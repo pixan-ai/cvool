@@ -23,23 +23,23 @@ const instrument = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cvool.org"),
-  title: "cvool — An\u00e1lisis y optimizaci\u00f3n de CV con Claude Sonnet 4.6 \u00b7 Anthropic",
+  title: "CVool — Analyze and improve your CV with AI. Free and anonymous.",
   description:
-    "Analiza y mejora tu CV gratis con IA de frontera. Retroalimentaci\u00f3n accionable y un CV reescrito profesionalmente en segundos. An\u00f3nimo. Sin registro. Powered by Claude Sonnet 4.6 (Anthropic).",
+    "Analyze and improve your CV with AI. Free, anonymous, no sign-up required. Get actionable feedback and a professionally rewritten resume in seconds. Open source.",
   openGraph: {
-    title: "cvool \u2014 An\u00e1lisis y optimizaci\u00f3n de CV con Claude Sonnet 4.6 \u00b7 Anthropic",
-    description: "Analiza y mejora tu CV gratis con IA de frontera. An\u00f3nimo. Sin registro. Powered by Claude.",
+    title: "CVool — Free AI resume analyzer and improver",
+    description: "Analyze and improve your CV with AI. Free, anonymous, no sign-up. Get a better resume in seconds.",
     url: "https://cvool.org",
-    siteName: "cvool",
+    siteName: "CVool",
     type: "website",
-    locale: "es_MX",
-    alternateLocale: ["en_US", "fr_FR", "pt_BR", "it_IT"],
+    locale: "en_US",
+    alternateLocale: ["es_MX", "pt_BR", "fr_FR", "it_IT"],
   },
   twitter: {
     card: "summary",
-    title: "cvool \u2014 An\u00e1lisis y optimizaci\u00f3n de CV con Claude Sonnet 4.6 \u00b7 Anthropic",
-    description: "Analiza y mejora tu CV gratis con IA de frontera. An\u00f3nimo. Sin registro.",
-    site: "@maxcvorg",
+    title: "CVool — Free AI resume analyzer and improver",
+    description: "Analyze and improve your CV with AI. Free, anonymous, no sign-up required.",
+    site: "@cvoolorg",
   },
   alternates: { canonical: "https://cvool.org" },
   robots: {
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   other: {
-    "ai:description": "cvool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up required. Scores CVs on 6 dimensions and generates improved versions using Claude Sonnet 4.6. Zero data retention. MIT licensed. See https://cvool.org/llms.txt for full details.",
+    "ai:description": "CVool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up required. Scores CVs on 6 dimensions and generates improved versions using Claude Sonnet 4.6. Zero data retention. MIT licensed. See https://cvool.org/llms.txt for full details.",
     "ai:llms": "https://cvool.org/llms.txt",
     "ai:llms-full": "https://cvool.org/llms-full.txt",
   },
@@ -58,17 +58,17 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "cvool",
+    name: "CVool",
     url: "https://cvool.org",
-    description: "An\u00e1lisis y optimizaci\u00f3n de CV con IA de frontera. Gratis, an\u00f3nimo, open source. Powered by Claude Sonnet 4.6 (Anthropic).",
+    description: "Free AI-powered resume analyzer and improver. Anonymous, no sign-up, open source.",
     inLanguage: ["es", "en", "fr", "pt", "it"],
   },
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "cvool",
+    name: "CVool",
     url: "https://cvool.org",
-    description: "Free AI-powered resume improver. Get actionable feedback and a professionally rewritten CV in seconds. Works in Spanish, English, French, Portuguese, and Italian. Powered by Claude Sonnet 4.6 (Anthropic).",
+    description: "Free AI-powered resume improver. Get actionable feedback and a professionally rewritten CV in seconds. Works in Spanish, English, French, Portuguese, and Italian.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     availableOnDevice: "Web browser",
@@ -88,28 +88,28 @@ const jsonLd = [
     mainEntity: [
       {
         "@type": "Question",
-        name: "Is cvool really free?",
-        acceptedAnswer: { "@type": "Answer", text: "Yes, cvool is completely free and always will be. Each analysis costs about $0.05 USD in AI tokens, funded by voluntary donations. No sign-up or payment required." },
+        name: "Is CVool really free?",
+        acceptedAnswer: { "@type": "Answer", text: "Yes, CVool is completely free and always will be. Each analysis costs about $0.05 USD in AI tokens, funded by voluntary donations. No sign-up or payment required." },
       },
       {
         "@type": "Question",
         name: "Is my resume data stored?",
-        acceptedAnswer: { "@type": "Answer", text: "No. cvool has no database. Your resume is processed in memory during analysis and discarded immediately. No accounts, no cookies, no tracking." },
+        acceptedAnswer: { "@type": "Answer", text: "No. CVool has no database. Your resume is processed in memory during analysis and discarded immediately. No accounts, no cookies, no tracking." },
       },
       {
         "@type": "Question",
-        name: "What languages does cvool support?",
-        acceptedAnswer: { "@type": "Answer", text: "cvool works natively in Spanish, English, French, Portuguese, and Italian. It automatically detects the language of your resume." },
+        name: "What languages does CVool support?",
+        acceptedAnswer: { "@type": "Answer", text: "CVool works natively in Spanish, English, French, Portuguese, and Italian. It automatically detects the language of your resume." },
       },
       {
         "@type": "Question",
-        name: "\u00bfcvool es realmente gratis?",
-        acceptedAnswer: { "@type": "Answer", text: "S\u00ed, cvool es completamente gratis y siempre lo ser\u00e1. Cada an\u00e1lisis cuesta aproximadamente $0.05 USD en tokens de IA, financiado por donaciones voluntarias. No requiere registro ni pago." },
+        name: "\u00bfCVool es realmente gratis?",
+        acceptedAnswer: { "@type": "Answer", text: "S\u00ed, CVool es completamente gratis y siempre lo ser\u00e1. Cada an\u00e1lisis cuesta aproximadamente $0.05 USD en tokens de IA, financiado por donaciones voluntarias. No requiere registro ni pago." },
       },
       {
         "@type": "Question",
         name: "\u00bfSe guardan mis datos?",
-        acceptedAnswer: { "@type": "Answer", text: "No. cvool no tiene base de datos. Tu CV se procesa en memoria durante el an\u00e1lisis y se descarta de inmediato. Sin cuentas, sin cookies, sin tracking." },
+        acceptedAnswer: { "@type": "Answer", text: "No. CVool no tiene base de datos. Tu CV se procesa en memoria durante el an\u00e1lisis y se descarta de inmediato. Sin cuentas, sin cookies, sin tracking." },
       },
     ],
   },
@@ -117,7 +117,7 @@ const jsonLd = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="en">
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         {jsonLd.map((schema, i) => (
