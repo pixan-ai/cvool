@@ -1,13 +1,6 @@
 "use client";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
-
-const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
-
-function CvoolText({ text }: { text: string }) {
-  const parts = text.split("cvool");
-  if (parts.length === 1) return <>{text}</>;
-  return <>{parts.map((part, i) => <span key={i}>{part}{i < parts.length - 1 && <Cv />}</span>)}</>;
-}
+import { CvoolText } from "@/components/CvoolBrand";
 
 const T = {
   es: {

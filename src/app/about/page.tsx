@@ -1,8 +1,7 @@
 "use client";
 import Image from "next/image";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
-
-const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
+import { CvoolText } from "@/components/CvoolBrand";
 
 const T = {
   es: {
@@ -30,15 +29,9 @@ const T = {
 } as const;
 
 function RichText({ text }: { text: string }) {
-  const parts = text.split("{cvool}");
   return (
     <p className="text-sm text-ink-700 leading-relaxed">
-      {parts.map((part, i) => (
-        <span key={i}>
-          {part}
-          {i < parts.length - 1 && <Cv />}
-        </span>
-      ))}
+      <CvoolText text={text} />
     </p>
   );
 }

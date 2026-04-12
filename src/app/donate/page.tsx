@@ -3,8 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { track } from "@vercel/analytics";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
-
-const Cv = () => <><span className="text-ink-900">cv</span><span className="text-accent">ool</span></>;
+import { CvoolText } from "@/components/CvoolBrand";
 
 const T = {
   es: {
@@ -50,12 +49,6 @@ const T = {
     email: "alfredo@cvool.org",
   },
 } as const;
-
-function CvoolText({ text }: { text: string }) {
-  const parts = text.split("cvool");
-  if (parts.length === 1) return <>{text}</>;
-  return <>{parts.map((part, i) => <span key={i}>{part}{i < parts.length - 1 && <Cv />}</span>)}</>;
-}
 
 export default function DonatePage() {
   const [lang, setLang] = useSubLang();
