@@ -5,7 +5,7 @@ import { join } from "path";
 import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 import { validateOrigin, corsHeaders } from "@/lib/cors";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const PROMPT = readFileSync(join(process.cwd(), "src/lib/prompts/analyze.txt"), "utf-8");
 const anthropic = new Anthropic();
