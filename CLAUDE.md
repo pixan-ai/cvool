@@ -144,3 +144,45 @@ The analyze.txt prompt contains cvool's principles:
 - Analytics via track() from @vercel/analytics
 - <details> for all collapsible content — no custom components
 - Geist Sans + Geist Mono only — no other fonts
+
+## Operational constraints (do not regress)
+
+### /api/analyze maxDuration must stay at 300s
+
+A real, end-to-end CV analysis with the current setup (Sonnet 4.6,
+max_tokens=8000, ~14KB system prompt with ephemeral cache, multi-KB CV
+input) realistically takes 60–120 seconds to fully stream the result
+JSON. The hard floor is well above 60s.
+
+Both `vercel.json` (`functions["src/app/api/analyze/route.ts"].maxDuration`)
+and the route segment export (`export const maxDuration` in
+`src/app/api/analyze/route.ts`) must be set to **300**. Do not lower
+either of them as a "fix" for slow analysis — lowering it past ~120s
+will silently truncate the SSE stream mid-generation: the lambda dies
+before the `event: result` line is sent, the client never receives the
+final payload, no error event is emitted either, and the UI stays stuck
+on the loading state with the user thinking the button does nothing.
+This exact regression has happened before and was hard to diagnose
+because Vercel returns HTTP 200 (the headers were already flushed)
+with a partial body of only progress events.
+
+If you need to reduce the duration, the correct approach is to reduce
+the work itself (smaller `max_tokens`, faster model, shorter prompt),
+not to clip the timeout.
+
+### /api/analyze SSE parser: currentEvent must persist across chunks
+
+In `src/app/page.tsx` `analyze()`, the `let currentEvent = ""`
+declaration MUST live outside the `while (true)` read loop. SSE
+`event:` and `data:` lines for the same message can — and for the
+~3KB result JSON essentially always do — arrive in different TCP
+chunks. If `currentEvent` is reset on every chunk read, the result
+event will be silently dropped. Reset `currentEvent` only on an
+empty line (the SSE end-of-message marker), not after every `data:`.
+
+### /api/analyze frontend error handling
+
+The client must treat any `!res.ok` response from `/api/analyze` as
+an error and call `setError`, not just specific status codes. A 500
+or 504 with a non-SSE body otherwise drains silently and the UI
+returns to the form with no message — same symptom as above.
