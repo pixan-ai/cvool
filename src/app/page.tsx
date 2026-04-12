@@ -9,12 +9,12 @@ import type { AnalysisResult } from "@/types/analysis";
 
 const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 
-const Cv = () => <span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>;
+const Cv = () => <span><span className="text-ink-900">CV</span><span className="text-accent">ool</span></span>;
 
 const FaviconIcon = ({ size = "w-5 h-5" }: { size?: string }) => (
-  <svg className={`${size} shrink-0`} viewBox="0 0 20 36" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="10" cy="10" r="8" fill="#99bbee" />
-    <circle cx="10" cy="26" r="8" fill="#4466cc" />
+  <svg className={`${size} shrink-0`} viewBox="0 0 16 28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="8" cy="8" r="6.5" fill="#99bbee" />
+    <circle cx="8" cy="20" r="6.5" fill="#4466cc" />
   </svg>
 );
 
@@ -63,11 +63,11 @@ function ResumeText({ text }: { text: string }) {
 }
 
 const DONATION_COPY = {
-  es: { line1: "cvool siempre ser\u00e1 gratis.", line2: "Cuando encuentres ese trabajo que te cambia la vida, regresa a ayudar.", cta: "Apoyar cvool \u2192" },
-  en: { line1: "cvool will always be free.", line2: "When you land that life-changing job, come back and help keep it going.", cta: "Support cvool \u2192" },
-  fr: { line1: "cvool sera toujours gratuit.", line2: "Quand vous d\u00e9crochez le poste qui change votre vie, revenez nous aider.", cta: "Soutenir cvool \u2192" },
-  pt: { line1: "cvool ser\u00e1 sempre gratuito.", line2: "Quando voc\u00ea conseguir aquele emprego que muda sua vida, volte para ajudar.", cta: "Apoiar cvool \u2192" },
-  it: { line1: "cvool sar\u00e0 sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere cvool \u2192" },
+  es: { line1: "CVool siempre ser\u00e1 gratis.", line2: "Cuando encuentres ese trabajo que te cambia la vida, regresa a ayudar.", cta: "Apoyar CVool \u2192" },
+  en: { line1: "CVool will always be free.", line2: "When you land that life-changing job, come back and help keep it going.", cta: "Support CVool \u2192" },
+  fr: { line1: "CVool sera toujours gratuit.", line2: "Quand vous d\u00e9crochez le poste qui change votre vie, revenez nous aider.", cta: "Soutenir CVool \u2192" },
+  pt: { line1: "CVool ser\u00e1 sempre gratuito.", line2: "Quando voc\u00ea conseguir aquele emprego que muda sua vida, volte para ajudar.", cta: "Apoiar CVool \u2192" },
+  it: { line1: "CVool sar\u00e0 sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere CVool \u2192" },
 } as const;
 
 export default function Home() {
@@ -168,7 +168,7 @@ export default function Home() {
       {/* Header */}
       <header className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><FaviconIcon /><span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span></span>
+          <span className="inline-flex items-center gap-1.5 font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><FaviconIcon /><span><span className="text-ink-900">CV</span><span className="text-accent">ool</span></span></span>
           <div className="flex items-center gap-3">
             <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
