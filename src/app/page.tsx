@@ -12,10 +12,9 @@ const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 const Cv = () => <span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>;
 
 const FaviconIcon = ({ size = "w-5 h-5" }: { size?: string }) => (
-  <svg className={`${size} shrink-0`} viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2" width="60" height="60" rx="12" fill="#ffffff" />
-    <circle cx="32" cy="22" r="10" fill="#99bbee" />
-    <circle cx="32" cy="42" r="10" fill="#4466cc" />
+  <svg className={`${size} shrink-0`} viewBox="0 0 20 44" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="10" cy="11" r="9" fill="#99bbee" />
+    <circle cx="10" cy="33" r="9" fill="#4466cc" />
   </svg>
 );
 
@@ -169,7 +168,7 @@ export default function Home() {
       {/* Header */}
       <header className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1 font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><FaviconIcon /><span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span></span>
+          <span className="inline-flex items-center gap-1.5 font-[family-name:var(--font-geist)] text-lg font-medium tracking-tight"><FaviconIcon /><span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span></span>
           <div className="flex items-center gap-3">
             <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
@@ -396,7 +395,7 @@ export default function Home() {
           <Link href="/terms" className="hover:text-ink-700 transition">{lang === "es" ? "T\u00e9rminos" : "Terms"}</Link>
         </div>
         <div className="flex items-center justify-center gap-4 text-xs text-ink-400">
-          <span className="inline-flex items-center gap-1 font-medium"><FaviconIcon size="w-4 h-4" /><Cv /></span>
+          <span className="inline-flex items-center gap-1.5 font-medium"><FaviconIcon size="w-4 h-4" /><Cv /></span>
           <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="GitHub">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6.02 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58A12.01 12.01 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
           </a>
