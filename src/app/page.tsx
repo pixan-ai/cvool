@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, type ReactNode } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { t, dimName } from "@/lib/i18n";

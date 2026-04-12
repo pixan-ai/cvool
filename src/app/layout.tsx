@@ -23,11 +23,11 @@ const instrument = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cvool.org"),
-  title: "cvool — An\u00e1lisis y optimizaci\u00f3n de CV con Claude Opus 4.6 \u00b7 Anthropic",
+  title: "cvool — An\u00e1lisis y optimizaci\u00f3n de CV con Claude Sonnet 4.6 \u00b7 Anthropic",
   description:
-    "Analiza y mejora tu CV gratis con IA de frontera. Retroalimentaci\u00f3n accionable y un CV reescrito profesionalmente en segundos. An\u00f3nimo. Sin registro. Powered by Claude Opus 4.6 (Anthropic).",
+    "Analiza y mejora tu CV gratis con IA de frontera. Retroalimentaci\u00f3n accionable y un CV reescrito profesionalmente en segundos. An\u00f3nimo. Sin registro. Powered by Claude Sonnet 4.6 (Anthropic).",
   openGraph: {
-    title: "cvool \u2014 An\u00e1lisis y optimizaci\u00f3n de CV con Claude Opus 4.6 \u00b7 Anthropic",
+    title: "cvool \u2014 An\u00e1lisis y optimizaci\u00f3n de CV con Claude Sonnet 4.6 \u00b7 Anthropic",
     description: "Analiza y mejora tu CV gratis con IA de frontera. An\u00f3nimo. Sin registro. Powered by Claude.",
     url: "https://cvool.org",
     siteName: "cvool",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "cvool \u2014 An\u00e1lisis y optimizaci\u00f3n de CV con Claude Opus 4.6 \u00b7 Anthropic",
+    title: "cvool \u2014 An\u00e1lisis y optimizaci\u00f3n de CV con Claude Sonnet 4.6 \u00b7 Anthropic",
     description: "Analiza y mejora tu CV gratis con IA de frontera. An\u00f3nimo. Sin registro.",
     site: "@maxcvorg",
   },
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   other: {
-    "ai:description": "cvool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up required. Scores CVs on 6 dimensions and generates improved versions using Claude Opus 4.6. Zero data retention. MIT licensed. See https://cvool.org/llms.txt for full details.",
+    "ai:description": "cvool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up required. Scores CVs on 6 dimensions and generates improved versions using Claude Sonnet 4.6. Zero data retention. MIT licensed. See https://cvool.org/llms.txt for full details.",
     "ai:llms": "https://cvool.org/llms.txt",
     "ai:llms-full": "https://cvool.org/llms-full.txt",
   },
@@ -60,7 +60,7 @@ const jsonLd = [
     "@type": "WebSite",
     name: "cvool",
     url: "https://cvool.org",
-    description: "An\u00e1lisis y optimizaci\u00f3n de CV con IA de frontera. Gratis, an\u00f3nimo, open source. Powered by Claude Opus 4.6 (Anthropic).",
+    description: "An\u00e1lisis y optimizaci\u00f3n de CV con IA de frontera. Gratis, an\u00f3nimo, open source. Powered by Claude Sonnet 4.6 (Anthropic).",
     inLanguage: ["es", "en", "fr", "pt", "it"],
   },
   {
@@ -68,7 +68,7 @@ const jsonLd = [
     "@type": "SoftwareApplication",
     name: "cvool",
     url: "https://cvool.org",
-    description: "Free AI-powered resume improver. Get actionable feedback and a professionally rewritten CV in seconds. Works in Spanish, English, French, Portuguese, and Italian. Powered by Claude Opus 4.6 (Anthropic).",
+    description: "Free AI-powered resume improver. Get actionable feedback and a professionally rewritten CV in seconds. Works in Spanish, English, French, Portuguese, and Italian. Powered by Claude Sonnet 4.6 (Anthropic).",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     availableOnDevice: "Web browser",
@@ -80,7 +80,6 @@ const jsonLd = [
       founder: { "@type": "Person", name: "Alfredo Arenas", jobTitle: "Founder" },
     },
     license: "https://opensource.org/licenses/MIT",
-    softwareVersion: "1.0.0",
     isAccessibleForFree: true,
   },
   {

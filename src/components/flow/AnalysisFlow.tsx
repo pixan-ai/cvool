@@ -148,6 +148,10 @@ export default function AnalysisFlow() {
         const decoder = new TextDecoder();
         let buffer = "";
         let firstToken = false;
+        // currentEvent must persist across chunk reads: SSE "event:"
+        // and "data:" lines for the same message can arrive in
+        // different TCP chunks (especially for the ~3KB result JSON).
+        let currentEvent = "";
 
         while (true) {
           const { done, value } = await reader.read();
@@ -156,7 +160,6 @@ export default function AnalysisFlow() {
           const lines = buffer.split("\n");
           buffer = lines.pop() || "";
 
-          let currentEvent = "";
           for (const line of lines) {
             if (line.startsWith("event: ")) {
               currentEvent = line.slice(7);
@@ -185,8 +188,10 @@ export default function AnalysisFlow() {
                   return;
                 }
               } catch {
-                /* ignore */
+                /* ignore malformed JSON lines */
               }
+            } else if (line === "") {
+              // Empty line marks end of an SSE message — reset event type.
               currentEvent = "";
             }
           }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { validateOrigin, corsHeaders } from "@/lib/cors";
+import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
 const anthropic = new Anthropic();
 
@@ -15,6 +16,11 @@ export async function POST(req: NextRequest) {
   // CORS check
   const originError = validateOrigin(req);
   if (originError) return originError;
+
+  // Rate limit (shares the same window as /api/analyze)
+  if (isRateLimited(getClientIp(req.headers))) {
+    return NextResponse.json({ error: "rate_limit" }, { status: 429, headers: corsHeaders(req) });
+  }
 
   let formData: FormData;
   try {
@@ -37,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const msg = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: process.env.CLAUDE_MODEL || "claude-sonnet-4-6",
       max_tokens: 8_000,
       messages: [
         {
