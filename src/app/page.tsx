@@ -212,7 +212,8 @@ export default function Home() {
       {/* Hero — left-aligned, tension copy, compact */}
       <section className="space-y-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
-          {ui.heroTitle} <span className="text-accent">{ui.heroAccent}</span>
+          {ui.heroTitle}<br />
+          <span className="text-accent">{ui.heroAccent}</span>
         </h1>
         <p className="text-sm text-ink-500 leading-relaxed">{ui.heroSub}</p>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
