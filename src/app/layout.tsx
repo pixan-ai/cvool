@@ -117,7 +117,7 @@ const jsonLd = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         {jsonLd.map((schema, i) => (

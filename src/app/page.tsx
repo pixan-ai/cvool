@@ -157,9 +157,11 @@ export default function Home() {
 
   const copy = async () => {
     if (!result) return;
-    await navigator.clipboard.writeText(result.improved_cv.text);
-    setCopied(true); setTimeout(() => setCopied(false), 2000);
-    track("cv_copied");
+    try {
+      await navigator.clipboard.writeText(result.improved_cv.text);
+      setCopied(true); setTimeout(() => setCopied(false), 2000);
+      track("cv_copied");
+    } catch { /* clipboard API unavailable */ }
   };
 
   const share = () => {
@@ -181,11 +183,11 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
           <div className="flex items-center gap-3">
-            <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}
+            <select value={lang} onChange={(e) => setLang(e.target.value as Lang)} aria-label="Language"
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
               {LANGS.map((l) => <option key={l} value={l}>{l.toUpperCase()}</option>)}
             </select>
-            <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="text-ink-400 hover:text-ink-600 transition">
+            <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="text-ink-400 hover:text-ink-600 transition" aria-label="GitHub">
               <GitHubIcon />
             </a>
           </div>
@@ -239,11 +241,11 @@ export default function Home() {
             <div className="pt-2"><Badge n={1} /></div>
             <div className="flex-1">
               <div className="relative border border-ink-100 rounded-lg bg-ink-000 focus-within:border-accent transition">
-                <textarea value={cvText} onChange={(e) => setCvText(e.target.value)} placeholder={ui.placeholder}
+                <textarea value={cvText} onChange={(e) => setCvText(e.target.value)} placeholder={ui.placeholder} aria-label="CV text"
                   className="w-full min-h-[90px] p-3 text-sm text-ink-700 bg-transparent placeholder:text-ink-300 resize-y focus:outline-none rounded-lg" />
               </div>
               <div className="flex justify-end mt-1">
-                <button type="button" onClick={() => fileRef.current?.click()}
+                <button type="button" onClick={() => fileRef.current?.click()} aria-label="Upload PDF"
                   className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-dim transition cursor-pointer">
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
