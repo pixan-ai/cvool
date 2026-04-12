@@ -4,6 +4,25 @@
   "private": true,
   "description": "AI-powered resume improver. Free. Anonymous.",
   "homepage": "https://cvool.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pixan-ai/cvool.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pixan-ai/cvool/issues"
+  },
+  "keywords": [
+    "resume",
+    "cv",
+    "ai",
+    "analyzer",
+    "improver",
+    "claude",
+    "anthropic",
+    "open-source",
+    "spanish",
+    "portuguese"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
