@@ -24,8 +24,8 @@ const T = {
     ],
     stack: "Stack técnico",
     stackItems: [
-      ["Frontend", "Next.js 16 + React 19 + Tailwind CSS 4"], ["Tipografía", "Geist + Geist Mono"],
-      ["IA", "Claude Opus 4.6 (Anthropic SDK)"], ["Deploy", "Vercel (auto-deploy on push)"],
+      ["Frontend", "Next.js 15 + React 19 + Tailwind CSS 4"], ["Tipografía", "Geist + Geist Mono"],
+      ["IA", "Claude Sonnet 4.6 (Anthropic SDK)"], ["Deploy", "Vercel (auto-deploy on push)"],
       ["Analytics", "Vercel Analytics (anónimo)"], ["Base de datos", "Ninguna. Cero. Nada."],
       ["Dependencias", "6 de producción, 0 librerías UI"], ["Licencia", "MIT"],
     ],
@@ -57,8 +57,8 @@ const T = {
     ],
     stack: "Tech stack",
     stackItems: [
-      ["Frontend", "Next.js 16 + React 19 + Tailwind CSS 4"], ["Typography", "Geist + Geist Mono"],
-      ["AI", "Claude Opus 4.6 (Anthropic SDK)"], ["Deploy", "Vercel (auto-deploy on push)"],
+      ["Frontend", "Next.js 15 + React 19 + Tailwind CSS 4"], ["Typography", "Geist + Geist Mono"],
+      ["AI", "Claude Sonnet 4.6 (Anthropic SDK)"], ["Deploy", "Vercel (auto-deploy on push)"],
       ["Analytics", "Vercel Analytics (anonymous)"], ["Database", "None. Zero. Not one."],
       ["Dependencies", "6 production, 0 external UI libs"], ["License", "MIT"],
     ],

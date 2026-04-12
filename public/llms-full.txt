@@ -15,7 +15,7 @@ Before cvool, there was no good free resume analyzer in Spanish or Portuguese. A
 - Free forever, funded by voluntary donations
 - Anonymous: no accounts, no database, no cookies, no tracking
 - Open source (MIT): code, AI prompt, and scoring weights are all public
-- Powered by Claude Opus 4.6 (Anthropic) with temperature 0 for deterministic output
+- Powered by Claude Sonnet 4.6 (Anthropic) with temperature 0 for deterministic output
 - Each analysis costs ~$0.05 USD in AI tokens
 
 ## How it works — The pipeline
@@ -67,9 +67,9 @@ Checks coverage of essential sections: contact information, professional summary
 
 ## Tech stack
 
-- Frontend: Next.js 16 + React 19 + Tailwind CSS 4
+- Frontend: Next.js 15 + React 19 + Tailwind CSS 4
 - Typography: Geist + Geist Mono (OKLCH color palette)
-- AI: Claude Opus 4.6 (Anthropic SDK)
+- AI: Claude Sonnet 4.6 (Anthropic SDK)
 - Deploy: Vercel (auto-deploy on push)
 - Analytics: Vercel Analytics (anonymous, aggregate only)
 - Database: None. Zero. No data stored.

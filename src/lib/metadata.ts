@@ -29,7 +29,7 @@ export const siteMetadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   other: {
-    "ai:description": "cvool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up. Scores CVs on 6 dimensions (ATS compatibility, achievement impact, structure, keywords, writing clarity, completeness) and generates improved versions using Claude Opus 4.6. Zero data retention. MIT licensed.",
+    "ai:description": "cvool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up. Scores CVs on 6 dimensions (ATS compatibility, achievement impact, structure, keywords, writing clarity, completeness) and generates improved versions using Claude Sonnet 4.6. Zero data retention. MIT licensed.",
     "ai:llms": "https://cvool.org/llms.txt",
     "ai:llms-full": "https://cvool.org/llms-full.txt",
   },

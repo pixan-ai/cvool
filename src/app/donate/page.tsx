@@ -12,7 +12,7 @@ const T = {
     sub: "cvool es gratis para siempre. Tu donación cubre tokens de IA, infraestructura y desarrollo.",
     whyTitle: "¿A dónde va tu donación?",
     why: [
-      ["Tokens de IA", "Cada análisis usa Claude Opus 4.6 de Anthropic. Cada CV cuesta ~$0.05 USD en tokens."],
+      ["Tokens de IA", "Cada análisis usa Claude Sonnet 4.6 de Anthropic. Cada CV cuesta ~$0.05 USD en tokens."],
       ["Infraestructura", "Vercel hosting, dominio cvool.org, SSL, analytics."],
       ["Desarrollo", "Nuevas funcionalidades, más idiomas, mejor prompt."],
     ],
@@ -33,7 +33,7 @@ const T = {
     sub: "cvool is free forever. Your donation covers AI tokens, infrastructure, and development.",
     whyTitle: "Where does your donation go?",
     why: [
-      ["AI tokens", "Each analysis uses Claude Opus 4.6 by Anthropic. Each resume costs ~$0.05 USD in tokens."],
+      ["AI tokens", "Each analysis uses Claude Sonnet 4.6 by Anthropic. Each resume costs ~$0.05 USD in tokens."],
       ["Infrastructure", "Vercel hosting, cvool.org domain, SSL, analytics."],
       ["Development", "New features, more languages, better prompts."],
     ],

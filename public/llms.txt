@@ -1,8 +1,8 @@
 # cvool
 
-> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Opus 4.6 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking.
+> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Sonnet 4.6 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking.
 
-> cvool es un analizador y optimizador de CVs gratuito, open source y anónimo. Usa Claude Opus 4.6 (Anthropic) para calificar CVs en 6 dimensiones, dar retroalimentación accionable y generar un CV reescrito profesionalmente. Sin registro, sin base de datos, sin tracking.
+> cvool es un analizador y optimizador de CVs gratuito, open source y anónimo. Usa Claude Sonnet 4.6 (Anthropic) para calificar CVs en 6 dimensiones, dar retroalimentación accionable y generar un CV reescrito profesionalmente. Sin registro, sin base de datos, sin tracking.
 
 ## What makes cvool different
 
@@ -25,7 +25,7 @@
 
 ## Technical details
 
-- Stack: Next.js 16, React 19, Tailwind CSS 4, Claude Opus 4.6 (Anthropic SDK), Vercel
+- Stack: Next.js 15, React 19, Tailwind CSS 4, Claude Sonnet 4.6 (Anthropic SDK), Vercel
 - Fonts: Geist + Geist Mono
 - Database: None — zero data stored
 - Auth: None — no accounts, no cookies
