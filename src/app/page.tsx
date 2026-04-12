@@ -12,9 +12,9 @@ const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 const Cv = () => <span><span className="text-ink-900">cv</span><span className="text-accent">ool</span></span>;
 
 const FaviconIcon = ({ size = "w-5 h-5" }: { size?: string }) => (
-  <svg className={`${size} shrink-0`} viewBox="0 0 20 44" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="10" cy="11" r="9" fill="#99bbee" />
-    <circle cx="10" cy="33" r="9" fill="#4466cc" />
+  <svg className={`${size} shrink-0`} viewBox="0 0 20 36" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="10" cy="10" r="8" fill="#99bbee" />
+    <circle cx="10" cy="26" r="8" fill="#4466cc" />
   </svg>
 );
 
