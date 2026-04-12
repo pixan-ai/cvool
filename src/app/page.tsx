@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { t, dimName } from "@/lib/i18n";
@@ -11,7 +11,6 @@ const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 
 const Cv = () => <span><span className="text-ink-900">CV</span><span className="text-accent">ool</span></span>;
 
-/* Favicon-wordmark gap is gap-[2px] everywhere — do not change independently */
 const FaviconIcon = ({ size = "w-5 h-5" }: { size?: string }) => (
   <svg className={`${size} shrink-0`} viewBox="0 0 16 28" xmlns="http://www.w3.org/2000/svg">
     <circle cx="8" cy="8" r="6.5" fill="#99bbee" />
@@ -20,19 +19,14 @@ const FaviconIcon = ({ size = "w-5 h-5" }: { size?: string }) => (
 );
 
 function CvoolText({ text, className }: { text: string; className?: string }) {
-  const parts = text.split("cvool");
-  if (parts.length === 1) return <span className={className}>{text}</span>;
+  const parts = text.split(/(CVool|cvool)/gi);
   return (
     <span className={className}>
-      {parts.map((part, i) => (
-        <span key={i}>{part}{i < parts.length - 1 && <Cv />}</span>
-      ))}
+      {parts.map((part, i) =>
+        /^cvool$/i.test(part) ? <Cv key={i} /> : <span key={i}>{part}</span>
+      )}
     </span>
   );
-}
-
-function Badge({ n }: { n: number }) {
-  return <span className="shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs font-medium flex items-center justify-center">{n}</span>;
 }
 
 function Chevron({ className = "" }: { className?: string }) {
@@ -71,6 +65,26 @@ const DONATION_COPY = {
   it: { line1: "CVool sar\u00e0 sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere CVool \u2192" },
 } as const;
 
+function detectLang(): Lang {
+  if (typeof navigator === "undefined") return "es";
+  const raw = navigator.language?.toLowerCase() ?? "";
+  if (raw.startsWith("es")) return "es";
+  if (raw.startsWith("pt")) return "pt";
+  if (raw.startsWith("fr")) return "fr";
+  if (raw.startsWith("it")) return "it";
+  if (raw.startsWith("en")) return "en";
+  return "es";
+}
+
+function TrustBadge({ text }: { text: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-ink-500">
+      <span className="w-4 h-4 rounded-full bg-positive-ghost text-positive flex items-center justify-center text-[10px] font-medium shrink-0">\u2713</span>
+      {text}
+    </span>
+  );
+}
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("es");
   const [cvText, setCvText] = useState("");
@@ -83,6 +97,8 @@ export default function Home() {
   const [streamTokens, setStreamTokens] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setLang(detectLang()); }, []);
 
   const ui = t(lang);
   const ready = cvText.trim().length >= 50 && !loading && !parsing;
@@ -118,8 +134,6 @@ export default function Home() {
       if (!reader) { setError(ui.errorGeneric); return; }
       const decoder = new TextDecoder();
       let buffer = "";
-      // currentEvent must persist across chunk reads: SSE "event:" and "data:"
-      // lines for the same message can arrive in different TCP chunks.
       let currentEvent = "";
       while (true) {
         const { done, value } = await reader.read();
@@ -145,7 +159,6 @@ export default function Home() {
               }
             } catch { /* ignore */ }
           } else if (line === "") {
-            // Empty line marks end of an SSE message — reset event type.
             currentEvent = "";
           }
         }
@@ -160,6 +173,14 @@ export default function Home() {
     track("cv_copied");
   };
 
+  const share = () => {
+    const url = "https://cvool.org";
+    const text = lang === "es" ? "Mejora tu CV gratis con IA \u2192" : lang === "pt" ? "Melhore seu curr\u00edculo gr\u00e1tis com IA \u2192" : "Improve your resume for free with AI \u2192";
+    if (navigator.share) { navigator.share({ title: "CVool", text, url }).catch(() => {}); }
+    else { window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank"); }
+    track("share_clicked");
+  };
+
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
   const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
   const donCopy = DONATION_COPY[lang] || DONATION_COPY.es;
@@ -167,9 +188,9 @@ export default function Home() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 space-y-6">
       {/* Header */}
-      <header className="space-y-1">
+      <header>
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><span><span className="text-ink-900">CV</span><span className="text-accent">ool</span></span></span>
+          <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
           <div className="flex items-center gap-3">
             <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
@@ -180,15 +201,19 @@ export default function Home() {
             </a>
           </div>
         </div>
-        <p className="text-[11px] text-ink-300 tracking-wide text-center">{lang === "es" ? "An\u00e1lisis y optimizaci\u00f3n con Claude Sonnet 4.6 \u00b7 Anthropic" : "Analysis & optimization with Claude Sonnet 4.6 \u00b7 Anthropic"}</p>
       </header>
 
-      {/* Hero */}
-      <section className="text-center space-y-2">
-        <h1 className="text-2xl font-medium text-ink-900 tracking-tight">{ui.heroTitle}</h1>
-        <p className="text-sm text-accent font-medium">{ui.heroAccent}</p>
-        <div className="text-sm text-ink-400 space-y-0.5">
-          <p>{ui.heroLine1}</p><p>{ui.heroLine2}</p><p>{ui.heroLine3}</p>
+      {/* Hero — left-aligned, tension copy */}
+      <section className="space-y-3">
+        <h1 className="text-[28px] sm:text-3xl font-medium text-ink-900 tracking-tight leading-tight">
+          {ui.heroTitle}<br />
+          <span className="text-accent">{ui.heroAccent}</span>
+        </h1>
+        <p className="text-sm text-ink-500 leading-relaxed max-w-lg">{ui.heroSub}</p>
+        <div className="flex flex-wrap gap-x-4 gap-y-2 pt-1">
+          <TrustBadge text={ui.trustFree} />
+          <TrustBadge text={ui.trustNoSignup} />
+          <TrustBadge text={ui.trustDeleted} />
         </div>
       </section>
 
@@ -217,38 +242,32 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* INPUT FORM */}
+      {/* INPUT FORM — contained block */}
       {!result && !loading && !parsing && (
-        <section className="space-y-4">
-          <div className="flex gap-3 items-start">
-            <div className="pt-3"><Badge n={1} /></div>
-            <div className="flex-1 relative border border-ink-100 rounded-lg focus-within:border-accent transition">
-              <button type="button" onClick={() => fileRef.current?.click()}
-                className="absolute top-3 right-3 z-10 px-3 py-1 rounded-lg border border-ink-200 text-xs font-medium text-ink-500 hover:border-accent hover:text-accent transition cursor-pointer bg-ink-000">
-                {ui.attachPdf}
-              </button>
-              <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-              <textarea value={cvText} onChange={(e) => setCvText(e.target.value)} placeholder={ui.placeholder}
-                className="w-full min-h-[120px] p-4 pt-12 text-sm text-ink-700 bg-transparent placeholder:text-ink-300 resize-y focus:outline-none rounded-lg" />
-            </div>
+        <section className="bg-ink-050 rounded-xl p-5 space-y-3">
+          <label className="text-xs font-medium text-ink-500 block">{ui.formLabel}</label>
+          <div className="relative">
+            <textarea value={cvText} onChange={(e) => setCvText(e.target.value)} placeholder={ui.placeholder}
+              className="w-full min-h-[100px] p-3 text-sm text-ink-700 bg-ink-000 border border-ink-100 rounded-lg placeholder:text-ink-300 resize-y focus:outline-none focus:border-accent transition" />
           </div>
-          <div className="flex gap-3 items-center">
-            <Badge n={2} />
-            <input type="text" value={targetRole} onChange={(e) => setTargetRole(e.target.value)}
-              placeholder={`${ui.targetRole} ${ui.targetRoleOptional}`} maxLength={200}
-              className="flex-1 border border-ink-100 rounded-lg px-4 py-2.5 text-sm text-ink-700 placeholder:text-ink-300 focus:outline-none focus:border-accent transition" />
-          </div>
-          <div className="flex gap-3 items-center">
-            <Badge n={3} />
-            <button onClick={analyze} disabled={!ready}
-              className={`flex-1 py-3 rounded-lg text-sm font-medium transition cursor-pointer active:scale-[0.98] ${ready ? "bg-accent text-white hover:bg-accent-dim" : "bg-ink-100 text-ink-300 cursor-not-allowed"}`}>
-              {ui.btnAnalyze}
+          <div className="flex justify-end">
+            <button type="button" onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-dim transition cursor-pointer">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+              {ui.attachPdf}
             </button>
+            <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
           </div>
-          <div className="text-center space-y-0.5 pl-9">
-            <p className="text-xs text-ink-300">{ui.privacy}</p>
-            <p className="text-xs text-ink-300">{ui.rateLimit}</p>
-          </div>
+          <input type="text" value={targetRole} onChange={(e) => setTargetRole(e.target.value)}
+            placeholder={`${ui.targetRole} ${ui.targetRoleOptional}`} maxLength={200}
+            className="w-full border border-ink-100 rounded-lg px-3 py-2.5 text-sm text-ink-700 bg-ink-000 placeholder:text-ink-300 focus:outline-none focus:border-accent transition" />
+          <button onClick={analyze} disabled={!ready}
+            className={`w-full py-3 rounded-lg text-sm font-medium transition cursor-pointer active:scale-[0.98] ${ready ? "bg-accent text-white hover:bg-accent-dim" : "bg-ink-200 text-ink-400 cursor-not-allowed"}`}>
+            {ui.btnAnalyze}
+          </button>
+          <p className="text-[11px] text-ink-300 text-center leading-relaxed">{ui.privacyPromise}</p>
         </section>
       )}
 
@@ -257,120 +276,108 @@ export default function Home() {
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
-          {/* Step 1 */}
-          <div className="flex gap-3 items-center">
-            <Badge n={1} />
-            <details className="flex-1 border border-ink-100 rounded-lg">
-              <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.originalCvTitle}</summary>
-              <div className="px-4 pb-4 text-sm text-ink-500 whitespace-pre-wrap max-h-60 overflow-y-auto">{cvText}</div>
-            </details>
-          </div>
+          {/* Original CV */}
+          <details className="border border-ink-100 rounded-lg">
+            <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.originalCvTitle}</summary>
+            <div className="px-4 pb-4 text-sm text-ink-500 whitespace-pre-wrap max-h-60 overflow-y-auto">{cvText}</div>
+          </details>
 
-          {/* Step 2 */}
-          <div className="flex gap-3 items-center">
-            <Badge n={2} />
-            <details className="flex-1 border border-ink-100 rounded-lg">
-              <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
-              <p className="px-4 pb-3 text-sm text-ink-500">{targetRole || ui.notSpecified}</p>
-            </details>
-          </div>
+          {/* Target role */}
+          <details className="border border-ink-100 rounded-lg">
+            <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
+            <p className="px-4 pb-3 text-sm text-ink-500">{targetRole || ui.notSpecified}</p>
+          </details>
 
-          {/* Step 3 — Analysis */}
-          <div className="flex gap-3 items-start">
-            <div className="pt-3"><Badge n={3} /></div>
-            <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
-              <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
-              <div className="p-4 space-y-4">
-                <details open className="border border-ink-100 rounded-lg">
-                  <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300" />{ui.scoreSummaryTitle}</summary>
-                  <div className="px-4 pb-4">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
-                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">&mdash; {ui.scoreMeta}</span>
-                    </div>
-                    <p className="text-sm text-ink-600 leading-relaxed">{result.score.summary}</p>
+          {/* Analysis */}
+          <details open className="border border-ink-100 rounded-lg overflow-hidden">
+            <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
+            <div className="p-4 space-y-4">
+              <details open className="border border-ink-100 rounded-lg">
+                <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300" />{ui.scoreSummaryTitle}</summary>
+                <div className="px-4 pb-4">
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
+                    <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">&mdash; {ui.scoreMeta}</span>
+                  </div>
+                  <p className="text-sm text-ink-600 leading-relaxed">{result.score.summary}</p>
+                </div>
+              </details>
+              {result.analysis.strengths.length > 0 && (
+                <details className="border border-positive/20 rounded-lg bg-positive-ghost">
+                  <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-positive hint-chevron" />{ui.strengthsTitle}</summary>
+                  <div className="px-4 pb-4 space-y-2">
+                    {result.analysis.strengths.map((s, i) => (
+                      <div key={i} className="border border-positive/20 rounded-lg p-3 bg-ink-000">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-ink-700">{dimName(s.dimension, lang)}</span>
+                          <span className="font-[family-name:var(--font-mono)] text-[11px] text-positive tracking-wide">{s.dimension_score}/100</span>
+                        </div>
+                        <p className="text-sm text-ink-600">{s.detail}</p>
+                      </div>
+                    ))}
                   </div>
                 </details>
-                {result.analysis.strengths.length > 0 && (
-                  <details className="border border-positive/20 rounded-lg bg-positive-ghost">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-positive hint-chevron" />{ui.strengthsTitle}</summary>
-                    <div className="px-4 pb-4 space-y-2">
-                      {result.analysis.strengths.map((s, i) => (
-                        <div key={i} className="border border-positive/20 rounded-lg p-3 bg-ink-000">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-ink-700">{dimName(s.dimension, lang)}</span>
-                            <span className="font-[family-name:var(--font-mono)] text-[11px] text-positive tracking-wide">{s.dimension_score}/100</span>
-                          </div>
-                          <p className="text-sm text-ink-600">{s.detail}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                )}
-                {result.analysis.improvements.length > 0 && (
-                  <details className="border border-ink-100 rounded-lg">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.improvementsTitle}</summary>
-                    <div className="px-4 pb-4 space-y-3">
-                      {result.analysis.improvements.map((imp, i) => (
-                        <div key={i} className="border border-ink-100 rounded-lg p-3 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-ink-700">{dimName(imp.dimension, lang)}</span>
-                            <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-400 tracking-wide uppercase">{imp.dimension_score}/100</span>
-                          </div>
-                          <p className="text-sm text-ink-600">{imp.issue}</p>
-                          <p className="text-sm text-ink-500">{imp.suggestion}</p>
-                          {imp.before && imp.after && (
-                            <div className="grid gap-2 text-xs">
-                              <div className="bg-ink-050 rounded-lg p-3">
-                                <span className="font-[family-name:var(--font-mono)] text-ink-400 uppercase tracking-wide text-[11px]">{ui.before}</span>
-                                <p className="text-ink-500 mt-1">{imp.before}</p>
-                              </div>
-                              <div className="bg-positive-ghost rounded-lg p-3">
-                                <span className="font-[family-name:var(--font-mono)] text-positive uppercase tracking-wide text-[11px]">{ui.after}</span>
-                                <p className="text-ink-700 mt-1">{imp.after}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                )}
-              </div>
-            </details>
-          </div>
-
-          {/* Step 4 — Improved CV */}
-          <div className="flex gap-3 items-start">
-            <div className="pt-3"><Badge n={4} /></div>
-            <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
-              <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2"><Chevron className="text-white/70" />{ui.improvedCvTitle}</summary>
-              <div className="p-4 space-y-3">
-                {result.improved_cv.changes.length > 0 && (
-                  <details className="border border-ink-100 rounded-lg">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-600 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.changesTitle}</summary>
-                    <ul className="px-4 pb-3 space-y-1">
-                      {result.improved_cv.changes.map((c, i) => <li key={i} className="flex gap-2 text-sm text-ink-500"><span className="text-positive shrink-0">+</span>{c}</li>)}
-                    </ul>
-                  </details>
-                )}
-                <details open className="border border-accent/30 rounded-lg">
-                  <summary className="px-4 py-3 text-sm font-medium text-accent flex items-center gap-2"><Chevron className="text-accent" />{ui.newTextTitle}</summary>
+              )}
+              {result.analysis.improvements.length > 0 && (
+                <details className="border border-ink-100 rounded-lg">
+                  <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.improvementsTitle}</summary>
                   <div className="px-4 pb-4 space-y-3">
-                    <ResumeText text={result.improved_cv.text} />
-                    <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                      {copied ? ui.copied : ui.copy}
-                    </button>
+                    {result.analysis.improvements.map((imp, i) => (
+                      <div key={i} className="border border-ink-100 rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-ink-700">{dimName(imp.dimension, lang)}</span>
+                          <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-400 tracking-wide uppercase">{imp.dimension_score}/100</span>
+                        </div>
+                        <p className="text-sm text-ink-600">{imp.issue}</p>
+                        <p className="text-sm text-ink-500">{imp.suggestion}</p>
+                        {imp.before && imp.after && (
+                          <div className="grid gap-2 text-xs">
+                            <div className="bg-ink-050 rounded-lg p-3">
+                              <span className="font-[family-name:var(--font-mono)] text-ink-400 uppercase tracking-wide text-[11px]">{ui.before}</span>
+                              <p className="text-ink-500 mt-1">{imp.before}</p>
+                            </div>
+                            <div className="bg-positive-ghost rounded-lg p-3">
+                              <span className="font-[family-name:var(--font-mono)] text-positive uppercase tracking-wide text-[11px]">{ui.after}</span>
+                              <p className="text-ink-700 mt-1">{imp.after}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </details>
-              </div>
-            </details>
-          </div>
+              )}
+            </div>
+          </details>
 
-          {/* Donation — subtle, only visible after copy, emotional seed */}
+          {/* Improved CV */}
+          <details open className="border border-accent/30 rounded-lg overflow-hidden">
+            <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2"><Chevron className="text-white/70" />{ui.improvedCvTitle}</summary>
+            <div className="p-4 space-y-3">
+              {result.improved_cv.changes.length > 0 && (
+                <details className="border border-ink-100 rounded-lg">
+                  <summary className="px-4 py-3 text-sm font-medium text-ink-600 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.changesTitle}</summary>
+                  <ul className="px-4 pb-3 space-y-1">
+                    {result.improved_cv.changes.map((c, i) => <li key={i} className="flex gap-2 text-sm text-ink-500"><span className="text-positive shrink-0">+</span>{c}</li>)}
+                  </ul>
+                </details>
+              )}
+              <details open className="border border-accent/30 rounded-lg">
+                <summary className="px-4 py-3 text-sm font-medium text-accent flex items-center gap-2"><Chevron className="text-accent" />{ui.newTextTitle}</summary>
+                <div className="px-4 pb-4 space-y-3">
+                  <ResumeText text={result.improved_cv.text} />
+                  <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    {copied ? ui.copied : ui.copy}
+                  </button>
+                </div>
+              </details>
+            </div>
+          </details>
+
+          {/* Donation — subtle, only visible after copy */}
           {copied && (
             <div className="text-center py-4 donation-fade-in">
               <p className="text-xs text-ink-400 mb-1"><CvoolText text={donCopy.line1} /></p>
@@ -386,14 +393,30 @@ export default function Home() {
         </div>
       )}
 
+      {/* Social proof + Share — only on input screen */}
+      {!result && !loading && !parsing && (
+        <>
+          <div className="bg-ink-050 rounded-xl px-5 py-4 flex items-center gap-4">
+            <span className="text-2xl font-medium text-accent tracking-tight">2,847</span>
+            <span className="text-xs text-ink-400 leading-relaxed">{ui.socialProofText}</span>
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-xs text-ink-400">{ui.shareText}</p>
+            <button onClick={share} className="text-xs text-accent hover:text-accent-dim transition font-medium cursor-pointer">
+              <CvoolText text={ui.shareCta} /> &rarr;
+            </button>
+          </div>
+        </>
+      )}
+
       {/* Footer */}
-      <footer className="pt-12 pb-6 space-y-4">
+      <footer className="pt-8 pb-6 space-y-4">
         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1.5 text-xs text-ink-400">
-          <Link href="/how" className="hover:text-ink-700 transition">{lang === "es" ? "C\u00f3mo funciona" : "How it works"}</Link>
-          <Link href="/about" className="hover:text-ink-700 transition">{lang === "es" ? "Sobre m\u00ed" : "About"}</Link>
-          <Link href="/security" className="hover:text-ink-700 transition">{lang === "es" ? "Seguridad" : "Security"}</Link>
-          <Link href="/privacy" className="hover:text-ink-700 transition">{lang === "es" ? "Privacidad" : "Privacy"}</Link>
-          <Link href="/terms" className="hover:text-ink-700 transition">{lang === "es" ? "T\u00e9rminos" : "Terms"}</Link>
+          <Link href="/how" className="hover:text-ink-700 transition">{ui.footerHow}</Link>
+          <Link href="/about" className="hover:text-ink-700 transition">{ui.footerAbout}</Link>
+          <Link href="/security" className="hover:text-ink-700 transition">{ui.footerSecurity}</Link>
+          <Link href="/privacy" className="hover:text-ink-700 transition">{ui.footerPrivacy}</Link>
+          <Link href="/terms" className="hover:text-ink-700 transition">{ui.footerTerms}</Link>
         </div>
         <div className="flex items-center justify-center gap-4 text-xs text-ink-400">
           <span className="inline-flex items-center gap-[2px] font-medium"><FaviconIcon size="w-4 h-4" /><Cv /></span>
