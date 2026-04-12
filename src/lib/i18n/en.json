@@ -12,7 +12,7 @@
   "targetRoleOptional": "(optional)",
   "btnAnalyze": "Analyze my resume and improve",
   "privacyPromise": "Your resume is analyzed and deleted. We store nothing. Ever.",
-  "socialProofText": "resumes improved. Open source. Powered by Claude (Anthropic).",
+  "socialProofText": "resumes improved. Open source. Built with Claude by Anthropic.",
   "shareText": "Know someone looking for a job?",
   "shareCta": "Share CVool — it's free",
   "analyzing": "Analyzing your resume...",
