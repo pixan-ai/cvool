@@ -14,6 +14,30 @@ function clean(s: string): string {
   return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "").trim();
 }
 
+// Validate the shape of the AnalysisResult JSON Claude produces.
+// Per-field check (not just truthy presence) so we catch silent drift —
+// e.g. wrong type, missing nested array, summary-as-number — at the
+// backend boundary instead of letting each UI defend itself differently.
+// score.total === 0 is a legitimate value (not falsy-rejected here).
+function isValidResult(r: unknown): boolean {
+  if (!r || typeof r !== "object") return false;
+  const x = r as Record<string, unknown>;
+  const score = x.score as Record<string, unknown> | undefined;
+  const analysis = x.analysis as Record<string, unknown> | undefined;
+  const improved = x.improved_cv as Record<string, unknown> | undefined;
+  return (
+    !!score &&
+    typeof score.total === "number" &&
+    typeof score.summary === "string" &&
+    !!analysis &&
+    Array.isArray(analysis.strengths) &&
+    Array.isArray(analysis.improvements) &&
+    !!improved &&
+    typeof improved.text === "string" &&
+    Array.isArray(improved.changes)
+  );
+}
+
 export async function OPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 204,
@@ -124,8 +148,8 @@ export async function POST(req: NextRequest) {
           return;
         }
 
-        if (!result.score || !result.analysis || !result.improved_cv) {
-          console.error("Claude returned incomplete result");
+        if (!isValidResult(result)) {
+          console.error("Claude returned malformed result shape");
           send("error", JSON.stringify({ error: "incomplete" }));
           controller.close();
           return;
