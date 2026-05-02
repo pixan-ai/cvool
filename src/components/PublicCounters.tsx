@@ -14,10 +14,10 @@ const GET = (key: string) => `https://abacus.jasoncameron.dev/get/${NS}/${key}`;
 const PUBLIC_URL = (key: string) => `https://abacus.jasoncameron.dev/get/${NS}/${key}`;
 
 const VERIFY_TITLE: Record<Lang, string> = {
-  es: "Verifica este contador público",
+  es: "Verifica este contador p\u00fablico",
   en: "Verify this public counter",
-  fr: "Vérifier ce compteur public",
-  pt: "Verifique este contador público",
+  fr: "V\u00e9rifier ce compteur public",
+  pt: "Verifique este contador p\u00fablico",
   it: "Verifica questo contatore pubblico",
 };
 
@@ -41,8 +41,11 @@ async function fetchValue(url: string): Promise<number | null> {
 }
 
 /**
- * Big number for the social proof slot. Reads (does not increment) on mount,
- * and increments + refreshes when the page dispatches `cvool:cv-analyzed`.
+ * Big number for the social proof slot. Reads (does not increment) on mount.
+ * The increment hit is fired directly from page.tsx the moment a result is
+ * received, because this component unmounts during the analysis flow.
+ * When the user returns to the input screen, the component re-mounts and
+ * fetches the fresh count.
  */
 export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
   const [n, setN] = useState<number | null>(null);
@@ -57,16 +60,6 @@ export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
     };
   }, []);
 
-  useEffect(() => {
-    const onAnalyzed = () => {
-      fetchValue(HIT("cvs-analyzed")).then((v) => {
-        if (v !== null) setN(v);
-      });
-    };
-    window.addEventListener("cvool:cv-analyzed", onAnalyzed);
-    return () => window.removeEventListener("cvool:cv-analyzed", onAnalyzed);
-  }, []);
-
   return (
     <a
       href={PUBLIC_URL("cvs-analyzed")}
@@ -75,14 +68,14 @@ export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
       title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
       className="text-xl font-medium text-accent tracking-tight tabular-nums hover:text-accent-dim transition"
     >
-      {n === null ? "—" : format(n, lang)}
+      {n === null ? "\u2014" : format(n, lang)}
     </a>
   );
 }
 
 /**
- * Tiny line for the footer: "Visitas: 1,234 · Contadores públicos verificables"
- * Increments visits on mount (counts every page load, including bots — by design).
+ * Tiny line for the footer: "Visitas: 1,234 \u00b7 Contadores p\u00fablicos verificables"
+ * Increments visits on mount (counts every page load, including bots \u2014 by design).
  */
 export function FooterPublicCounters({ lang }: { lang: Lang }) {
   const ui = t(lang);
@@ -107,9 +100,9 @@ export function FooterPublicCounters({ lang }: { lang: Lang }) {
         title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
         className="hover:text-ink-500 transition tabular-nums"
       >
-        {ui.counterVisits}: {visits === null ? "—" : format(visits, lang)}
+        {ui.counterVisits}: {visits === null ? "\u2014" : format(visits, lang)}
       </a>
-      <span className="mx-1.5">·</span>
+      <span className="mx-1.5">\u00b7</span>
       <span>{ui.counterPublicVerify}</span>
     </p>
   );

@@ -139,9 +139,14 @@ export default function Home() {
               if (currentEvent === "progress") { setStreamTokens(parsed.tokens || 0); }
               else if (currentEvent === "result") {
                 const r = parsed as AnalysisResult;
+                // Public counter increment (fire-and-forget; runs from the
+                // user's browser, not the server, to keep our backend silent
+                // toward third parties). Triggered here \u2014 not from a window
+                // event \u2014 because the social-proof component unmounts the
+                // moment setResult fires.
+                fetch("https://abacus.jasoncameron.dev/hit/cvool/cvs-analyzed").catch(() => {});
                 setResult(r);
                 track("analysis_completed", { score: r.score.total, lang: r.detected_language });
-                window.dispatchEvent(new Event("cvool:cv-analyzed"));
                 const dl = r.detected_language as Lang;
                 if (LANGS.includes(dl)) setLang(dl);
                 setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -196,7 +201,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero — left-aligned, tension copy, compact */}
+      {/* Hero \u2014 left-aligned, tension copy, compact */}
       <section className="space-y-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
           {ui.heroTitle}<br />
@@ -235,7 +240,7 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* INPUT FORM — with numbered badges */}
+      {/* INPUT FORM \u2014 with numbered badges */}
       {!result && !loading && !parsing && (
         <section className="space-y-3">
           {/* Step 1: CV text */}
@@ -414,7 +419,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Social proof + Share — only on input screen */}
+      {/* Social proof + Share \u2014 only on input screen */}
       {!result && !loading && !parsing && (
         <div className="flex items-center justify-between gap-4 pl-9">
           <div className="flex items-center gap-3">
