@@ -61,7 +61,7 @@ function detectLang(): Lang {
   if (raw.startsWith("fr")) return "fr";
   if (raw.startsWith("it")) return "it";
   if (raw.startsWith("en")) return "en";
-  return "es";
+  return "en";
 }
 
 function TrustBadge({ text }: { text: string }) {
