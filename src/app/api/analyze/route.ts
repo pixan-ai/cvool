@@ -159,9 +159,6 @@ export async function POST(req: NextRequest) {
         controller.close();
       } catch (e: unknown) {
         console.error("Claude API error:", e instanceof Error ? e.message : e);
-        const send = (event: string, data: string) => {
-          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${data}\n\n`));
-        };
         send("error", JSON.stringify({ error: "api_error" }));
         controller.close();
       }
