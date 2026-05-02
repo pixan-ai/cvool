@@ -14,6 +14,22 @@ import { StepBadge } from "@/components/StepBadge";
 
 const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 
+// Renders a string that may contain **bold markers** as JSX with <strong>
+// tags around the marked sections. Lets us keep i18n keys as single strings
+// instead of fragmenting them into 3-4 sub-keys per phrase.
+function BoldMarkers({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.startsWith("**") && part.endsWith("**")
+          ? <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+          : part
+      )}
+    </>
+  );
+}
+
 function Chevron({ className = "" }: { className?: string }) {
   return (
     <svg className={`summary-chevron w-3.5 h-3.5 shrink-0 ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -60,19 +76,6 @@ function detectLang(): Lang {
   return "en";
 }
 
-// Map a raw 0–100 progress (from streamTokens / 1000) to a perceived
-// progress curve that feels less anxious: fast to 50%, slow through
-// 50–80%, then closes out. The piecewise mapping below preserves the
-// real signal (more tokens → more progress) while reshaping its visual
-// pace. We never display 100% from the curve alone — the bar only
-// reaches 100% when `done: true` is received from the SSE stream.
-function displayPct(rawPct: number): number {
-  if (rawPct <= 0) return 0;
-  if (rawPct < 25) return rawPct * 2;            // 0–25 → 0–50  (fast)
-  if (rawPct < 75) return 50 + (rawPct - 25) * 0.6; // 25–75 → 50–80 (slow)
-  return 80 + (rawPct - 75) * 0.8;               // 75–100 → 80–100 (close)
-}
-
 export default function Home() {
   const [lang, setLang] = useState<Lang>("es");
   const [cvText, setCvText] = useState("");
@@ -84,10 +87,26 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [streamTokens, setStreamTokens] = useState(0);
   const [streamDone, setStreamDone] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setLang(detectLang()); }, []);
+
+  // Time-based progress ticker. Starts when loading begins, stops on unload.
+  // We track elapsed milliseconds rather than computing the percentage here,
+  // so the rendering layer can mix it with the token-based signal.
+  useEffect(() => {
+    if (!loading) {
+      setElapsedMs(0);
+      return;
+    }
+    const start = Date.now();
+    const id = setInterval(() => {
+      setElapsedMs(Date.now() - start);
+    }, 200);
+    return () => clearInterval(id);
+  }, [loading]);
 
   const ui = t(lang);
   const ready = cvText.trim().length >= 50 && !loading && !parsing;
@@ -174,20 +193,18 @@ export default function Home() {
     } catch { /* clipboard API unavailable */ }
   };
 
-  const share = () => {
-    const url = "https://cvool.org";
-    const text = lang === "es" ? "Mejora tu CV gratis con IA →" : lang === "pt" ? "Melhore seu currículo grátis com IA →" : "Improve your resume for free with AI →";
-    if (navigator.share) { navigator.share({ title: "CVool", text, url }).catch(() => {}); }
-    else { window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank"); }
-    track("share_clicked");
-  };
-
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
 
-  // Progress: streamDone always wins (renders 100%). Otherwise apply the
-  // visual easing curve to the raw streamTokens-based percentage.
-  const rawPct = loading && streamTokens > 0 ? Math.min(95, (streamTokens / 1000) * 100) : 0;
-  const progressPct = streamDone ? 100 : Math.round(displayPct(rawPct));
+  // Progress bar logic (see Mejoras_Ux_cvool.pdf v2 + chat May 2 2026):
+  //   - Time-based: reaches 80% in 50 seconds. Caps at 80%.
+  //   - Token-based: real signal from the SSE stream. Also caps at 80%.
+  //   - Whichever is more advanced wins (Math.max). Bar is always moving.
+  //   - Only `done: true` from the SSE stream releases the bar to 100%.
+  // This kills the "stuck at a quarter" feeling because the timer ticks
+  // independently of when Claude starts emitting tokens.
+  const timePct = Math.min(80, (elapsedMs / 50000) * 80);
+  const tokenPct = streamTokens > 0 ? Math.min(80, (streamTokens / 1000) * 100) : 0;
+  const progressPct = streamDone ? 100 : Math.round(Math.max(timePct, tokenPct));
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
@@ -207,32 +224,43 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero — centered, three lines: title+accent on top, sub, then explainer */}
+      {/* Hero — centered, three lines: title+accent on top, sub with bold, then explainer */}
       <section className="text-center space-y-2 pt-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
           {ui.heroTitle} <span className="text-accent">{ui.heroAccent}</span>
         </h1>
-        <p className="text-sm text-ink-700">{ui.heroSub}</p>
+        <p className="text-sm text-ink-700"><BoldMarkers text={ui.heroSub} /></p>
         <p className="text-sm text-ink-500">{ui.heroExplain}</p>
       </section>
 
-      {/* Progress */}
+      {/* Progress — time-aware bar + staggered stat reveal */}
       {(loading || parsing) && (
-        <div className="text-center py-6 space-y-3" aria-live="polite">
+        <div className="text-center py-6 space-y-4" aria-live="polite">
           {parsing ? <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p> : (
             <>
               <p className="text-sm text-ink-400 animate-pulse">
-                {progressPct > 80 ? ui.analyzingAlmostDone : streamTokens > 0 ? ui.analyzingWriting : ui.analyzingReading}
+                {progressPct >= 80 ? ui.analyzingAlmostDone : streamTokens > 0 ? ui.analyzingWriting : ui.analyzingReading}
               </p>
               <div className="max-w-xs mx-auto">
                 <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-accent rounded-full transition-all duration-700 ease-out" style={{ width: `${progressPct}%` }} />
+                  <div className="h-full bg-accent rounded-full transition-all duration-300 ease-out" style={{ width: `${progressPct}%` }} />
                 </div>
               </div>
               {cvMetadata && (
-                <p className="text-sm text-ink-700 leading-relaxed tabular-nums">
-                  <span className="font-medium">{cvMetadata.words.toLocaleString(lang)}</span> {ui.metaWords} <span className="text-ink-300">·</span> <span className="font-medium">{cvMetadata.bullets}</span> {ui.metaBullets}, <span className="font-medium">{cvMetadata.withMetrics}</span> {ui.metaWithMetrics}
-                </p>
+                <div className="flex justify-center gap-8 tabular-nums pt-1">
+                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 20 ? "opacity-100" : "opacity-0"}`}>
+                    <div className="text-2xl font-medium text-ink-900">{cvMetadata.words.toLocaleString(lang)}</div>
+                    <div className="text-xs text-ink-400 mt-1">{ui.metaWords}</div>
+                  </div>
+                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 40 ? "opacity-100" : "opacity-0"}`}>
+                    <div className="text-2xl font-medium text-ink-900">{cvMetadata.bullets}</div>
+                    <div className="text-xs text-ink-400 mt-1">{ui.metaBullets}</div>
+                  </div>
+                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 60 ? "opacity-100" : "opacity-0"}`}>
+                    <div className="text-2xl font-medium text-ink-900">{cvMetadata.withMetrics}</div>
+                    <div className="text-xs text-ink-400 mt-1">{ui.metaWithMetrics}</div>
+                  </div>
+                </div>
               )}
               <p className="text-xs text-ink-400 leading-relaxed">{ui.analyzingDisclaimer}</p>
             </>
@@ -242,7 +270,7 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* INPUT FORM — with pleca/teardrop step badges */}
+      {/* INPUT FORM */}
       {!result && !loading && !parsing && (
         <section className="space-y-3 pt-2">
           {/* Step 1: CV text */}
@@ -266,14 +294,19 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Step 2: Target role — two-line label inside input area */}
+          {/* Step 2: Target role — textarea with two-line placeholder, both lines disappear on type */}
           <div className="flex gap-2 items-start">
             <div className="pt-2"><StepBadge n={2} /></div>
-            <div className="flex-1 border border-ink-100 rounded-lg bg-ink-000 focus-within:border-accent transition px-3 py-2">
-              <input type="text" value={targetRole} onChange={(e) => setTargetRole(e.target.value)}
-                placeholder={ui.targetRole} maxLength={200}
-                className="w-full text-sm text-ink-700 bg-transparent placeholder:text-ink-400 focus:outline-none" />
-              <p className="text-xs text-ink-400 mt-0.5">{ui.targetRoleHelp}</p>
+            <div className="flex-1">
+              <textarea
+                value={targetRole}
+                onChange={(e) => setTargetRole(e.target.value)}
+                placeholder={`${ui.targetRole}\n${ui.targetRoleHelp}`}
+                maxLength={500}
+                rows={2}
+                aria-label="Target role"
+                className="w-full p-3 text-sm text-ink-700 bg-ink-000 border border-ink-100 rounded-lg placeholder:text-ink-300 placeholder:whitespace-pre-line resize-none focus:outline-none focus:border-accent transition"
+              />
             </div>
           </div>
 
@@ -286,7 +319,7 @@ export default function Home() {
             </button>
           </div>
 
-          <p className="text-sm text-ink-700 text-center leading-relaxed pt-2">{ui.analyzeFooter}</p>
+          <p className="text-xs text-ink-500 text-center leading-relaxed pt-2">{ui.analyzeFooter}</p>
         </section>
       )}
 
@@ -313,7 +346,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Analysis — collapsed by default so user sees improved CV first */}
+          {/* Analysis */}
           <div className="flex gap-2 items-center">
             <StepBadge n={3} />
             <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
@@ -378,7 +411,7 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Improved CV — open by default with the new text visible immediately */}
+          {/* Improved CV */}
           <div className="flex gap-2 items-start">
             <div className="pt-3"><StepBadge n={4} /></div>
             <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
@@ -424,16 +457,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* Social proof + Share — only on input screen */}
+      {/* Social proof — centered, no share button */}
       {!result && !loading && !parsing && (
-        <div className="flex items-center justify-between gap-4 pl-2">
-          <div className="flex items-center gap-3">
-            <CvsAnalyzedCount lang={lang} />
-            <span className="text-[11px] text-ink-400 leading-snug">{ui.socialProofText}</span>
-          </div>
-          <button onClick={share} className="text-[11px] text-accent hover:text-accent-dim transition font-medium cursor-pointer whitespace-nowrap">
-            <CvoolText text={ui.shareCta} /> →
-          </button>
+        <div className="flex items-center justify-center gap-2 pt-2">
+          <CvsAnalyzedCount lang={lang} />
+          <span className="text-[11px] text-ink-400 leading-snug">{ui.socialProofText}</span>
         </div>
       )}
 

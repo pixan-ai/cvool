@@ -1,7 +1,7 @@
 {
   "heroTitle": "Otimize seu currículo",
   "heroAccent": "em 100 segs",
-  "heroSub": "Sempre grátis e 100% anônimo",
+  "heroSub": "Sempre **grátis** e 100% **anônimo**",
   "heroExplain": "Análise de currículo como recrutadores e sistemas ATS",
   "trustFree": "Sempre gratuito",
   "trustNoSignup": "Sem cadastro",
@@ -15,8 +15,6 @@
   "btnAnalyze": "Analisar meu currículo e melhorar",
   "analyzeFooter": "Seu currículo é analisado com Claude Sonnet 4.6 da Anthropic e excluído imediatamente",
   "socialProofText": "currículos melhorados. Open source. Usa Claude da Anthropic.",
-  "shareText": "Conhece alguém procurando emprego?",
-  "shareCta": "Compartilhe CVool — é grátis",
   "analyzing": "Analisando seu currículo...",
   "uploadingPdf": "Lendo PDF...",
   "rateLimit": "Você pode analisar seu currículo até 7 vezes por hora",

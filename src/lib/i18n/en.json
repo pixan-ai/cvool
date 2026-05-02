@@ -1,7 +1,7 @@
 {
   "heroTitle": "Optimize your resume",
   "heroAccent": "in 100 secs",
-  "heroSub": "Always free and 100% anonymous",
+  "heroSub": "Always **free** and 100% **anonymous**",
   "heroExplain": "Resume analysis like recruiters and ATS systems do it",
   "trustFree": "Always free",
   "trustNoSignup": "No sign-up",
@@ -15,8 +15,6 @@
   "btnAnalyze": "Analyze my resume and improve",
   "analyzeFooter": "Your resume is analyzed with Claude Sonnet 4.6 by Anthropic and deleted immediately",
   "socialProofText": "resumes improved. Open source. Built with Claude by Anthropic.",
-  "shareText": "Know someone looking for a job?",
-  "shareCta": "Share CVool — it's free",
   "analyzing": "Analyzing your resume...",
   "uploadingPdf": "Reading PDF...",
   "rateLimit": "You can analyze and improve your resume up to 7 times per hour",

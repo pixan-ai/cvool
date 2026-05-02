@@ -1,7 +1,7 @@
 {
   "heroTitle": "Optimisez votre CV",
   "heroAccent": "en 100 sec",
-  "heroSub": "Toujours gratuit et 100% anonyme",
+  "heroSub": "Toujours **gratuit** et 100% **anonyme**",
   "heroExplain": "Analyse de CV comme le font les recruteurs et les systèmes ATS",
   "trustFree": "Toujours gratuit",
   "trustNoSignup": "Sans inscription",
@@ -15,8 +15,6 @@
   "btnAnalyze": "Analyser mon CV et améliorer",
   "analyzeFooter": "Votre CV est analysé avec Claude Sonnet 4.6 d'Anthropic et supprimé immédiatement",
   "socialProofText": "CV améliorés. Open source. Utilise Claude d'Anthropic.",
-  "shareText": "Vous connaissez quelqu'un en recherche d'emploi ?",
-  "shareCta": "Partagez CVool — c'est gratuit",
   "analyzing": "Analyse de votre CV en cours...",
   "uploadingPdf": "Lecture du PDF...",
   "rateLimit": "Vous pouvez analyser votre CV jusqu'à 7 fois par heure",
