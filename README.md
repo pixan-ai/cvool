@@ -27,6 +27,7 @@ No sign-up. No data stored. No tracking. Free forever.
 - **Zero data retention**: Your resume is processed in memory and discarded immediately
 - **Constitutional AI prompt**: Ethical principles baked into the analysis — no discrimination, no hallucination, no inflated scores
 - **Open source**: The code, the AI prompt, and the scoring weights are all public
+- **Public verifiable counters**: visit and CVs-analyzed counters live on [abacus.jasoncameron.dev](https://abacus.jasoncameron.dev/get/cvool/visits) (no database, fully auditable)
 
 ## Tech stack
 
