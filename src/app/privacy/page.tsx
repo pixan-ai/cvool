@@ -11,6 +11,7 @@ const T = {
       ["Tu CV (temporal)", "Se procesa en memoria durante el análisis y se descarta inmediatamente. Nunca se almacena en disco ni base de datos."],
       ["Dirección IP (temporal)", "Se usa únicamente para rate limiting (7 req/hora). Se almacena en memoria volátil del servidor y se pierde con cada reinicio."],
       ["Analytics agregados", "Vercel Analytics recopila datos anónimos y agregados (país, dispositivo, páginas vistas). Sin cookies, sin identificadores personales."],
+      ["Contadores públicos vía abacus.jasoncameron.dev", "Cuando completas un análisis, tu navegador (no nuestro servidor) envía una llamada a abacus.jasoncameron.dev — un contador open source, sin base de datos — para incrementar el contador público de CVs mejorados. Esto significa que ese tercero ve tu IP. Si prefieres evitarlo, un adblocker bloquea la llamada sin afectar tu análisis."],
     ],
     purposeTitle: "Finalidades",
     purposes: ["Analizar y mejorar tu CV con IA", "Prevenir abuso del servicio (rate limiting)", "Mejorar el producto con analytics anónimos"],
@@ -30,6 +31,8 @@ const T = {
     intlNote: "El mismo principio aplica en todas las jurisdicciones: no almacenamos tus datos.",
     contactTitle: "Contacto", contactBody: "Para cualquier consulta sobre privacidad:",
     email: "security@cvool.org",
+    langDisclaimer: "Esta página está disponible solo en español e inglés. Para usuarios en otros idiomas, la versión en inglés es la de referencia.",
+    lastUpdated: "Última actualización: abril 2026",
   },
   en: {
     title: "Privacy", accent: "notice",
@@ -40,6 +43,7 @@ const T = {
       ["Your resume (temporary)", "Processed in memory during analysis and discarded immediately. Never stored on disk or database."],
       ["IP address (temporary)", "Used only for rate limiting (7 req/hour). Stored in volatile server memory, lost on restart."],
       ["Aggregate analytics", "Vercel Analytics collects anonymous, aggregate data (country, device, page views). No cookies, no personal identifiers."],
+      ["Public counters via abacus.jasoncameron.dev", "When you complete an analysis, your browser (not our server) sends a request to abacus.jasoncameron.dev — an open-source counter with no database — to increment the public CVs-improved counter. This means that third party sees your IP. If you\u2019d rather not, an adblocker blocks the call without affecting your analysis."],
     ],
     purposeTitle: "Purposes",
     purposes: ["Analyze and improve your resume with AI", "Prevent service abuse (rate limiting)", "Improve the product with anonymous analytics"],
@@ -59,6 +63,8 @@ const T = {
     intlNote: "The same principle applies across all jurisdictions: we don\u2019t store your data.",
     contactTitle: "Contact", contactBody: "For any privacy inquiries:",
     email: "security@cvool.org",
+    langDisclaimer: "This page is available in English and Spanish only. For users in other languages, the English version is the reference.",
+    lastUpdated: "Last updated: April 2026",
   },
 } as const;
 
@@ -110,7 +116,8 @@ export default function PrivacyPage() {
         <p className="text-sm text-ink-500 mb-2">{t.contactBody}</p>
         <a href={`mailto:${t.email}`} className="text-sm text-accent hover:text-accent-dim transition font-medium">{t.email}</a>
       </div>
-      <p className="text-[11px] text-ink-300">Last updated: April 2026</p>
+      <p className="text-[11px] text-ink-300 leading-relaxed">{t.langDisclaimer}</p>
+      <p className="text-[11px] text-ink-300">{t.lastUpdated}</p>
       <SubFooter lang={lang} />
     </div>
   );
