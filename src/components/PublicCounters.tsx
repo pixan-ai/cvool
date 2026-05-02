@@ -66,7 +66,7 @@ export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
       target="_blank"
       rel="noopener noreferrer"
       title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
-      className="text-xl font-medium text-accent tracking-tight tabular-nums hover:text-accent-dim transition"
+      className="text-xl font-medium text-ink-900 tracking-tight tabular-nums hover:text-ink-600 transition"
     >
       {n === null ? "—" : format(n, lang)}
     </a>
