@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { t, dimName } from "@/lib/i18n";
@@ -53,6 +53,13 @@ const DONATION_COPY = {
   it: { line1: "CVool sarà sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere CVool →" },
 } as const;
 
+function extractCvMetadata(cv: string) {
+  const words = cv.trim().split(/\s+/).filter(Boolean).length;
+  const bullets = (cv.match(/^[\s]*[\u2022\u00b7\u2023\-*]/gm) ?? []).length;
+  const withMetrics = (cv.match(/\d+\s*%|[$€£]\s*\d|\d+\s*[KMB]\b/g) ?? []).length;
+  return { words, bullets, withMetrics };
+}
+
 function detectLang(): Lang {
   if (typeof navigator === "undefined") return "es";
   const raw = navigator.language?.toLowerCase() ?? "";
@@ -92,6 +99,7 @@ export default function Home() {
 
   const ui = t(lang);
   const ready = cvText.trim().length >= 50 && !loading && !parsing;
+  const cvMetadata = useMemo(() => cvText.trim().length >= 50 ? extractCvMetadata(cvText) : null, [cvText]);
 
   const handleFile = useCallback(async (file: File) => {
     if (file.type !== "application/pdf") return;
@@ -229,6 +237,11 @@ export default function Home() {
                     <div className="h-full bg-accent rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPct}%` }} />
                   </div>
                 </div>
+              )}
+              {cvMetadata && (
+                <p className="text-[11px] text-ink-300 leading-relaxed tabular-nums">
+                  {cvMetadata.words} {ui.metaWords} · {cvMetadata.bullets} {ui.metaBullets}, {cvMetadata.withMetrics} {ui.metaWithMetrics}
+                </p>
               )}
               <p className="text-[11px] text-ink-300 leading-relaxed">{ui.analyzingDisclaimer}</p>
             </>
