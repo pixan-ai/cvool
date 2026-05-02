@@ -14,10 +14,10 @@ const GET = (key: string) => `https://abacus.jasoncameron.dev/get/${NS}/${key}`;
 const PUBLIC_URL = (key: string) => `https://abacus.jasoncameron.dev/get/${NS}/${key}`;
 
 const VERIFY_TITLE: Record<Lang, string> = {
-  es: "Verifica este contador p\u00fablico",
+  es: "Verifica este contador público",
   en: "Verify this public counter",
-  fr: "V\u00e9rifier ce compteur public",
-  pt: "Verifique este contador p\u00fablico",
+  fr: "Vérifier ce compteur public",
+  pt: "Verifique este contador público",
   it: "Verifica questo contatore pubblico",
 };
 
@@ -68,14 +68,14 @@ export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
       title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
       className="text-xl font-medium text-accent tracking-tight tabular-nums hover:text-accent-dim transition"
     >
-      {n === null ? "\u2014" : format(n, lang)}
+      {n === null ? "—" : format(n, lang)}
     </a>
   );
 }
 
 /**
- * Tiny line for the footer: "Visitas: 1,234 \u00b7 Contadores p\u00fablicos verificables"
- * Increments visits on mount (counts every page load, including bots \u2014 by design).
+ * Tiny line for the footer: "Visitas: 1,234 · Contadores públicos verificables"
+ * Increments visits on mount (counts every page load, including bots — by design).
  */
 export function FooterPublicCounters({ lang }: { lang: Lang }) {
   const ui = t(lang);
@@ -100,9 +100,9 @@ export function FooterPublicCounters({ lang }: { lang: Lang }) {
         title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
         className="hover:text-ink-500 transition tabular-nums"
       >
-        {ui.counterVisits}: {visits === null ? "\u2014" : format(visits, lang)}
+        {ui.counterVisits}: {visits === null ? "—" : format(visits, lang)}
       </a>
-      <span className="mx-1.5">\u00b7</span>
+      <span className="mx-1.5">·</span>
       <span>{ui.counterPublicVerify}</span>
     </p>
   );
