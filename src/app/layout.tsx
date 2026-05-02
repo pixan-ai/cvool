@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "CVool — Free AI resume analyzer and improver",
     description: "Analyze and improve your CV with AI. Free, anonymous, no sign-up required.",
-    site: "@maxcvorg",
+    site: "@cvoolorg",
   },
   alternates: { canonical: "https://cvool.org" },
   robots: {
