@@ -4,6 +4,7 @@ import { useState } from "react";
 import { track } from "@vercel/analytics";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 import { CvoolText } from "@/components/CvoolBrand";
+import { BuyMeACoffeeIcon } from "@/components/icons";
 
 const T = {
   es: {
@@ -78,10 +79,7 @@ export default function DonatePage() {
         <a href="https://buymeacoffee.com/cvool" target="_blank" rel="noopener noreferrer"
           onClick={() => track("donation_clicked")}
           className="inline-flex items-center gap-2 bg-accent text-white text-sm font-medium px-6 py-3 rounded-lg hover:bg-accent-dim transition">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 8h1a4 4 0 110 8h-1" /><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
-            <line x1="6" y1="2" x2="6" y2="4" /><line x1="10" y1="2" x2="10" y2="4" /><line x1="14" y1="2" x2="14" y2="4" />
-          </svg>
+          <BuyMeACoffeeIcon />
           {t.ctaBtn}
         </a>
         <div>

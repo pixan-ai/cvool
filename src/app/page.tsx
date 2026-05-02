@@ -8,7 +8,7 @@ import type { Lang } from "@/lib/i18n";
 import type { AnalysisResult } from "@/types/analysis";
 import { CvoolBrand as Cv, CvoolText } from "@/components/CvoolBrand";
 import { FaviconIcon } from "@/components/FaviconIcon";
-import { GitHubIcon } from "@/components/icons";
+import { GitHubIcon, XIcon, BuyMeACoffeeIcon } from "@/components/icons";
 import { CvsAnalyzedCount, FooterPublicCounters } from "@/components/PublicCounters";
 import { StepBadge } from "@/components/StepBadge";
 
@@ -61,7 +61,7 @@ function ResumeText({ text }: { text: string }) {
 function extractCvMetadata(cv: string) {
   const words = cv.trim().split(/\s+/).filter(Boolean).length;
   const bullets = (cv.match(/^[\s]*[\u2022\u00b7\u2023\-*]/gm) ?? []).length;
-  const withMetrics = (cv.match(/\d+\s*%|[$€£]\s*\d|\d+\s*[KMB]\b/g) ?? []).length;
+  const withMetrics = (cv.match(/\d+\s*%|[$\u20ac\u00a3]\s*\d|\d+\s*[KMB]\b/g) ?? []).length;
   return { words, bullets, withMetrics };
 }
 
@@ -93,9 +93,6 @@ export default function Home() {
 
   useEffect(() => { setLang(detectLang()); }, []);
 
-  // Time-based progress ticker. Starts when loading begins, stops on unload.
-  // We track elapsed milliseconds rather than computing the percentage here,
-  // so the rendering layer can mix it with the token-based signal.
   useEffect(() => {
     if (!loading) {
       setElapsedMs(0);
@@ -161,11 +158,6 @@ export default function Home() {
               }
               else if (currentEvent === "result") {
                 const r = parsed as AnalysisResult;
-                // Public counter increment (fire-and-forget; runs from the
-                // user's browser, not the server, to keep our backend silent
-                // toward third parties). Triggered here — not from a window
-                // event — because the social-proof component unmounts the
-                // moment setResult fires.
                 fetch("https://abacus.jasoncameron.dev/hit/cvool/cvs-analyzed").catch(() => {});
                 setResult(r);
                 track("analysis_completed", { score: r.score.total, lang: r.detected_language });
@@ -195,19 +187,6 @@ export default function Home() {
 
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
 
-  // Progress bar logic (calibrated against frame-by-frame video measurement
-  // May 2 2026 — bar lagged target by ~13% throughout active phase under the
-  // previous duration-300 transition with 50000ms time curve).
-  //   - Time-based: reaches 80% in 25 seconds (was 50). Real analysis takes
-  //     ~60-90s, so the bar parks at the 80% cap waiting for done — that's
-  //     the desired psychological pattern (fast progress, then anticipation).
-  //   - Token-based: real signal from the SSE stream. Also caps at 80%.
-  //   - Whichever is more advanced wins (Math.max). Bar is always moving.
-  //   - Only `done: true` from the SSE stream releases the bar to 100%.
-  //   - displayPct adds a 4% floor so the first sliver is actually visible
-  //     on a rounded-pill bar (a 1% fill is hidden by the border-radius).
-  //     The floor only kicks in once progress is non-zero, so the very
-  //     first frame of loading still starts at 0.
   const timePct = Math.min(80, (elapsedMs / 25000) * 80);
   const tokenPct = streamTokens > 0 ? Math.min(80, (streamTokens / 1000) * 100) : 0;
   const progressPct = streamDone ? 100 : Math.round(Math.max(timePct, tokenPct));
@@ -215,7 +194,6 @@ export default function Home() {
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
-      {/* Header */}
       <header>
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
@@ -231,7 +209,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero — centered, three lines: title+accent on top, sub with bold, then explainer */}
       <section className="text-center space-y-2 pt-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
           {ui.heroTitle} <span className="text-accent">{ui.heroAccent}</span>
@@ -240,7 +217,6 @@ export default function Home() {
         <p className="text-sm text-ink-500">{ui.heroExplain}</p>
       </section>
 
-      {/* Progress — time-aware bar + staggered stat reveal */}
       {(loading || parsing) && (
         <div className="text-center py-6 space-y-4" aria-live="polite">
           {parsing ? <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p> : (
@@ -277,10 +253,8 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* INPUT FORM */}
       {!result && !loading && !parsing && (
         <section className="space-y-3 pt-2">
-          {/* Step 1: CV text */}
           <div className="flex gap-2 items-start">
             <div className="pt-2"><StepBadge n={1} /></div>
             <div className="flex-1">
@@ -301,7 +275,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Step 2: Target role — single-line placeholder, separator is a period */}
           <div className="flex gap-2 items-start">
             <div className="pt-2"><StepBadge n={2} /></div>
             <div className="flex-1">
@@ -317,7 +290,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Step 3: Analyze */}
           <div className="flex gap-2 items-center">
             <StepBadge n={3} />
             <button onClick={analyze} disabled={!ready}
@@ -330,12 +302,10 @@ export default function Home() {
         </section>
       )}
 
-      {/* RESULTS */}
       {result && (
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
-          {/* Original CV */}
           <div className="flex gap-2 items-center">
             <StepBadge n={1} />
             <details className="flex-1 border border-ink-100 rounded-lg">
@@ -344,7 +314,6 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Target role */}
           <div className="flex gap-2 items-center">
             <StepBadge n={2} />
             <details className="flex-1 border border-ink-100 rounded-lg">
@@ -353,7 +322,6 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Analysis */}
           <div className="flex gap-2 items-center">
             <StepBadge n={3} />
             <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
@@ -418,7 +386,6 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Improved CV */}
           <div className="flex gap-2 items-start">
             <div className="pt-3"><StepBadge n={4} /></div>
             <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
@@ -448,7 +415,6 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Donation */}
           {copied && (
             <div className="text-center py-4 donation-fade-in">
               <p className="text-xs text-ink-400 mb-1"><CvoolText text={ui.donationLine1} /></p>
@@ -457,14 +423,12 @@ export default function Home() {
             </div>
           )}
 
-          {/* Reset */}
           <div className="text-center">
             <button onClick={reset} className="text-sm text-accent hover:text-accent-dim transition cursor-pointer">{ui.tryAgain}</button>
           </div>
         </div>
       )}
 
-      {/* Social proof — pill containing count + label, no extra copy */}
       {!result && !loading && !parsing && (
         <div className="flex justify-center pt-2">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-ink-100 px-3 py-1">
@@ -474,7 +438,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Footer */}
       <footer className="pt-4 pb-4 space-y-3">
         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-xs text-ink-400">
           <Link href="/how" className="hover:text-ink-700 transition">{ui.footerHow}</Link>
@@ -487,13 +450,10 @@ export default function Home() {
             <GitHubIcon />
           </a>
           <a href="https://x.com/cvoolorg" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="X">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <XIcon />
           </a>
           <a href="https://buymeacoffee.com/cvool" target="_blank" rel="noopener noreferrer" onClick={() => track("donation_clicked")} className="hover:text-ink-600 transition">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 8h1a4 4 0 110 8h-1" /><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
-              <line x1="6" y1="2" x2="6" y2="4" /><line x1="10" y1="2" x2="10" y2="4" /><line x1="14" y1="2" x2="14" y2="4" />
-            </svg>
+            <BuyMeACoffeeIcon />
           </a>
         </div>
         <FooterPublicCounters lang={lang} />
