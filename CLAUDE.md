@@ -17,8 +17,13 @@ Operated by Pixan AI (pixan = soul in Maya).
 
 - Next.js 15+ (App Router, Turbopack)
 - React 19, Tailwind CSS 4 (OKLCH tokens)
-- Claude API (Opus for analysis, Sonnet for PDF parsing)
+- Claude API (Sonnet 4.6 for both analysis and PDF parsing)
 - Vercel Analytics, deployed on Vercel from main
+
+Sonnet 4.6 is the closed model decision (compared vs Haiku 4.5 and
+Opus 4.7). Latency is output-bound (~5,600 tokens at ~55 t/s ≈ 100s),
+so prompt cache hits help cost but not speed — don't propose a model
+swap as a performance fix.
 
 ## Commands
 
@@ -30,7 +35,7 @@ Operated by Pixan AI (pixan = soul in Maya).
 
 src/
   app/
-    page.tsx              <- entire UI (~280 lines)
+    page.tsx              <- entire UI (~470 lines)
     layout.tsx            <- meta, fonts, analytics, schema
     globals.css           <- OKLCH tokens, details styling, animations
     api/
@@ -44,6 +49,7 @@ src/
       analyze.txt         <- constitutional prompt (~230 lines)
   types/
     analysis.ts           <- AnalysisResult type
+  components/             <- shared UI (PublicCounters, branding, icons)
 
 ## Design philosophy
 
@@ -186,3 +192,33 @@ The client must treat any `!res.ok` response from `/api/analyze` as
 an error and call `setError`, not just specific status codes. A 500
 or 504 with a non-SSE body otherwise drains silently and the UI
 returns to the form with no message — same symptom as above.
+
+### Public counters: keep CSP open and trigger from page.tsx
+
+Two regressions both broke the public counters silently and were
+hard to debug:
+
+1. **CSP**. `next.config.ts` `connect-src` must include
+   `https://abacus.jasoncameron.dev`. The browser silently blocks
+   every `fetch` to abacus when the host is missing — `fetchValue`'s
+   own catch absorbs the rejection, so the only signal is a
+   "Refused to connect" entry in the console. Don't tighten the
+   allowlist without leaving abacus in.
+
+2. **Trigger location**. The cvs-analyzed HIT must fire from
+   `page.tsx`'s SSE result handler, NOT via a `window` event picked
+   up by `<CvsAnalyzedCount>`. The component lives inside the
+   `{!result && !loading && !parsing}` branch and unmounts the
+   moment `setResult` runs — any listener it registered is gone
+   before the dispatched event arrives, so the hit never goes out.
+
+### detectLang falls back to "en", not "es"
+
+`src/app/page.tsx` `detectLang()` returns `"en"` for every
+`navigator.language` outside `es/pt/fr/it/en`. Don't flip the
+fallback back to `"es"` for "LATAM-first" reasons — the `startsWith("es")`
+match already covers every Spanish-language locale, so the `"en"`
+fallback only ever triggers for visitors who would otherwise see
+Spanish they can't read. The SSR-time fallback (when `navigator`
+is undefined) intentionally stays as `"es"` to minimize hydration
+flicker for the largest visitor segment.
