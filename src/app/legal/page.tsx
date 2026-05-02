@@ -48,6 +48,12 @@ const T = {
       purposes: ["Analizar y mejorar tu CV con IA", "Prevenir abuso del servicio (rate limiting)", "Mejorar el producto con analytics an\u00f3nimos"],
       neverTitle: "Lo que NUNCA hacemos",
       never: ["Almacenar tu CV o resultados", "Crear perfiles de usuario", "Compartir datos con terceros para marketing", "Usar cookies de tracking", "Vender o monetizar tus datos"],
+      verifyCountersTitle: "Verifica nuestros contadores p\u00fablicos",
+      verifyCountersBody: "Cualquier persona puede consultar los contadores directamente en estos enlaces. Como no tenemos base de datos propia, dependemos de un servicio externo open source (abacus.jasoncameron.dev) para llevar el conteo \u2014 estas URLs est\u00e1n hosteadas por ese tercero, no por nosotros. Si almacen\u00e1ramos datos en nuestros servidores, esta secci\u00f3n no existir\u00eda.",
+      verifyCounters: [
+        ["Visitas totales", "https://abacus.jasoncameron.dev/get/cvool/visits"],
+        ["CVs mejorados", "https://abacus.jasoncameron.dev/get/cvool/cvs-analyzed"],
+      ] as ReadonlyArray<readonly [string, string]>,
       arcoTitle: "Derechos ARCO (M\u00e9xico)",
       arcoBody: "Bajo la LFPDPPP tienes derecho a:",
       arco: [["A", "Acceso", "Conocer qu\u00e9 datos tenemos"], ["R", "Rectificaci\u00f3n", "Corregir datos inexactos"], ["C", "Cancelaci\u00f3n", "Solicitar eliminaci\u00f3n"], ["O", "Oposici\u00f3n", "Oponerte al tratamiento"]] as ReadonlyArray<readonly [string, string, string]>,
@@ -69,6 +75,12 @@ const T = {
         { t: "Servicio", b: null as string | null, items: ["cvool analiza y mejora CVs usando inteligencia artificial (Claude, Anthropic)", "El servicio es gratuito y sin registro", "Los resultados son sugerencias generadas por IA, no asesor\u00eda profesional", "No garantizamos que los resultados te consigan un empleo"] as readonly string[] | null },
         { t: "Uso aceptable", b: null as string | null, items: ["Usa cvool para analizar y mejorar tu propio CV", "No env\u00edes contenido il\u00edcito, ofensivo o que viole derechos de terceros", "No intentes evadir el rate limiting ni abusar del servicio", "No uses bots, scrapers, ni automatizaci\u00f3n no autorizada"] as readonly string[] | null },
         { t: "Propiedad intelectual", b: "Tu CV es tuyo. Los resultados generados son tuyos. El c\u00f3digo de cvool es open source (MIT). El prompt de IA es parte del c\u00f3digo p\u00fablico.", items: null as readonly string[] | null },
+        { t: "Open source y licencia MIT", b: null as string | null, items: [
+          "Open source significa que todo el c\u00f3digo de cvool es p\u00fablico en GitHub \u2014 cualquiera puede leerlo, auditarlo, copiarlo, modificarlo o crear su propia versi\u00f3n.",
+          "Est\u00e1 bajo la licencia MIT, la m\u00e1s permisiva del software libre. Tienes derecho a usar, modificar, distribuir y hasta vender copias del software, incluso comercialmente.",
+          "La \u00fanica condici\u00f3n es mantener el aviso de copyright y el texto de la licencia MIT en cualquier copia o trabajo derivado.",
+          "Esto significa que cvool no puede 'desaparecer': incluso si baj\u00e1ramos el sitio, el c\u00f3digo vive en GitHub para siempre y cualquiera podr\u00eda seguir hospedando su propia versi\u00f3n.",
+        ] as readonly string[] | null },
         { t: "Privacidad", b: "No almacenamos tu CV ni datos personales. Consulta la secci\u00f3n de privacidad arriba para m\u00e1s detalles.", items: null as readonly string[] | null },
         { t: "Limitaci\u00f3n de responsabilidad", b: "cvool se ofrece \"tal cual\" sin garant\u00edas. No somos responsables por decisiones tomadas con base en los resultados del an\u00e1lisis.", items: null as readonly string[] | null },
         { t: "Modificaciones", b: "Podemos actualizar estos t\u00e9rminos. Los cambios se publican en esta p\u00e1gina con fecha actualizada.", items: null as readonly string[] | null },
@@ -78,7 +90,7 @@ const T = {
     contactTitle: "Contacto", contactBody: "Para cualquier consulta sobre seguridad, privacidad o t\u00e9rminos:",
     email: "security@cvool.org",
     langDisclaimer: "Esta p\u00e1gina est\u00e1 disponible solo en espa\u00f1ol e ingl\u00e9s. Para usuarios en otros idiomas, la versi\u00f3n en ingl\u00e9s es la de referencia.",
-    lastUpdated: "\u00daltima actualizaci\u00f3n: abril 2026",
+    lastUpdated: "\u00daltima actualizaci\u00f3n: mayo 2026",
   },
   en: {
     title: "Legal", accent: "information",
@@ -117,6 +129,12 @@ const T = {
       purposes: ["Analyze and improve your resume with AI", "Prevent service abuse (rate limiting)", "Improve the product with anonymous analytics"],
       neverTitle: "What we NEVER do",
       never: ["Store your resume or results", "Create user profiles", "Share data with third parties for marketing", "Use tracking cookies", "Sell or monetize your data"],
+      verifyCountersTitle: "Verify our public counters",
+      verifyCountersBody: "Anyone can check our counters directly through these links. Since we don\u2019t have our own database, we rely on an open-source third-party service (abacus.jasoncameron.dev) to track these numbers \u2014 these URLs are hosted by that third party, not by us. If we stored data on our own servers, this section wouldn\u2019t exist.",
+      verifyCounters: [
+        ["Total visits", "https://abacus.jasoncameron.dev/get/cvool/visits"],
+        ["Resumes improved", "https://abacus.jasoncameron.dev/get/cvool/cvs-analyzed"],
+      ] as ReadonlyArray<readonly [string, string]>,
       arcoTitle: "ARCO Rights (Mexico)",
       arcoBody: "Under LFPDPPP you have the right to:",
       arco: [["A", "Access", "Know what data we have"], ["R", "Rectification", "Correct inaccurate data"], ["C", "Cancellation", "Request deletion"], ["O", "Opposition", "Object to processing"]] as ReadonlyArray<readonly [string, string, string]>,
@@ -138,6 +156,12 @@ const T = {
         { t: "Service", b: null as string | null, items: ["cvool analyzes and improves resumes using AI (Claude, Anthropic)", "The service is free and requires no registration", "Results are AI-generated suggestions, not professional advice", "We don\u2019t guarantee results will get you a job"] as readonly string[] | null },
         { t: "Acceptable use", b: null as string | null, items: ["Use cvool to analyze and improve your own resume", "Don\u2019t submit illegal, offensive, or rights-violating content", "Don\u2019t attempt to bypass rate limiting or abuse the service", "Don\u2019t use bots, scrapers, or unauthorized automation"] as readonly string[] | null },
         { t: "Intellectual property", b: "Your resume is yours. Generated results are yours. cvool\u2019s code is open source (MIT). The AI prompt is part of the public code.", items: null as readonly string[] | null },
+        { t: "Open source and MIT license", b: null as string | null, items: [
+          "Open source means all of cvool\u2019s code is public on GitHub \u2014 anyone can read it, audit it, copy it, modify it, or build their own version.",
+          "It\u2019s released under the MIT license, the most permissive license in the software world. You have the right to use, modify, distribute, and even sell copies, including commercially.",
+          "The only condition is keeping the copyright notice and MIT license text in any copy or derivative work.",
+          "This means cvool can\u2019t 'disappear': even if we took the site down, the code lives on GitHub forever and anyone could host their own version.",
+        ] as readonly string[] | null },
         { t: "Privacy", b: "We don\u2019t store your resume or personal data. See the privacy section above for details.", items: null as readonly string[] | null },
         { t: "Limitation of liability", b: "cvool is provided \"as is\" without warranties. We\u2019re not liable for decisions made based on analysis results.", items: null as readonly string[] | null },
         { t: "Modifications", b: "We may update these terms. Changes are posted on this page with an updated date.", items: null as readonly string[] | null },
@@ -147,7 +171,7 @@ const T = {
     contactTitle: "Contact", contactBody: "For any inquiries regarding security, privacy, or terms:",
     email: "security@cvool.org",
     langDisclaimer: "This page is available in English and Spanish only. For users in other languages, the English version is the reference.",
-    lastUpdated: "Last updated: April 2026",
+    lastUpdated: "Last updated: May 2026",
   },
 } as const;
 
@@ -203,9 +227,9 @@ export default function LegalPage() {
       {/* Quick anchor nav */}
       <nav className="flex justify-center gap-3 text-xs">
         <a href="#security" className="text-accent hover:text-accent-dim transition">{t.nav.security}</a>
-        <span className="text-ink-300">·</span>
+        <span className="text-ink-300">\u00b7</span>
         <a href="#privacy" className="text-accent hover:text-accent-dim transition">{t.nav.privacy}</a>
-        <span className="text-ink-300">·</span>
+        <span className="text-ink-300">\u00b7</span>
         <a href="#terms" className="text-accent hover:text-accent-dim transition">{t.nav.terms}</a>
       </nav>
 
@@ -220,7 +244,7 @@ export default function LegalPage() {
         </div>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.security.neverTitle}</h3>
-          <MarkedList items={t.security.never} mark="✕" color="text-red-500" />
+          <MarkedList items={t.security.never} mark="\u2715" color="text-red-500" />
         </section>
         <div className="bg-ink-050 rounded-lg p-5">
           <h3 className="text-sm font-medium text-ink-900 mb-1">{t.security.reportTitle}</h3>
@@ -247,12 +271,29 @@ export default function LegalPage() {
           </div>
         </section>
         <section>
+          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.verifyCountersTitle}</h3>
+          <div className="border border-ink-100 rounded-lg p-4">
+            <p className="text-sm text-ink-700 leading-relaxed mb-3">{t.privacy.verifyCountersBody}</p>
+            <ul className="space-y-2">
+              {t.privacy.verifyCounters.map(([label, url], i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="text-accent shrink-0">\u2197</span>
+                  <span className="min-w-0">
+                    <span className="text-ink-700 font-medium">{label}:</span>{" "}
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-dim transition break-all">{url}</a>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+        <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.purposeTitle}</h3>
-          <MarkedList items={t.privacy.purposes} mark="→" color="text-accent" />
+          <MarkedList items={t.privacy.purposes} mark="\u2192" color="text-accent" />
         </section>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.neverTitle}</h3>
-          <MarkedList items={t.privacy.never} mark="✕" color="text-red-500" />
+          <MarkedList items={t.privacy.never} mark="\u2715" color="text-red-500" />
         </section>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.arcoTitle}</h3>
@@ -303,7 +344,7 @@ export default function LegalPage() {
                   <ul className="space-y-2">
                     {s.items.map((item, j) => (
                       <li key={j} className="flex items-start gap-2 text-sm">
-                        <span className="text-accent shrink-0">→</span>
+                        <span className="text-accent shrink-0">\u2192</span>
                         <span className="text-ink-700"><CvoolText text={item} /></span>
                       </li>
                     ))}
