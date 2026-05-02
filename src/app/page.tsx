@@ -9,6 +9,7 @@ import type { AnalysisResult } from "@/types/analysis";
 import { CvoolBrand as Cv, CvoolText } from "@/components/CvoolBrand";
 import { FaviconIcon } from "@/components/FaviconIcon";
 import { GitHubIcon } from "@/components/icons";
+import { CvsAnalyzedCount, FooterPublicCounters } from "@/components/PublicCounters";
 
 const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
 
@@ -140,6 +141,7 @@ export default function Home() {
                 const r = parsed as AnalysisResult;
                 setResult(r);
                 track("analysis_completed", { score: r.score.total, lang: r.detected_language });
+                window.dispatchEvent(new Event("cvool:cv-analyzed"));
                 const dl = r.detected_language as Lang;
                 if (LANGS.includes(dl)) setLang(dl);
                 setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -416,7 +418,7 @@ export default function Home() {
       {!result && !loading && !parsing && (
         <div className="flex items-center justify-between gap-4 pl-9">
           <div className="flex items-center gap-3">
-            <span className="text-xl font-medium text-accent tracking-tight">2,847</span>
+            <CvsAnalyzedCount lang={lang} />
             <span className="text-[11px] text-ink-400 leading-snug">{ui.socialProofText}</span>
           </div>
           <button onClick={share} className="text-[11px] text-accent hover:text-accent-dim transition font-medium cursor-pointer whitespace-nowrap">
@@ -450,6 +452,7 @@ export default function Home() {
           </a>
         </div>
         <p className="text-[11px] text-ink-300 text-center">{ui.footerFree}</p>
+        <FooterPublicCounters lang={lang} />
       </footer>
     </div>
   );
