@@ -46,11 +46,11 @@ function ResumeText({ text }: { text: string }) {
 }
 
 const DONATION_COPY = {
-  es: { line1: "CVool siempre ser\u00e1 gratis.", line2: "Cuando encuentres ese trabajo que te cambia la vida, regresa a ayudar.", cta: "Apoyar CVool \u2192" },
-  en: { line1: "CVool will always be free.", line2: "When you land that life-changing job, come back and help keep it going.", cta: "Support CVool \u2192" },
-  fr: { line1: "CVool sera toujours gratuit.", line2: "Quand vous d\u00e9crochez le poste qui change votre vie, revenez nous aider.", cta: "Soutenir CVool \u2192" },
-  pt: { line1: "CVool ser\u00e1 sempre gratuito.", line2: "Quando voc\u00ea conseguir aquele emprego que muda sua vida, volte para ajudar.", cta: "Apoiar CVool \u2192" },
-  it: { line1: "CVool sar\u00e0 sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere CVool \u2192" },
+  es: { line1: "CVool siempre será gratis.", line2: "Cuando encuentres ese trabajo que te cambia la vida, regresa a ayudar.", cta: "Apoyar CVool →" },
+  en: { line1: "CVool will always be free.", line2: "When you land that life-changing job, come back and help keep it going.", cta: "Support CVool →" },
+  fr: { line1: "CVool sera toujours gratuit.", line2: "Quand vous décrochez le poste qui change votre vie, revenez nous aider.", cta: "Soutenir CVool →" },
+  pt: { line1: "CVool será sempre gratuito.", line2: "Quando você conseguir aquele emprego que muda sua vida, volte para ajudar.", cta: "Apoiar CVool →" },
+  it: { line1: "CVool sarà sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere CVool →" },
 } as const;
 
 function detectLang(): Lang {
@@ -141,8 +141,8 @@ export default function Home() {
                 const r = parsed as AnalysisResult;
                 // Public counter increment (fire-and-forget; runs from the
                 // user's browser, not the server, to keep our backend silent
-                // toward third parties). Triggered here \u2014 not from a window
-                // event \u2014 because the social-proof component unmounts the
+                // toward third parties). Triggered here — not from a window
+                // event — because the social-proof component unmounts the
                 // moment setResult fires.
                 fetch("https://abacus.jasoncameron.dev/hit/cvool/cvs-analyzed").catch(() => {});
                 setResult(r);
@@ -173,7 +173,7 @@ export default function Home() {
 
   const share = () => {
     const url = "https://cvool.org";
-    const text = lang === "es" ? "Mejora tu CV gratis con IA \u2192" : lang === "pt" ? "Melhore seu curr\u00edculo gr\u00e1tis com IA \u2192" : "Improve your resume for free with AI \u2192";
+    const text = lang === "es" ? "Mejora tu CV gratis con IA →" : lang === "pt" ? "Melhore seu currículo grátis com IA →" : "Improve your resume for free with AI →";
     if (navigator.share) { navigator.share({ title: "CVool", text, url }).catch(() => {}); }
     else { window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank"); }
     track("share_clicked");
@@ -201,7 +201,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero \u2014 left-aligned, tension copy, compact */}
+      {/* Hero — left-aligned, tension copy, compact */}
       <section className="space-y-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
           {ui.heroTitle}<br />
@@ -220,12 +220,9 @@ export default function Home() {
         <div className="text-center py-6 space-y-3" aria-live="polite">
           {parsing ? <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p> : (
             <>
-              <div className="relative h-5 analysis-msgs">
-                <span className="text-sm text-ink-400">{ui.analyzing1}</span>
-                <span className="text-sm text-ink-400">{ui.analyzing2}</span>
-                <span className="text-sm text-ink-400">{ui.analyzing3}</span>
-                <span className="text-sm text-ink-400">{ui.analyzing4}</span>
-              </div>
+              <p className="text-sm text-ink-400 animate-pulse">
+                {progressPct > 80 ? ui.analyzingAlmostDone : streamTokens > 0 ? ui.analyzingWriting : ui.analyzingReading}
+              </p>
               {streamTokens > 0 && (
                 <div className="max-w-xs mx-auto">
                   <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
@@ -233,6 +230,7 @@ export default function Home() {
                   </div>
                 </div>
               )}
+              <p className="text-[11px] text-ink-300 leading-relaxed">{ui.analyzingDisclaimer}</p>
             </>
           )}
         </div>
@@ -240,7 +238,7 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* INPUT FORM \u2014 with numbered badges */}
+      {/* INPUT FORM — with numbered badges */}
       {!result && !loading && !parsing && (
         <section className="space-y-3">
           {/* Step 1: CV text */}
@@ -419,7 +417,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Social proof + Share \u2014 only on input screen */}
+      {/* Social proof + Share — only on input screen */}
       {!result && !loading && !parsing && (
         <div className="flex items-center justify-between gap-4 pl-9">
           <div className="flex items-center gap-3">
