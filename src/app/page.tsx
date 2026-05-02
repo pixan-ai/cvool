@@ -10,12 +10,9 @@ import { CvoolBrand as Cv, CvoolText } from "@/components/CvoolBrand";
 import { FaviconIcon } from "@/components/FaviconIcon";
 import { GitHubIcon } from "@/components/icons";
 import { CvsAnalyzedCount, FooterPublicCounters } from "@/components/PublicCounters";
+import { StepBadge } from "@/components/StepBadge";
 
 const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
-
-function Badge({ n }: { n: number }) {
-  return <span className="shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs font-medium flex items-center justify-center">{n}</span>;
-}
 
 function Chevron({ className = "" }: { className?: string }) {
   return (
@@ -63,15 +60,17 @@ function detectLang(): Lang {
   return "en";
 }
 
-function TrustBadge({ text }: { text: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-ink-500">
-      <svg className="w-3.5 h-3.5 shrink-0 text-positive" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      {text}
-    </span>
-  );
+// Map a raw 0–100 progress (from streamTokens / 1000) to a perceived
+// progress curve that feels less anxious: fast to 50%, slow through
+// 50–80%, then closes out. The piecewise mapping below preserves the
+// real signal (more tokens → more progress) while reshaping its visual
+// pace. We never display 100% from the curve alone — the bar only
+// reaches 100% when `done: true` is received from the SSE stream.
+function displayPct(rawPct: number): number {
+  if (rawPct <= 0) return 0;
+  if (rawPct < 25) return rawPct * 2;            // 0–25 → 0–50  (fast)
+  if (rawPct < 75) return 50 + (rawPct - 25) * 0.6; // 25–75 → 50–80 (slow)
+  return 80 + (rawPct - 75) * 0.8;               // 75–100 → 80–100 (close)
 }
 
 export default function Home() {
@@ -84,6 +83,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [streamTokens, setStreamTokens] = useState(0);
+  const [streamDone, setStreamDone] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +109,7 @@ export default function Home() {
 
   const analyze = async () => {
     if (!ready) return;
-    setLoading(true); setError(null); setResult(null); setStreamTokens(0);
+    setLoading(true); setError(null); setResult(null); setStreamTokens(0); setStreamDone(false);
     track("analysis_started", { has_role: targetRole.trim().length > 0 });
     try {
       const res = await fetch("/api/analyze", {
@@ -136,7 +136,10 @@ export default function Home() {
           else if (line.startsWith("data: ")) {
             try {
               const parsed = JSON.parse(line.slice(6));
-              if (currentEvent === "progress") { setStreamTokens(parsed.tokens || 0); }
+              if (currentEvent === "progress") {
+                setStreamTokens(parsed.tokens || 0);
+                if (parsed.done) setStreamDone(true);
+              }
               else if (currentEvent === "result") {
                 const r = parsed as AnalysisResult;
                 // Public counter increment (fire-and-forget; runs from the
@@ -159,7 +162,7 @@ export default function Home() {
           }
         }
       }
-    } catch { setError(ui.errorConnection); } finally { setLoading(false); setStreamTokens(0); }
+    } catch { setError(ui.errorConnection); } finally { setLoading(false); setStreamTokens(0); setStreamDone(false); }
   };
 
   const copy = async () => {
@@ -180,7 +183,11 @@ export default function Home() {
   };
 
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
-  const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
+
+  // Progress: streamDone always wins (renders 100%). Otherwise apply the
+  // visual easing curve to the raw streamTokens-based percentage.
+  const rawPct = loading && streamTokens > 0 ? Math.min(95, (streamTokens / 1000) * 100) : 0;
+  const progressPct = streamDone ? 100 : Math.round(displayPct(rawPct));
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
@@ -200,18 +207,13 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero — left-aligned, tension copy, compact */}
-      <section className="space-y-2">
+      {/* Hero — centered, three lines: title+accent on top, sub, then explainer */}
+      <section className="text-center space-y-2 pt-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
-          {ui.heroTitle}<br />
-          <span className="text-accent">{ui.heroAccent}</span>
+          {ui.heroTitle} <span className="text-accent">{ui.heroAccent}</span>
         </h1>
-        <p className="text-sm text-ink-500 leading-relaxed">{ui.heroSub}</p>
-        <div className="flex flex-wrap gap-x-4 gap-y-1">
-          <TrustBadge text={ui.trustFree} />
-          <TrustBadge text={ui.trustNoSignup} />
-          <TrustBadge text={ui.trustDeleted} />
-        </div>
+        <p className="text-sm text-ink-700">{ui.heroSub}</p>
+        <p className="text-sm text-ink-500">{ui.heroExplain}</p>
       </section>
 
       {/* Progress */}
@@ -222,19 +224,17 @@ export default function Home() {
               <p className="text-sm text-ink-400 animate-pulse">
                 {progressPct > 80 ? ui.analyzingAlmostDone : streamTokens > 0 ? ui.analyzingWriting : ui.analyzingReading}
               </p>
-              {streamTokens > 0 && (
-                <div className="max-w-xs mx-auto">
-                  <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-accent rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPct}%` }} />
-                  </div>
+              <div className="max-w-xs mx-auto">
+                <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-accent rounded-full transition-all duration-700 ease-out" style={{ width: `${progressPct}%` }} />
                 </div>
-              )}
+              </div>
               {cvMetadata && (
-                <p className="text-[11px] text-ink-300 leading-relaxed tabular-nums">
-                  {cvMetadata.words} {ui.metaWords} · {cvMetadata.bullets} {ui.metaBullets}, {cvMetadata.withMetrics} {ui.metaWithMetrics}
+                <p className="text-sm text-ink-700 leading-relaxed tabular-nums">
+                  <span className="font-medium">{cvMetadata.words.toLocaleString(lang)}</span> {ui.metaWords} <span className="text-ink-300">·</span> <span className="font-medium">{cvMetadata.bullets}</span> {ui.metaBullets}, <span className="font-medium">{cvMetadata.withMetrics}</span> {ui.metaWithMetrics}
                 </p>
               )}
-              <p className="text-[11px] text-ink-300 leading-relaxed">{ui.analyzingDisclaimer}</p>
+              <p className="text-xs text-ink-400 leading-relaxed">{ui.analyzingDisclaimer}</p>
             </>
           )}
         </div>
@@ -242,12 +242,12 @@ export default function Home() {
 
       {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-      {/* INPUT FORM — with numbered badges */}
+      {/* INPUT FORM — with pleca/teardrop step badges */}
       {!result && !loading && !parsing && (
-        <section className="space-y-3">
+        <section className="space-y-3 pt-2">
           {/* Step 1: CV text */}
-          <div className="flex gap-3 items-start">
-            <div className="pt-2"><Badge n={1} /></div>
+          <div className="flex gap-2 items-start">
+            <div className="pt-2"><StepBadge n={1} /></div>
             <div className="flex-1">
               <div className="relative border border-ink-100 rounded-lg bg-ink-000 focus-within:border-accent transition">
                 <textarea value={cvText} onChange={(e) => setCvText(e.target.value)} placeholder={ui.placeholder} aria-label="CV text"
@@ -266,24 +266,27 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Step 2: Target role */}
-          <div className="flex gap-3 items-center">
-            <Badge n={2} />
-            <input type="text" value={targetRole} onChange={(e) => setTargetRole(e.target.value)}
-              placeholder={`${ui.targetRole} ${ui.targetRoleOptional}`} maxLength={200}
-              className="flex-1 border border-ink-100 rounded-lg px-3 py-2.5 text-sm text-ink-700 bg-ink-000 placeholder:text-ink-300 focus:outline-none focus:border-accent transition" />
+          {/* Step 2: Target role — two-line label inside input area */}
+          <div className="flex gap-2 items-start">
+            <div className="pt-2"><StepBadge n={2} /></div>
+            <div className="flex-1 border border-ink-100 rounded-lg bg-ink-000 focus-within:border-accent transition px-3 py-2">
+              <input type="text" value={targetRole} onChange={(e) => setTargetRole(e.target.value)}
+                placeholder={ui.targetRole} maxLength={200}
+                className="w-full text-sm text-ink-700 bg-transparent placeholder:text-ink-400 focus:outline-none" />
+              <p className="text-xs text-ink-400 mt-0.5">{ui.targetRoleHelp}</p>
+            </div>
           </div>
 
           {/* Step 3: Analyze */}
-          <div className="flex gap-3 items-center">
-            <Badge n={3} />
+          <div className="flex gap-2 items-center">
+            <StepBadge n={3} />
             <button onClick={analyze} disabled={!ready}
               className={`flex-1 py-3 rounded-lg text-sm font-medium transition cursor-pointer active:scale-[0.98] ${ready ? "bg-accent text-white hover:bg-accent-dim" : "bg-ink-200 text-ink-400 cursor-not-allowed"}`}>
               {ui.btnAnalyze}
             </button>
           </div>
 
-          <p className="text-[11px] text-ink-300 text-center leading-relaxed pl-9">{ui.privacyPromise}</p>
+          <p className="text-sm text-ink-700 text-center leading-relaxed pt-2">{ui.analyzeFooter}</p>
         </section>
       )}
 
@@ -293,8 +296,8 @@ export default function Home() {
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
           {/* Original CV */}
-          <div className="flex gap-3 items-center">
-            <Badge n={1} />
+          <div className="flex gap-2 items-center">
+            <StepBadge n={1} />
             <details className="flex-1 border border-ink-100 rounded-lg">
               <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.originalCvTitle}</summary>
               <div className="px-4 pb-4 text-sm text-ink-500 whitespace-pre-wrap max-h-60 overflow-y-auto">{cvText}</div>
@@ -302,18 +305,18 @@ export default function Home() {
           </div>
 
           {/* Target role */}
-          <div className="flex gap-3 items-center">
-            <Badge n={2} />
+          <div className="flex gap-2 items-center">
+            <StepBadge n={2} />
             <details className="flex-1 border border-ink-100 rounded-lg">
               <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
               <p className="px-4 pb-3 text-sm text-ink-500">{targetRole || ui.notSpecified}</p>
             </details>
           </div>
 
-          {/* Analysis */}
-          <div className="flex gap-3 items-start">
-            <div className="pt-3"><Badge n={3} /></div>
-            <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
+          {/* Analysis — collapsed by default so user sees improved CV first */}
+          <div className="flex gap-2 items-center">
+            <StepBadge n={3} />
+            <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
               <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
               <div className="p-4 space-y-4">
                 <details open className="border border-ink-100 rounded-lg">
@@ -321,7 +324,7 @@ export default function Home() {
                   <div className="px-4 pb-4">
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
-                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">&mdash; {ui.scoreMeta}</span>
+                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
                     </div>
                     <p className="text-sm text-ink-600 leading-relaxed">{result.score.summary}</p>
                   </div>
@@ -375,9 +378,9 @@ export default function Home() {
             </details>
           </div>
 
-          {/* Improved CV */}
-          <div className="flex gap-3 items-start">
-            <div className="pt-3"><Badge n={4} /></div>
+          {/* Improved CV — open by default with the new text visible immediately */}
+          <div className="flex gap-2 items-start">
+            <div className="pt-3"><StepBadge n={4} /></div>
             <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
               <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2"><Chevron className="text-white/70" />{ui.improvedCvTitle}</summary>
               <div className="p-4 space-y-3">
@@ -423,13 +426,13 @@ export default function Home() {
 
       {/* Social proof + Share — only on input screen */}
       {!result && !loading && !parsing && (
-        <div className="flex items-center justify-between gap-4 pl-9">
+        <div className="flex items-center justify-between gap-4 pl-2">
           <div className="flex items-center gap-3">
             <CvsAnalyzedCount lang={lang} />
             <span className="text-[11px] text-ink-400 leading-snug">{ui.socialProofText}</span>
           </div>
           <button onClick={share} className="text-[11px] text-accent hover:text-accent-dim transition font-medium cursor-pointer whitespace-nowrap">
-            <CvoolText text={ui.shareCta} /> &rarr;
+            <CvoolText text={ui.shareCta} /> →
           </button>
         </div>
       )}
@@ -458,7 +461,6 @@ export default function Home() {
             </svg>
           </a>
         </div>
-        <p className="text-[11px] text-ink-300 text-center">{ui.footerFree}</p>
         <FooterPublicCounters lang={lang} />
       </footer>
     </div>
