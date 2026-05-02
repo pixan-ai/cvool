@@ -30,16 +30,14 @@ export function SubFooter({ lang }: { lang: Lang }) {
       <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1.5 text-xs text-ink-400">
         <Link href="/how" className="hover:text-ink-700 transition">{lang === "es" ? "C\u00f3mo funciona" : "How it works"}</Link>
         <Link href="/about" className="hover:text-ink-700 transition">{lang === "es" ? "Sobre m\u00ed" : "About"}</Link>
-        <Link href="/security" className="hover:text-ink-700 transition">{lang === "es" ? "Seguridad" : "Security"}</Link>
-        <Link href="/privacy" className="hover:text-ink-700 transition">{lang === "es" ? "Privacidad" : "Privacy"}</Link>
-        <Link href="/terms" className="hover:text-ink-700 transition">{lang === "es" ? "T\u00e9rminos" : "Terms"}</Link>
+        <Link href="/legal" className="hover:text-ink-700 transition">Legal</Link>
       </div>
       <div className="flex items-center justify-center gap-4 text-xs text-ink-400">
         <span className="font-medium"><span className="text-ink-700">cv</span><span className="text-accent">ool</span></span>
         <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="GitHub">
           <GitHubIcon />
         </a>
-        <a href="https://x.com/maxcvorg" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="X">
+        <a href="https://x.com/cvoolorg" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="X">
           <XIcon />
         </a>
         <a href="https://buymeacoffee.com/cvool" target="_blank" rel="noopener noreferrer" onClick={() => track("donation_clicked")} className="hover:text-ink-600 transition">
