@@ -1,36 +1,3 @@
-import type { AnalysisResult } from "@/types/analysis";
-
-export type PhaseId = "read" | "analyze" | "rewrite" | "format";
-
-export interface Phase {
-  id: PhaseId;
-  label: string;
-  status: "pending" | "active" | "done";
-  startedAt?: number;
-  completedAt?: number;
-}
-
-export type UIState =
-  | { kind: "idle" }
-  | { kind: "ready"; cvText: string; targetRole: string }
-  | {
-      kind: "analyzing";
-      phases: Phase[];
-      tokens: number;
-      startedAt: number;
-      abort: () => void;
-    }
-  | { kind: "revealing"; result: AnalysisResult }
-  | { kind: "result"; result: AnalysisResult; activeTab: ResultTab }
-  | { kind: "error"; reason: ErrorReason; canRetry: boolean };
-
-export type ResultTab = "diagnosis" | "rewrite" | "diff";
-
-export type ErrorReason =
-  | "rate_limit"
-  | "pdf_parse"
-  | "too_short"
-  | "timeout"
-  | "network"
-  | "api_error"
-  | "invalid_output";
+// Deprecated: kill-v2 cleanup (May 2026). UI state types used by /v2 flow.
+// /v2 retired. Safe to remove with: git rm src/types/ui-state.ts
+export {};
