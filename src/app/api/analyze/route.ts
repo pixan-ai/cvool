@@ -91,6 +91,23 @@ export async function POST(req: NextRequest) {
         // Final progress
         send("progress", JSON.stringify({ tokens, done: true }));
 
+        // Cache diagnostics — measure prompt-cache hit rate from production
+        // traffic. Filter Vercel runtime logs by `cache-stats` to inspect.
+        // No PII logged (only token counts and CV character length).
+        try {
+          const finalMsg = await response.finalMessage();
+          const u = finalMsg.usage;
+          console.log("cache-stats", JSON.stringify({
+            cache_creation: u.cache_creation_input_tokens ?? 0,
+            cache_read: u.cache_read_input_tokens ?? 0,
+            input: u.input_tokens ?? 0,
+            output: u.output_tokens ?? 0,
+            cv_chars: cv.length,
+          }));
+        } catch (e) {
+          console.warn("cache-stats failed:", e instanceof Error ? e.message : e);
+        }
+
         // Parse the accumulated JSON
         const json = full
           .replace(/^```(?:json)?\s*\n?/, "")
