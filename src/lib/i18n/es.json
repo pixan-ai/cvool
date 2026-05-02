@@ -56,9 +56,7 @@
   "counterPublicVerify": "Contadores públicos verificables",
   "footerHow": "Cómo funciona",
   "footerAbout": "Sobre mí",
-  "footerSecurity": "Seguridad",
-  "footerPrivacy": "Privacidad",
-  "footerTerms": "Términos",
+  "footerLegal": "Legal",
   "dim": {
     "ats_compatibility": "Compatibilidad ATS",
     "achievement_impact": "Impacto de logros",

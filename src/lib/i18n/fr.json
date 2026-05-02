@@ -56,9 +56,7 @@
   "counterPublicVerify": "Compteurs publics vérifiables",
   "footerHow": "Comment ça marche",
   "footerAbout": "À propos",
-  "footerSecurity": "Sécurité",
-  "footerPrivacy": "Confidentialité",
-  "footerTerms": "Conditions",
+  "footerLegal": "Legal",
   "dim": {
     "ats_compatibility": "Compatibilité ATS",
     "achievement_impact": "Impact des réalisations",

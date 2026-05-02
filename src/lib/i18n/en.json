@@ -56,9 +56,7 @@
   "counterPublicVerify": "Public verifiable counters",
   "footerHow": "How it works",
   "footerAbout": "About",
-  "footerSecurity": "Security",
-  "footerPrivacy": "Privacy",
-  "footerTerms": "Terms",
+  "footerLegal": "Legal",
   "dim": {
     "ats_compatibility": "ATS compatibility",
     "achievement_impact": "Achievement impact",

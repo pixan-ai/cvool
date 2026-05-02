@@ -479,9 +479,7 @@ export default function Home() {
         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-xs text-ink-400">
           <Link href="/how" className="hover:text-ink-700 transition">{ui.footerHow}</Link>
           <Link href="/about" className="hover:text-ink-700 transition">{ui.footerAbout}</Link>
-          <Link href="/security" className="hover:text-ink-700 transition">{ui.footerSecurity}</Link>
-          <Link href="/privacy" className="hover:text-ink-700 transition">{ui.footerPrivacy}</Link>
-          <Link href="/terms" className="hover:text-ink-700 transition">{ui.footerTerms}</Link>
+          <Link href="/legal" className="hover:text-ink-700 transition">{ui.footerLegal}</Link>
         </div>
         <div className="flex items-center justify-center gap-4 text-xs text-ink-400">
           <span className="inline-flex items-center gap-[2px] font-medium"><FaviconIcon size="w-4 h-4" /><Cv /></span>
