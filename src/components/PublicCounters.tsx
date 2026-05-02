@@ -41,11 +41,13 @@ async function fetchValue(url: string): Promise<number | null> {
 }
 
 /**
- * Big number for the social proof slot. Reads (does not increment) on mount.
- * The increment hit is fired directly from page.tsx the moment a result is
- * received, because this component unmounts during the analysis flow.
- * When the user returns to the input screen, the component re-mounts and
- * fetches the fresh count.
+ * Number rendered inside the social-proof pill on the input screen. Reads
+ * (does not increment) on mount. The increment hit is fired from page.tsx
+ * the moment a result is received, because this component unmounts during
+ * the analysis flow. When the user returns to the input screen, the
+ * component re-mounts and fetches the fresh count.
+ *
+ * Sized to sit inline with the pill label (text-sm), not as a hero number.
  */
 export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
   const [n, setN] = useState<number | null>(null);
@@ -66,7 +68,7 @@ export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
       target="_blank"
       rel="noopener noreferrer"
       title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
-      className="text-xl font-medium text-ink-900 tracking-tight tabular-nums hover:text-ink-600 transition"
+      className="text-sm font-semibold text-ink-900 tabular-nums hover:text-ink-600 transition"
     >
       {n === null ? "—" : format(n, lang)}
     </a>

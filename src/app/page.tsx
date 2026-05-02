@@ -195,16 +195,23 @@ export default function Home() {
 
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
 
-  // Progress bar logic (see Mejoras_Ux_cvool.pdf v2 + chat May 2 2026):
-  //   - Time-based: reaches 80% in 50 seconds. Caps at 80%.
+  // Progress bar logic (calibrated against frame-by-frame video measurement
+  // May 2 2026 — bar lagged target by ~13% throughout active phase under the
+  // previous duration-300 transition with 50000ms time curve).
+  //   - Time-based: reaches 80% in 25 seconds (was 50). Real analysis takes
+  //     ~60-90s, so the bar parks at the 80% cap waiting for done — that's
+  //     the desired psychological pattern (fast progress, then anticipation).
   //   - Token-based: real signal from the SSE stream. Also caps at 80%.
   //   - Whichever is more advanced wins (Math.max). Bar is always moving.
   //   - Only `done: true` from the SSE stream releases the bar to 100%.
-  // This kills the "stuck at a quarter" feeling because the timer ticks
-  // independently of when Claude starts emitting tokens.
-  const timePct = Math.min(80, (elapsedMs / 50000) * 80);
+  //   - displayPct adds a 4% floor so the first sliver is actually visible
+  //     on a rounded-pill bar (a 1% fill is hidden by the border-radius).
+  //     The floor only kicks in once progress is non-zero, so the very
+  //     first frame of loading still starts at 0.
+  const timePct = Math.min(80, (elapsedMs / 25000) * 80);
   const tokenPct = streamTokens > 0 ? Math.min(80, (streamTokens / 1000) * 100) : 0;
   const progressPct = streamDone ? 100 : Math.round(Math.max(timePct, tokenPct));
+  const displayPct = progressPct === 0 ? 0 : Math.max(progressPct, 4);
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
@@ -243,7 +250,7 @@ export default function Home() {
               </p>
               <div className="max-w-xs mx-auto">
                 <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-accent rounded-full transition-all duration-300 ease-out" style={{ width: `${progressPct}%` }} />
+                  <div className="h-full bg-accent rounded-full transition-all duration-200 ease-out" style={{ width: `${displayPct}%` }} />
                 </div>
               </div>
               {cvMetadata && (
@@ -294,18 +301,18 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Step 2: Target role — textarea with two-line placeholder, both lines disappear on type */}
+          {/* Step 2: Target role — single-line placeholder, separator is a period */}
           <div className="flex gap-2 items-start">
             <div className="pt-2"><StepBadge n={2} /></div>
             <div className="flex-1">
               <textarea
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
-                placeholder={`${ui.targetRole}\n${ui.targetRoleHelp}`}
+                placeholder={`${ui.targetRole}. ${ui.targetRoleHelp}`}
                 maxLength={500}
                 rows={2}
                 aria-label="Target role"
-                className="w-full p-3 text-sm text-ink-700 bg-ink-000 border border-ink-100 rounded-lg placeholder:text-ink-300 placeholder:whitespace-pre-line resize-none focus:outline-none focus:border-accent transition"
+                className="w-full p-3 text-sm text-ink-700 bg-ink-000 border border-ink-100 rounded-lg placeholder:text-ink-300 resize-none focus:outline-none focus:border-accent transition"
               />
             </div>
           </div>
@@ -457,11 +464,13 @@ export default function Home() {
         </div>
       )}
 
-      {/* Social proof — centered, no share button */}
+      {/* Social proof — pill containing count + label, no extra copy */}
       {!result && !loading && !parsing && (
-        <div className="flex items-center justify-center gap-2 pt-2">
-          <CvsAnalyzedCount lang={lang} />
-          <span className="text-[11px] text-ink-400 leading-snug">{ui.socialProofText}</span>
+        <div className="flex justify-center pt-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-ink-100 px-3 py-1">
+            <CvsAnalyzedCount lang={lang} />
+            <span className="text-xs text-ink-500">{ui.socialProofText}</span>
+          </div>
         </div>
       )}
 
