@@ -45,14 +45,6 @@ function ResumeText({ text }: { text: string }) {
   );
 }
 
-const DONATION_COPY = {
-  es: { line1: "CVool siempre será gratis.", line2: "Cuando encuentres ese trabajo que te cambia la vida, regresa a ayudar.", cta: "Apoyar CVool →" },
-  en: { line1: "CVool will always be free.", line2: "When you land that life-changing job, come back and help keep it going.", cta: "Support CVool →" },
-  fr: { line1: "CVool sera toujours gratuit.", line2: "Quand vous décrochez le poste qui change votre vie, revenez nous aider.", cta: "Soutenir CVool →" },
-  pt: { line1: "CVool será sempre gratuito.", line2: "Quando você conseguir aquele emprego que muda sua vida, volte para ajudar.", cta: "Apoiar CVool →" },
-  it: { line1: "CVool sarà sempre gratuito.", line2: "Quando troverai quel lavoro che ti cambia la vita, torna ad aiutarci.", cta: "Sostenere CVool →" },
-} as const;
-
 function extractCvMetadata(cv: string) {
   const words = cv.trim().split(/\s+/).filter(Boolean).length;
   const bullets = (cv.match(/^[\s]*[\u2022\u00b7\u2023\-*]/gm) ?? []).length;
@@ -189,7 +181,6 @@ export default function Home() {
 
   const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
   const progressPct = loading && streamTokens > 0 ? Math.min(95, Math.round((streamTokens / 1000) * 100)) : 0;
-  const donCopy = DONATION_COPY[lang] || DONATION_COPY.es;
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
@@ -417,9 +408,9 @@ export default function Home() {
           {/* Donation */}
           {copied && (
             <div className="text-center py-4 donation-fade-in">
-              <p className="text-xs text-ink-400 mb-1"><CvoolText text={donCopy.line1} /></p>
-              <p className="text-xs text-ink-300 mb-2">{donCopy.line2}</p>
-              <Link href="/donate" onClick={() => track("donation_clicked")} className="text-xs text-accent hover:text-accent-dim transition font-medium"><CvoolText text={donCopy.cta} /></Link>
+              <p className="text-xs text-ink-400 mb-1"><CvoolText text={ui.donationLine1} /></p>
+              <p className="text-xs text-ink-300 mb-2">{ui.donationLine2}</p>
+              <Link href="/donate" onClick={() => track("donation_clicked")} className="text-xs text-accent hover:text-accent-dim transition font-medium"><CvoolText text={ui.donationCta} /></Link>
             </div>
           )}
 
@@ -457,7 +448,7 @@ export default function Home() {
           <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="GitHub">
             <GitHubIcon />
           </a>
-          <a href="https://x.com/maxcvorg" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="X">
+          <a href="https://x.com/cvoolorg" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="X">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
           <a href="https://buymeacoffee.com/cvool" target="_blank" rel="noopener noreferrer" onClick={() => track("donation_clicked")} className="hover:text-ink-600 transition">
