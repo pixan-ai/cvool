@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Link from "next/link";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 import { CvoolText } from "@/components/CvoolBrand";
 
@@ -256,8 +257,12 @@ export default function LegalPage() {
 
       {/* PRIVACY */}
       <section id="privacy" className="space-y-4 scroll-mt-8 pt-4 border-t border-ink-100">
+        <div className="relative text-center space-y-1">
+          <Link href="/" className="absolute left-0 top-1 text-xs text-ink-400 hover:text-accent transition">{lang === "es" ? "← Inicio" : "← Home"}</Link>
+          <h2 className="text-lg font-medium text-ink-900">{t.nav.privacy}</h2>
+        </div>
         <div className="text-center space-y-1">
-          <h2 className="text-lg font-medium text-ink-900">{t.privacy.heading}</h2>
+          <h3 className="text-base font-medium text-ink-900">{t.privacy.heading}</h3>
           <p className="text-sm text-ink-500">{t.privacy.sub}</p>
         </div>
         <section>
@@ -333,7 +338,8 @@ export default function LegalPage() {
 
       {/* TERMS */}
       <section id="terms" className="space-y-4 scroll-mt-8 pt-4 border-t border-ink-100">
-        <div className="text-center space-y-1">
+        <div className="relative text-center space-y-1">
+          <Link href="/" className="absolute left-0 top-1 text-xs text-ink-400 hover:text-accent transition">{lang === "es" ? "← Inicio" : "← Home"}</Link>
           <h2 className="text-lg font-medium text-ink-900">{t.terms.heading}</h2>
           <p className="text-sm text-ink-500">{t.terms.sub}</p>
         </div>
