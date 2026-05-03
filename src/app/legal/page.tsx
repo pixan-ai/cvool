@@ -70,6 +70,7 @@ const T = {
     terms: {
       heading: "T\u00e9rminos de uso",
       sub: "Condiciones para usar cvool.org.",
+      aiDisclaimer: "La IA puede cometer errores. Verifica el contenido antes de utilizarlo.",
       sections: [
         { t: "Aceptaci\u00f3n", b: "Al usar cvool.org aceptas estos t\u00e9rminos. Si no est\u00e1s de acuerdo, no uses el servicio.", items: null as readonly string[] | null },
         { t: "Servicio", b: null as string | null, items: ["cvool analiza y mejora CVs usando inteligencia artificial (Claude, Anthropic)", "El servicio es gratuito y sin registro", "Los resultados son sugerencias generadas por IA, no asesor\u00eda profesional", "No garantizamos que los resultados te consigan un empleo"] as readonly string[] | null },
@@ -151,6 +152,7 @@ const T = {
     terms: {
       heading: "Terms of use",
       sub: "Conditions for using cvool.org.",
+      aiDisclaimer: "AI can make mistakes. Please verify the content before using it.",
       sections: [
         { t: "Acceptance", b: "By using cvool.org you accept these terms. If you disagree, don\u2019t use the service.", items: null as readonly string[] | null },
         { t: "Service", b: null as string | null, items: ["cvool analyzes and improves resumes using AI (Claude, Anthropic)", "The service is free and requires no registration", "Results are AI-generated suggestions, not professional advice", "We don\u2019t guarantee results will get you a job"] as readonly string[] | null },
@@ -335,6 +337,7 @@ export default function LegalPage() {
           <h2 className="text-lg font-medium text-ink-900">{t.terms.heading}</h2>
           <p className="text-sm text-ink-500">{t.terms.sub}</p>
         </div>
+        <p className="text-sm text-ink-500 leading-relaxed border border-ink-100 rounded-lg p-4">{t.terms.aiDisclaimer}</p>
         <div className="space-y-4">
           {t.terms.sections.map((s, i) => (
             <section key={i}>
