@@ -246,7 +246,7 @@ export default function LegalPage() {
         </div>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.security.neverTitle}</h3>
-          <MarkedList items={t.security.never} mark="\u2715" color="text-red-500" />
+          <MarkedList items={t.security.never} mark={'\u2715'} color="text-red-500" />
         </section>
         <div className="bg-ink-050 rounded-lg p-5">
           <h3 className="text-sm font-medium text-ink-900 mb-1">{t.security.reportTitle}</h3>
@@ -279,7 +279,7 @@ export default function LegalPage() {
             <ul className="space-y-2">
               {t.privacy.verifyCounters.map(([label, url], i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-accent shrink-0">\u2197</span>
+                  <span className="text-accent shrink-0">{'\u2197'}</span>
                   <span className="min-w-0">
                     <span className="text-ink-700 font-medium">{label}:</span>{" "}
                     <a href={url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-dim transition break-all">{url}</a>
@@ -291,11 +291,11 @@ export default function LegalPage() {
         </section>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.purposeTitle}</h3>
-          <MarkedList items={t.privacy.purposes} mark="\u2192" color="text-accent" />
+          <MarkedList items={t.privacy.purposes} mark={'\u2192'} color="text-accent" />
         </section>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.neverTitle}</h3>
-          <MarkedList items={t.privacy.never} mark="\u2715" color="text-red-500" />
+          <MarkedList items={t.privacy.never} mark={'\u2715'} color="text-red-500" />
         </section>
         <section>
           <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.arcoTitle}</h3>
@@ -347,7 +347,7 @@ export default function LegalPage() {
                   <ul className="space-y-2">
                     {s.items.map((item, j) => (
                       <li key={j} className="flex items-start gap-2 text-sm">
-                        <span className="text-accent shrink-0">\u2192</span>
+                        <span className="text-accent shrink-0">{'\u2192'}</span>
                         <span className="text-ink-700"><CvoolText text={item} /></span>
                       </li>
                     ))}
