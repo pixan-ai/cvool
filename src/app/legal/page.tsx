@@ -229,9 +229,9 @@ export default function LegalPage() {
       {/* Quick anchor nav */}
       <nav className="flex justify-center gap-3 text-xs">
         <a href="#security" className="text-accent hover:text-accent-dim transition">{t.nav.security}</a>
-        <span className="text-ink-300">\u00b7</span>
+        <span className="text-ink-300">{' \u00b7 '}</span>
         <a href="#privacy" className="text-accent hover:text-accent-dim transition">{t.nav.privacy}</a>
-        <span className="text-ink-300">\u00b7</span>
+        <span className="text-ink-300">{' \u00b7 '}</span>
         <a href="#terms" className="text-accent hover:text-accent-dim transition">{t.nav.terms}</a>
       </nav>
 
