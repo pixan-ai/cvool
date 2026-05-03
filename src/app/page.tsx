@@ -215,7 +215,7 @@ export default function Home() {
 
       <section className="text-center space-y-2 pt-2">
         <h1 className="text-2xl sm:text-[28px] font-medium text-ink-900 tracking-tight leading-tight">
-          {ui.heroTitle} <span className="text-accent">{ui.heroAccent}</span>
+          {ui.heroTitle}<br /><span className="text-accent">{ui.heroAccent}</span>
         </h1>
         <p className="text-sm text-ink-700"><BoldMarkers text={ui.heroSub} /></p>
         <p className="text-sm text-ink-500">{ui.heroExplain}</p>
