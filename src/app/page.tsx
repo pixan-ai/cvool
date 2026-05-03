@@ -62,7 +62,11 @@ function extractCvMetadata(cv: string) {
   const words = cv.trim().split(/\s+/).filter(Boolean).length;
   const bullets = (cv.match(/^[\s]*[\u2022\u00b7\u2023\-*]/gm) ?? []).length;
   const withMetrics = (cv.match(/\d+\s*%|[$\u20ac\u00a3]\s*\d|\d+\s*[KMB]\b/g) ?? []).length;
-  return { words, bullets, withMetrics };
+  const sections = cv.split("\n").filter(line => {
+    const t = line.trim();
+    return t.length > 2 && t === t.toUpperCase() && /^[A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00dc\s&\/\-:]+$/.test(t);
+  }).length;
+  return { words, bullets, withMetrics, sections };
 }
 
 function detectLang(): Lang {
@@ -230,12 +234,16 @@ export default function Home() {
                 </div>
               </div>
               {cvMetadata && (
-                <div className="flex justify-center gap-8 tabular-nums pt-1">
-                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 20 ? "opacity-100" : "opacity-0"}`}>
-                    <div className="text-2xl font-medium text-ink-900">{cvMetadata.words.toLocaleString(lang)}</div>
+                <div className="flex flex-wrap justify-center gap-6 tabular-nums pt-1">
+                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 15 ? "opacity-100" : "opacity-0"}`}>
+                    <div className="text-2xl font-medium text-ink-900">{cvMetadata.words.toLocaleString(lang, { useGrouping: true })}</div>
                     <div className="text-xs text-ink-400 mt-1">{ui.metaWords}</div>
                   </div>
-                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 40 ? "opacity-100" : "opacity-0"}`}>
+                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 30 ? "opacity-100" : "opacity-0"}`}>
+                    <div className="text-2xl font-medium text-ink-900">{cvMetadata.sections}</div>
+                    <div className="text-xs text-ink-400 mt-1">{ui.metaSections}</div>
+                  </div>
+                  <div className={`text-center transition-opacity duration-700 ${progressPct >= 45 ? "opacity-100" : "opacity-0"}`}>
                     <div className="text-2xl font-medium text-ink-900">{cvMetadata.bullets}</div>
                     <div className="text-xs text-ink-400 mt-1">{ui.metaBullets}</div>
                   </div>
@@ -318,7 +326,12 @@ export default function Home() {
             <StepBadge n={2} />
             <details className="flex-1 border border-ink-100 rounded-lg">
               <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
-              <p className="px-4 pb-3 text-sm text-ink-500">{targetRole || ui.notSpecified}</p>
+              <p className="px-4 pb-3 text-sm text-ink-500">
+                {targetRole || (result?.inferred_role
+                  ? <>{ui.inferredRoleNote} <strong className="text-ink-700">{result.inferred_role}</strong></>
+                  : ui.notSpecified
+                )}
+              </p>
             </details>
           </div>
 
@@ -332,7 +345,7 @@ export default function Home() {
                   <div className="px-4 pb-4">
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
-                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
+                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">\u2014 {ui.scoreMeta}</span>
                     </div>
                     <p className="text-sm text-ink-600 leading-relaxed">{result.score.summary}</p>
                   </div>
