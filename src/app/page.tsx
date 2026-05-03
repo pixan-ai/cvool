@@ -457,6 +457,7 @@ export default function Home() {
           <Link href="/how" className="hover:text-ink-700 transition">{ui.footerHow}</Link>
           <Link href="/about" className="hover:text-ink-700 transition">{ui.footerAbout}</Link>
           <Link href="/legal" className="hover:text-ink-700 transition">{ui.footerLegal}</Link>
+          <Link href="/donate" onClick={() => track("donation_clicked")} className="hover:text-ink-700 transition">{ui.footerDonate}</Link>
         </div>
         <div className="flex items-center justify-center gap-4 text-xs text-ink-400">
           <span className="inline-flex items-center gap-[2px] font-medium"><FaviconIcon size="w-4 h-4" /><Cv /></span>
