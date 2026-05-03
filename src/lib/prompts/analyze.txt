@@ -292,6 +292,10 @@ No extra text before or after the JSON.
 }
 
 ## QUALITY RULES
+- inferred_role: REQUIRED. Always include this field. Infer the target role from
+  job titles, summary, and experience in the resume (e.g. "Software Engineer",
+  "Gerente de Proyectos", "Diseñadora Gráfica"). If unclear, use the most recent
+  job title. Never omit this field.
 - improvements: order by dimension_score ascending (lowest first
   = highest impact)
 - Include before/after for EVERY improvement where possible
