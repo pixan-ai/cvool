@@ -1,7 +1,7 @@
 export function CvoolBrand() {
   return (
     <span>
-      <span className="text-ink-900">CV</span>
+      <span className="text-ink-900">cv</span>
       <span className="text-accent">ool</span>
     </span>
   );
