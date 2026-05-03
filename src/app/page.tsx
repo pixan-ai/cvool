@@ -436,7 +436,8 @@ export default function Home() {
             </div>
           )}
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
+            <p className="text-xs text-ink-400 leading-relaxed">{ui.aiDisclaimer}</p>
             <button onClick={reset} className="text-sm text-accent hover:text-accent-dim transition cursor-pointer">{ui.tryAgain}</button>
           </div>
         </div>
