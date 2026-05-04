@@ -9,22 +9,23 @@ import { BuyMeACoffeeIcon } from "@/components/icons";
 const T = {
   es: {
     title: "Apoya", accent: "cvool",
-    sub: "cvool es gratis para siempre. Tu donación cubre tokens de IA, infraestructura y desarrollo.",
-    whyTitle: "¿A dónde va tu donación?",
+    sub: "cvool es gratis para siempre. Tu donaci\u00f3n cubre tokens de IA, infraestructura y desarrollo.",
+    whyTitle: "\u00bfA d\u00f3nde va tu donaci\u00f3n?",
     why: [
-      ["Tokens de IA", "Cada análisis usa Claude Sonnet 4.6 de Anthropic. Cada CV cuesta ~$0.05 USD en tokens."],
+      ["Tokens de IA", "Cada an\u00e1lisis usa Claude Sonnet 4.6 de Anthropic. Cada CV cuesta ~$0.05 USD en tokens."],
       ["Infraestructura", "Vercel hosting, dominio cvool.org, SSL, analytics."],
-      ["Desarrollo", "Nuevas funcionalidades, más idiomas, mejor prompt."],
+      ["Desarrollo", "Nuevas funcionalidades, m\u00e1s idiomas, mejor prompt."],
     ],
-    ctaTitle: "Invita un café",
+    ctaTitle: "Invita un caf\u00e9",
     ctaSub: "Cualquier monto ayuda a mantener cvool gratis para todos.",
     ctaBtn: "Donar en Buy Me a Coffee",
-    bmcPill: "¿Qué es Buy Me a Coffee?",
-    bmcExplain: "Buy Me a Coffee es una plataforma segura para recibir donaciones. Acepta tarjetas de crédito/débito, Apple Pay y Google Pay a través de Stripe. No necesitas crear cuenta para donar.",
+    bmcPill: "\u00bfQu\u00e9 es Buy Me a Coffee?",
+    bmcExplain: "Buy Me a Coffee es una plataforma segura para recibir donaciones. Acepta tarjetas de cr\u00e9dito/d\u00e9bito, Apple Pay y Google Pay a trav\u00e9s de Stripe. No necesitas crear cuenta para donar.",
     qrLabel: "Escanea para donar desde tu celular",
     promiseTitle: "Nuestra promesa",
-    promises: ["cvool siempre será gratis", "Tu CV nunca se almacena", "El código siempre será open source", "Donar es 100% voluntario, sin presión"],
-    bottomTitle: "Gracias", bottomBody: "Si cvool te ayudó a conseguir ese trabajo, ya valió toda la desvelada.",
+    promises: ["cvool siempre ser\u00e1 gratis", "Tu CV nunca se almacena", "El c\u00f3digo siempre ser\u00e1 open source", "Donar es 100% voluntario, sin presi\u00f3n"],
+    bottomTitle: "\u00a1Gracias!",
+    bottomBody: "Si cvool te ayud\u00f3 a conseguir ese trabajo, todo nuestro esfuerzo vali\u00f3 la pena.",
     contactLabel: "Contacto:",
     email: "alfredo@cvool.org",
   },
@@ -45,7 +46,8 @@ const T = {
     qrLabel: "Scan to donate from your phone",
     promiseTitle: "Our promise",
     promises: ["cvool will always be free", "Your resume is never stored", "Code will always be open source", "Donating is 100% voluntary, no pressure"],
-    bottomTitle: "Thank you", bottomBody: "If cvool helped you land that job, every late night was worth it.",
+    bottomTitle: "Thank you!",
+    bottomBody: "If cvool helped you land that job, every bit of effort was worth it.",
     contactLabel: "Contact:",
     email: "alfredo@cvool.org",
   },
@@ -64,9 +66,9 @@ export default function DonatePage() {
       </section>
       <section>
         <h2 className="text-sm font-medium text-ink-900 mb-3">{t.whyTitle}</h2>
-        <div className="space-y-2">
+        <div className="border border-ink-100 rounded-lg divide-y divide-ink-100">
           {t.why.map(([title, body], i) => (
-            <div key={i} className="border border-ink-100 rounded-lg p-4">
+            <div key={i} className="p-4">
               <h3 className="text-sm font-medium text-ink-900 mb-0.5">{title}</h3>
               <p className="text-sm text-ink-500 leading-relaxed">{body}</p>
             </div>
@@ -100,11 +102,11 @@ export default function DonatePage() {
       <section>
         <h2 className="text-sm font-medium text-ink-900 mb-3">{t.promiseTitle}</h2>
         <div className="border border-ink-100 rounded-lg p-4">
-          <ul className="space-y-2">{t.promises.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><span className="text-positive shrink-0">✓</span><span className="text-ink-700"><CvoolText text={p} /></span></li>)}</ul>
+          <ul className="space-y-2">{t.promises.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><span className="text-positive shrink-0">\u2713</span><span className="text-ink-700"><CvoolText text={p} /></span></li>)}</ul>
         </div>
       </section>
       <div className="bg-ink-050 rounded-lg p-5 text-center space-y-2">
-        <p className="text-sm text-ink-700 font-medium">{t.bottomTitle}</p>
+        <p className="text-sm text-ink-900 font-bold">{t.bottomTitle}</p>
         <p className="text-sm text-ink-500"><CvoolText text={t.bottomBody} /></p>
         <p className="text-xs text-ink-400">{t.contactLabel} <a href={`mailto:${t.email}`} className="text-accent hover:text-accent-dim transition">{t.email}</a></p>
       </div>
