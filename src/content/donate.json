@@ -1,0 +1,48 @@
+{
+  "es": {
+    "title": "Apoya",
+    "accent": "cvool",
+    "sub": "cvool es gratis para siempre. Tu donación cubre tokens de IA, infraestructura y desarrollo.",
+    "whyTitle": "¿A dónde va tu donación?",
+    "why": [
+      ["Tokens de IA", "Cada análisis usa Claude Sonnet 4.6 de Anthropic. Cada CV cuesta ~$0.05 USD en tokens."],
+      ["Infraestructura", "Vercel hosting, dominio cvool.org, SSL, analytics."],
+      ["Desarrollo", "Nuevas funcionalidades, más idiomas, mejor prompt."]
+    ],
+    "ctaTitle": "Invita un café",
+    "ctaSub": "Cualquier monto ayuda a mantener cvool gratis para todos.",
+    "ctaBtn": "Donar en Buy Me a Coffee",
+    "bmcPill": "¿Qué es Buy Me a Coffee?",
+    "bmcExplain": "Buy Me a Coffee es una plataforma segura para recibir donaciones. Acepta tarjetas de crédito/débito, Apple Pay y Google Pay a través de Stripe. No necesitas crear cuenta para donar.",
+    "qrLabel": "Escanea para donar desde tu celular",
+    "promiseTitle": "Nuestra promesa",
+    "promises": ["cvool siempre será gratis", "Tu CV nunca se almacena", "El código siempre será open source", "Donar es 100% voluntario, sin presión"],
+    "bottomTitle": "¡Gracias!",
+    "bottomBody": "Si cvool te ayudó a conseguir ese trabajo, todo nuestro esfuerzo valió la pena.",
+    "contactLabel": "Contacto:",
+    "email": "alfredo@cvool.org"
+  },
+  "en": {
+    "title": "Support",
+    "accent": "cvool",
+    "sub": "cvool is free forever. Your donation covers AI tokens, infrastructure, and development.",
+    "whyTitle": "Where does your donation go?",
+    "why": [
+      ["AI tokens", "Each analysis uses Claude Sonnet 4.6 by Anthropic. Each resume costs ~$0.05 USD in tokens."],
+      ["Infrastructure", "Vercel hosting, cvool.org domain, SSL, analytics."],
+      ["Development", "New features, more languages, better prompts."]
+    ],
+    "ctaTitle": "Buy me a coffee",
+    "ctaSub": "Any amount helps keep cvool free for everyone.",
+    "ctaBtn": "Donate on Buy Me a Coffee",
+    "bmcPill": "What is Buy Me a Coffee?",
+    "bmcExplain": "Buy Me a Coffee is a secure donation platform. It accepts credit/debit cards, Apple Pay, and Google Pay via Stripe. No account needed to donate.",
+    "qrLabel": "Scan to donate from your phone",
+    "promiseTitle": "Our promise",
+    "promises": ["cvool will always be free", "Your resume is never stored", "Code will always be open source", "Donating is 100% voluntary, no pressure"],
+    "bottomTitle": "Thank you!",
+    "bottomBody": "If cvool helped you land that job, every bit of effort was worth it.",
+    "contactLabel": "Contact:",
+    "email": "alfredo@cvool.org"
+  }
+}

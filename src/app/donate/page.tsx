@@ -5,53 +5,7 @@ import { track } from "@vercel/analytics";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 import { CvoolText } from "@/components/CvoolBrand";
 import { BuyMeACoffeeIcon } from "@/components/icons";
-
-const T = {
-  es: {
-    title: "Apoya", accent: "cvool",
-    sub: "cvool es gratis para siempre. Tu donaci\u00f3n cubre tokens de IA, infraestructura y desarrollo.",
-    whyTitle: "\u00bfA d\u00f3nde va tu donaci\u00f3n?",
-    why: [
-      ["Tokens de IA", "Cada an\u00e1lisis usa Claude Sonnet 4.6 de Anthropic. Cada CV cuesta ~$0.05 USD en tokens."],
-      ["Infraestructura", "Vercel hosting, dominio cvool.org, SSL, analytics."],
-      ["Desarrollo", "Nuevas funcionalidades, m\u00e1s idiomas, mejor prompt."],
-    ],
-    ctaTitle: "Invita un caf\u00e9",
-    ctaSub: "Cualquier monto ayuda a mantener cvool gratis para todos.",
-    ctaBtn: "Donar en Buy Me a Coffee",
-    bmcPill: "\u00bfQu\u00e9 es Buy Me a Coffee?",
-    bmcExplain: "Buy Me a Coffee es una plataforma segura para recibir donaciones. Acepta tarjetas de cr\u00e9dito/d\u00e9bito, Apple Pay y Google Pay a trav\u00e9s de Stripe. No necesitas crear cuenta para donar.",
-    qrLabel: "Escanea para donar desde tu celular",
-    promiseTitle: "Nuestra promesa",
-    promises: ["cvool siempre ser\u00e1 gratis", "Tu CV nunca se almacena", "El c\u00f3digo siempre ser\u00e1 open source", "Donar es 100% voluntario, sin presi\u00f3n"],
-    bottomTitle: "\u00a1Gracias!",
-    bottomBody: "Si cvool te ayud\u00f3 a conseguir ese trabajo, todo nuestro esfuerzo vali\u00f3 la pena.",
-    contactLabel: "Contacto:",
-    email: "alfredo@cvool.org",
-  },
-  en: {
-    title: "Support", accent: "cvool",
-    sub: "cvool is free forever. Your donation covers AI tokens, infrastructure, and development.",
-    whyTitle: "Where does your donation go?",
-    why: [
-      ["AI tokens", "Each analysis uses Claude Sonnet 4.6 by Anthropic. Each resume costs ~$0.05 USD in tokens."],
-      ["Infrastructure", "Vercel hosting, cvool.org domain, SSL, analytics."],
-      ["Development", "New features, more languages, better prompts."],
-    ],
-    ctaTitle: "Buy me a coffee",
-    ctaSub: "Any amount helps keep cvool free for everyone.",
-    ctaBtn: "Donate on Buy Me a Coffee",
-    bmcPill: "What is Buy Me a Coffee?",
-    bmcExplain: "Buy Me a Coffee is a secure donation platform. It accepts credit/debit cards, Apple Pay, and Google Pay via Stripe. No account needed to donate.",
-    qrLabel: "Scan to donate from your phone",
-    promiseTitle: "Our promise",
-    promises: ["cvool will always be free", "Your resume is never stored", "Code will always be open source", "Donating is 100% voluntary, no pressure"],
-    bottomTitle: "Thank you!",
-    bottomBody: "If cvool helped you land that job, every bit of effort was worth it.",
-    contactLabel: "Contact:",
-    email: "alfredo@cvool.org",
-  },
-} as const;
+import T from "@/content/donate.json";
 
 export default function DonatePage() {
   const [lang, setLang] = useSubLang();
@@ -102,7 +56,7 @@ export default function DonatePage() {
       <section>
         <h2 className="text-sm font-medium text-ink-900 mb-3">{t.promiseTitle}</h2>
         <div className="border border-ink-100 rounded-lg p-4">
-          <ul className="space-y-2">{t.promises.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><span className="text-positive shrink-0">\u2713</span><span className="text-ink-700"><CvoolText text={p} /></span></li>)}</ul>
+          <ul className="space-y-2">{t.promises.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><span className="text-positive shrink-0">{'✓'}</span><span className="text-ink-700"><CvoolText text={p} /></span></li>)}</ul>
         </div>
       </section>
       <div className="bg-ink-050 rounded-lg p-5 text-center space-y-2">

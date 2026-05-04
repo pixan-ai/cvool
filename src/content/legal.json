@@ -1,0 +1,180 @@
+{
+  "es": {
+    "title": "Información",
+    "accent": "legal",
+    "sub": "Seguridad, privacidad y términos en una sola página.",
+    "nav": { "security": "Seguridad", "privacy": "Privacidad", "terms": "Términos" },
+    "security": {
+      "heading": "Seguridad",
+      "sub": "Tu CV es tuyo. Así es como lo protegemos.",
+      "sections": [
+        ["Sin base de datos", "No almacenamos CVs, resultados, ni datos personales. Tu CV existe solo en memoria durante el análisis y se descarta inmediatamente."],
+        ["Sin cuentas", "No hay registro, login, ni cookies de sesión. Nada que hackear porque no hay nada que almacenar."],
+        ["TLS/SSL", "Todas las comunicaciones están cifradas en tránsito con TLS 1.3."],
+        ["Headers de seguridad", "HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy."],
+        ["Sanitización de input", "Bytes nulos, caracteres de control, y contenido excesivo se eliminan antes de procesar."],
+        ["Rate limiting", "7 peticiones por hora por IP. Sin base de datos — en memoria."],
+        ["API key protegida", "La clave de Anthropic es server-side. Nunca se expone al cliente."],
+        ["Open source", "Todo el código es auditable en GitHub."]
+      ],
+      "neverTitle": "Lo que NUNCA hacemos",
+      "never": ["Almacenar tu CV o datos personales", "Compartir datos con terceros para marketing", "Usar cookies de tracking o fingerprinting", "Crear perfiles de usuario", "Vender o monetizar tus datos"],
+      "reportTitle": "Reportar vulnerabilidades",
+      "reportBody": "Si descubres una vulnerabilidad, repórtala responsablemente a security@cvool.org"
+    },
+    "privacy": {
+      "heading": "Aviso de privacidad",
+      "sub": "Cómo tratamos tus datos (spoiler: no los guardamos).",
+      "responsable": ["Responsable", "cvool.org es operado por Alfredo Arenas (Pixan.ai) desde Ciudad de México, México. Contacto: security@cvool.org"],
+      "dataTitle": "Datos que recopilamos",
+      "data": [
+        ["Tu CV (temporal)", "Se procesa en memoria durante el análisis y se descarta inmediatamente. Nunca se almacena en disco ni base de datos."],
+        ["Dirección IP (temporal)", "Se usa únicamente para rate limiting (7 req/hora). Se almacena en memoria volátil del servidor y se pierde con cada reinicio."],
+        ["Analytics agregados", "Vercel Analytics recopila datos anónimos y agregados (país, dispositivo, páginas vistas). Sin cookies, sin identificadores personales."],
+        ["Contadores públicos vía abacus.jasoncameron.dev", "Cuando completas un análisis, tu navegador (no nuestro servidor) envía una llamada a abacus.jasoncameron.dev — un contador open source, sin base de datos — para incrementar el contador público de CVs mejorados. Esto significa que ese tercero ve tu IP. Si prefieres evitarlo, un adblocker bloquea la llamada sin afectar tu análisis."]
+      ],
+      "purposeTitle": "Finalidades",
+      "purposes": ["Analizar y mejorar tu CV con IA", "Prevenir abuso del servicio (rate limiting)", "Mejorar el producto con analytics anónimos"],
+      "neverTitle": "Lo que NUNCA hacemos",
+      "never": ["Almacenar tu CV o resultados", "Crear perfiles de usuario", "Compartir datos con terceros para marketing", "Usar cookies de tracking", "Vender o monetizar tus datos"],
+      "verifyCountersTitle": "Verifica nuestros contadores públicos",
+      "verifyCountersBody": "Cualquier persona puede consultar los contadores directamente en estos enlaces. Como no tenemos base de datos propia, dependemos de un servicio externo open source (abacus.jasoncameron.dev) para llevar el conteo — estas URLs están hosteadas por ese tercero, no por nosotros. Si almacenáramos datos en nuestros servidores, esta sección no existiría.",
+      "verifyCounters": [
+        ["Visitas totales", "https://abacus.jasoncameron.dev/get/cvool/visits"],
+        ["CVs mejorados", "https://abacus.jasoncameron.dev/get/cvool/cvs-analyzed"]
+      ],
+      "arcoTitle": "Derechos ARCO (México)",
+      "arcoBody": "Bajo la LFPDPPP tienes derecho a:",
+      "arco": [
+        ["A", "Acceso", "Conocer qué datos tenemos"],
+        ["R", "Rectificación", "Corregir datos inexactos"],
+        ["C", "Cancelación", "Solicitar eliminación"],
+        ["O", "Oposición", "Oponerte al tratamiento"]
+      ],
+      "arcoNote": "Como no almacenamos datos personales, estos derechos se cumplen por diseño.",
+      "intlTitle": "Cumplimiento internacional",
+      "intl": [
+        ["🇪🇺", "GDPR (UE)", "Derecho al olvido, portabilidad, minimización. Cumplido por diseño: no hay datos que borrar."],
+        ["🇧🇷", "LGPD (Brasil)", "Consentimiento, acceso, eliminación. Cumplido: no almacenamos datos."],
+        ["🇺🇸", "CCPA (California)", "Derecho a saber, eliminar, opt-out de venta. No vendemos datos."],
+        ["🇨🇦", "PIPEDA (Canadá)", "Consentimiento, acceso, precisión. Cumplido por diseño."]
+      ],
+      "intlNote": "El mismo principio aplica en todas las jurisdicciones: no almacenamos tus datos."
+    },
+    "terms": {
+      "heading": "Términos de uso",
+      "sub": "Condiciones para usar cvool.org.",
+      "aiDisclaimer": "La IA puede cometer errores. Verifica el contenido antes de utilizarlo.",
+      "sections": [
+        { "t": "Aceptación", "b": "Al usar cvool.org aceptas estos términos. Si no estás de acuerdo, no uses el servicio.", "items": null },
+        { "t": "Servicio", "b": null, "items": ["cvool analiza y mejora CVs usando inteligencia artificial (Claude, Anthropic)", "El servicio es gratuito y sin registro", "Los resultados son sugerencias generadas por IA, no asesoría profesional", "No garantizamos que los resultados te consigan un empleo"] },
+        { "t": "Uso aceptable", "b": null, "items": ["Usa cvool para analizar y mejorar tu propio CV", "No envíes contenido ilícito, ofensivo o que viole derechos de terceros", "No intentes evadir el rate limiting ni abusar del servicio", "No uses bots, scrapers, ni automatización no autorizada"] },
+        { "t": "Propiedad intelectual", "b": "Tu CV es tuyo. Los resultados generados son tuyos. El código de cvool es open source (MIT). El prompt de IA es parte del código público.", "items": null },
+        { "t": "Open source y licencia MIT", "b": null, "items": [
+          "Open source significa que todo el código de cvool es público en GitHub — cualquiera puede leerlo, auditarlo, copiarlo, modificarlo o crear su propia versión.",
+          "Está bajo la licencia MIT, la más permisiva del software libre. Tienes derecho a usar, modificar, distribuir y hasta vender copias del software, incluso comercialmente.",
+          "La única condición es mantener el aviso de copyright y el texto de la licencia MIT en cualquier copia o trabajo derivado.",
+          "Esto significa que cvool no puede 'desaparecer': incluso si bajáramos el sitio, el código vive en GitHub para siempre y cualquiera podría seguir hospedando su propia versión."
+        ] },
+        { "t": "Privacidad", "b": "No almacenamos tu CV ni datos personales. Consulta la sección de privacidad arriba para más detalles.", "items": null },
+        { "t": "Limitación de responsabilidad", "b": "cvool se ofrece \"tal cual\" sin garantías. No somos responsables por decisiones tomadas con base en los resultados del análisis.", "items": null },
+        { "t": "Modificaciones", "b": "Podemos actualizar estos términos. Los cambios se publican en esta página con fecha actualizada.", "items": null },
+        { "t": "Ley aplicable", "b": "Estos términos se rigen por las leyes de México. Cualquier disputa se resolverá en los tribunales de la Ciudad de México.", "items": null }
+      ]
+    },
+    "contactTitle": "Contacto",
+    "contactBody": "Para cualquier consulta sobre seguridad, privacidad o términos:",
+    "email": "security@cvool.org",
+    "langDisclaimer": "Esta página está disponible solo en español e inglés. Para usuarios en otros idiomas, la versión en inglés es la de referencia.",
+    "lastUpdated": "Última actualización: mayo 2026"
+  },
+  "en": {
+    "title": "Legal",
+    "accent": "information",
+    "sub": "Security, privacy, and terms on a single page.",
+    "nav": { "security": "Security", "privacy": "Privacy", "terms": "Terms" },
+    "security": {
+      "heading": "Security",
+      "sub": "Your resume is yours. Here's how we protect it.",
+      "sections": [
+        ["No database", "We don't store resumes, results, or personal data. Your CV exists only in memory during analysis and is discarded immediately."],
+        ["No accounts", "No sign-up, no login, no session cookies. Nothing to hack because there's nothing to store."],
+        ["TLS/SSL", "All communications encrypted in transit with TLS 1.3."],
+        ["Security headers", "HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy."],
+        ["Input sanitization", "Null bytes, control characters, and excessive content stripped before processing."],
+        ["Rate limiting", "7 requests per hour per IP. No database — in-memory."],
+        ["API key protected", "Anthropic key is server-side only. Never exposed to the client."],
+        ["Open source", "All code is auditable on GitHub."]
+      ],
+      "neverTitle": "What we NEVER do",
+      "never": ["Store your resume or personal data", "Share data with third parties for marketing", "Use tracking cookies or fingerprinting", "Create user profiles", "Sell or monetize your data"],
+      "reportTitle": "Report vulnerabilities",
+      "reportBody": "If you discover a vulnerability, please report it responsibly to security@cvool.org"
+    },
+    "privacy": {
+      "heading": "Privacy notice",
+      "sub": "How we handle your data (spoiler: we don't store it).",
+      "responsable": ["Data controller", "cvool.org is operated by Alfredo Arenas (Pixan.ai) from Mexico City, Mexico. Contact: security@cvool.org"],
+      "dataTitle": "Data we collect",
+      "data": [
+        ["Your resume (temporary)", "Processed in memory during analysis and discarded immediately. Never stored on disk or database."],
+        ["IP address (temporary)", "Used only for rate limiting (7 req/hour). Stored in volatile server memory, lost on restart."],
+        ["Aggregate analytics", "Vercel Analytics collects anonymous, aggregate data (country, device, page views). No cookies, no personal identifiers."],
+        ["Public counters via abacus.jasoncameron.dev", "When you complete an analysis, your browser (not our server) sends a request to abacus.jasoncameron.dev — an open-source counter with no database — to increment the public CVs-improved counter. This means that third party sees your IP. If you'd rather not, an adblocker blocks the call without affecting your analysis."]
+      ],
+      "purposeTitle": "Purposes",
+      "purposes": ["Analyze and improve your resume with AI", "Prevent service abuse (rate limiting)", "Improve the product with anonymous analytics"],
+      "neverTitle": "What we NEVER do",
+      "never": ["Store your resume or results", "Create user profiles", "Share data with third parties for marketing", "Use tracking cookies", "Sell or monetize your data"],
+      "verifyCountersTitle": "Verify our public counters",
+      "verifyCountersBody": "Anyone can check our counters directly through these links. Since we don't have our own database, we rely on an open-source third-party service (abacus.jasoncameron.dev) to track these numbers — these URLs are hosted by that third party, not by us. If we stored data on our own servers, this section wouldn't exist.",
+      "verifyCounters": [
+        ["Total visits", "https://abacus.jasoncameron.dev/get/cvool/visits"],
+        ["Resumes improved", "https://abacus.jasoncameron.dev/get/cvool/cvs-analyzed"]
+      ],
+      "arcoTitle": "ARCO Rights (Mexico)",
+      "arcoBody": "Under LFPDPPP you have the right to:",
+      "arco": [
+        ["A", "Access", "Know what data we have"],
+        ["R", "Rectification", "Correct inaccurate data"],
+        ["C", "Cancellation", "Request deletion"],
+        ["O", "Opposition", "Object to processing"]
+      ],
+      "arcoNote": "Since we don't store personal data, these rights are fulfilled by design.",
+      "intlTitle": "International compliance",
+      "intl": [
+        ["🇪🇺", "GDPR (EU)", "Right to erasure, portability, minimization. Fulfilled by design: no data to erase."],
+        ["🇧🇷", "LGPD (Brazil)", "Consent, access, deletion. Fulfilled: we don't store data."],
+        ["🇺🇸", "CCPA (California)", "Right to know, delete, opt-out of sale. We don't sell data."],
+        ["🇨🇦", "PIPEDA (Canada)", "Consent, access, accuracy. Fulfilled by design."]
+      ],
+      "intlNote": "The same principle applies across all jurisdictions: we don't store your data."
+    },
+    "terms": {
+      "heading": "Terms of use",
+      "sub": "Conditions for using cvool.org.",
+      "aiDisclaimer": "AI can make mistakes. Please verify the content before using it.",
+      "sections": [
+        { "t": "Acceptance", "b": "By using cvool.org you accept these terms. If you disagree, don't use the service.", "items": null },
+        { "t": "Service", "b": null, "items": ["cvool analyzes and improves resumes using AI (Claude, Anthropic)", "The service is free and requires no registration", "Results are AI-generated suggestions, not professional advice", "We don't guarantee results will get you a job"] },
+        { "t": "Acceptable use", "b": null, "items": ["Use cvool to analyze and improve your own resume", "Don't submit illegal, offensive, or rights-violating content", "Don't attempt to bypass rate limiting or abuse the service", "Don't use bots, scrapers, or unauthorized automation"] },
+        { "t": "Intellectual property", "b": "Your resume is yours. Generated results are yours. cvool's code is open source (MIT). The AI prompt is part of the public code.", "items": null },
+        { "t": "Open source and MIT license", "b": null, "items": [
+          "Open source means all of cvool's code is public on GitHub — anyone can read it, audit it, copy it, modify it, or build their own version.",
+          "It's released under the MIT license, the most permissive license in the software world. You have the right to use, modify, distribute, and even sell copies, including commercially.",
+          "The only condition is keeping the copyright notice and MIT license text in any copy or derivative work.",
+          "This means cvool can't 'disappear': even if we took the site down, the code lives on GitHub forever and anyone could host their own version."
+        ] },
+        { "t": "Privacy", "b": "We don't store your resume or personal data. See the privacy section above for details.", "items": null },
+        { "t": "Limitation of liability", "b": "cvool is provided \"as is\" without warranties. We're not liable for decisions made based on analysis results.", "items": null },
+        { "t": "Modifications", "b": "We may update these terms. Changes are posted on this page with an updated date.", "items": null },
+        { "t": "Governing law", "b": "These terms are governed by the laws of Mexico. Any disputes will be resolved in Mexico City courts.", "items": null }
+      ]
+    },
+    "contactTitle": "Contact",
+    "contactBody": "For any inquiries regarding security, privacy, or terms:",
+    "email": "security@cvool.org",
+    "langDisclaimer": "This page is available in English and Spanish only. For users in other languages, the English version is the reference.",
+    "lastUpdated": "Last updated: May 2026"
+  }
+}
