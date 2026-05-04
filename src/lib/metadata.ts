@@ -2,27 +2,18 @@ import type { Metadata } from "next";
 
 const BASE = "https://cvool.org";
 
-export function pageMetadata(
+export function pageMeta(
   page: string,
-  titleEs: string,
-  titleEn: string,
-  descEs: string,
-  descEn: string,
-  aiDesc?: string,
+  t: [string, string],
+  d: [string, string],
+  ai?: string,
 ): Metadata {
+  const url = `${BASE}/${page}`;
   return {
-    title: `${titleEs} | cvool`,
-    description: descEs,
-    alternates: { canonical: `${BASE}/${page}` },
-    openGraph: {
-      title: `${titleEn} | cvool`,
-      description: descEn,
-      url: `${BASE}/${page}`,
-      siteName: "cvool",
-      type: "website",
-    },
-    ...(aiDesc
-      ? { other: { "ai:description": aiDesc } }
-      : {}),
+    title: `${t[0]} | cvool`,
+    description: d[0],
+    alternates: { canonical: url },
+    openGraph: { title: `${t[1]} | cvool`, description: d[1], url, siteName: "cvool", type: "website" },
+    ...(ai ? { other: { "ai:description": ai } } : {}),
   };
 }
