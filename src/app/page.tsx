@@ -428,13 +428,22 @@ export default function Home() {
             </details>
           </div>
 
-          {copied && (
-            <div className="text-center py-4 donation-fade-in">
-              <p className="text-xs text-ink-400 mb-1"><CvoolText text={ui.donationLine1} /></p>
-              <p className="text-xs text-ink-300 mb-2">{ui.donationLine2}</p>
-              <Link href="/donate" onClick={() => track("donation_clicked")} className="text-xs text-accent hover:text-accent-dim transition font-medium"><CvoolText text={ui.donationCta} /></Link>
+          <div className="flex items-center justify-between gap-4 border border-ink-100 rounded-xl bg-ink-050 px-4 py-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-ink-700 leading-snug">☕ {ui.donationLine1}</p>
+              <p className="text-xs text-ink-400 mt-0.5 leading-snug">{ui.donationLine2}</p>
             </div>
-          )}
+            <a
+              href="https://buymeacoffee.com/cvool"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track("donation_clicked")}
+              className="shrink-0 px-3 py-2 rounded-lg text-xs font-bold text-ink-900 transition hover:opacity-90"
+              style={{ backgroundColor: "#FFDD00" }}
+            >
+              {ui.donationCta}
+            </a>
+          </div>
 
           <div className="text-center space-y-2">
             <p className="text-xs text-ink-400 leading-relaxed">{ui.aiDisclaimer}</p>
