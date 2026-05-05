@@ -46,6 +46,12 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Reject oversized payloads before reading the body into memory.
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength) > 500_000) {
+    return new Response(JSON.stringify({ error: "payload_too_large" }), { status: 413 });
+  }
+
   // CORS check
   const originError = validateOrigin(req);
   if (originError) return originError;
