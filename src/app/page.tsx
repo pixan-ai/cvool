@@ -345,7 +345,7 @@ export default function Home() {
                   <div className="px-4 pb-4">
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
-                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">\u2014 {ui.scoreMeta}</span>
+                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
                     </div>
                     <p className="text-sm text-ink-600 leading-relaxed">{result.score.summary}</p>
                   </div>
