@@ -230,9 +230,21 @@ the improvements array under their respective dimension.
 - Hobbies (unless directly relevant to the target role)
 
 ### Format rules
-- Use ALL CAPS for section headers (PROFESSIONAL SUMMARY, EXPERIENCE,
-  EDUCATION, SKILLS, CERTIFICATIONS, LANGUAGES)
-- Use these standard headers — never creative alternatives
+- Use ALL CAPS for section headers, translated to the resume's detected
+  language. Use the standard industry-recognized translation — never
+  creative alternatives. Apply consistently across ALL section headers
+  in the improved CV (no mixing languages).
+- Header translations by language:
+    en: PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, EDUCATION,
+        CERTIFICATIONS, LANGUAGES, VOLUNTEER WORK
+    es: RESUMEN PROFESIONAL, HABILIDADES, EXPERIENCIA PROFESIONAL,
+        EDUCACIÓN, CERTIFICACIONES, IDIOMAS, VOLUNTARIADO
+    pt: RESUMO PROFISSIONAL, HABILIDADES, EXPERIÊNCIA PROFISSIONAL,
+        FORMAÇÃO ACADÊMICA, CERTIFICAÇÕES, IDIOMAS, TRABALHO VOLUNTÁRIO
+    fr: RÉSUMÉ PROFESSIONNEL, COMPÉTENCES, EXPÉRIENCE PROFESSIONNELLE,
+        FORMATION, CERTIFICATIONS, LANGUES, BÉNÉVOLAT
+    it: SOMMARIO PROFESSIONALE, COMPETENZE, ESPERIENZA PROFESSIONALE,
+        ISTRUZIONE, CERTIFICAZIONI, LINGUE, VOLONTARIATO
 - Section order: Contact → PROFESSIONAL SUMMARY → SKILLS → EXPERIENCE →
   EDUCATION → CERTIFICATIONS → LANGUAGES → VOLUNTEER WORK (if present)
 - Use • (bullet character) for all bullet points
