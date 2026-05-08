@@ -9,6 +9,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm install --no-audit --no-fund
+      # Regenerate node_modules from package.json so platform-specific
+      # optional deps (lightningcss native bin) resolve for the runner OS.
+      # The committed lockfile is Windows-generated and lacks the Linux entries.
+      - run: rm -f package-lock.json && npm install --no-audit --no-fund
       - run: npm run lint
       - run: npm run build
