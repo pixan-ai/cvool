@@ -215,17 +215,11 @@ export default function Home() {
   const progressPct = streamDone ? 100 : Math.round(Math.max(timePct, tokenPct));
   const displayPct = progressPct === 0 ? 0 : Math.max(progressPct, 4);
 
-  // Merged view used during render. While streaming, partialResult fills in
-  // field-by-field; once event:result arrives, result is the source of truth.
-  // AnalysisResult is structurally a superset of PartialResult, so the cast
-  // is safe and the access pattern stays uniform.
-  const data: PartialResult = result ?? partialResult;
-  const hasContent = !!(
-    data.detected_language ||
-    data.inferred_role ||
-    data.score?.total != null ||
-    data.score?.summary
-  );
+  // partialResult and seenLangRef keep the streaming parser running so the
+  // loader can swap labels into the detected language as soon as the model
+  // declares it, but the result UI itself only renders once the full result
+  // arrives — no piecewise reveal of sections 3/4.
+  const data: PartialResult = result ?? {};
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
@@ -252,7 +246,7 @@ export default function Home() {
         <p className="text-sm text-ink-500">{ui.heroExplain}</p>
       </section>
 
-      {(loading || parsing) && !hasContent && (
+      {(loading || parsing) && !result && (
         <div className="text-center py-6 space-y-4" aria-live="polite">
           {parsing ? <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p> : (
             <>
@@ -341,7 +335,7 @@ export default function Home() {
         </section>
       )}
 
-      {(result || hasContent) && (
+      {result && (
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
@@ -356,7 +350,7 @@ export default function Home() {
           {(targetRole || data.inferred_role || !loading) && (
             <div className="flex gap-2 items-center">
               <StepBadge n={2} />
-              <details open className="flex-1 border border-ink-100 rounded-lg">
+              <details className="flex-1 border border-ink-100 rounded-lg">
                 <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
                 {/* min-h reserves vertical space for up to 2 wrapped lines so
                     the role growing left-to-right doesn't push content below. */}
@@ -373,7 +367,7 @@ export default function Home() {
           {(data.score?.total != null || data.score?.summary || data.analysis?.strengths || data.analysis?.improvements) && (
             <div className="flex gap-2 items-center">
               <StepBadge n={3} />
-              <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
+              <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
                 <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
                 <div className="p-4 space-y-4">
                   {(data.score?.total != null || data.score?.summary) && (
