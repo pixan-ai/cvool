@@ -101,14 +101,7 @@ export async function POST(req: NextRequest) {
           max_tokens: 8_000,
           temperature: 0,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
-          // Prefill `{` forces Claude into raw JSON output and bypasses the
-          // prompt's <thinking> instruction, which (without native extended
-          // thinking enabled) caused Claude to write only the thinking tokens
-          // and end its turn with no JSON to parse.
-          messages: [
-            { role: "user", content: userMsg },
-            { role: "assistant", content: "{" },
-          ],
+          messages: [{ role: "user", content: userMsg }],
         });
 
         for await (const event of response) {
@@ -145,12 +138,19 @@ export async function POST(req: NextRequest) {
           console.warn("cache-stats failed:", e instanceof Error ? e.message : e);
         }
 
-        // Parse the accumulated JSON. Prefilled `{` is not in the stream
-        // (Anthropic prefills don't echo back), so prepend it before parse.
-        const json = ("{" + full)
+        // Parse the accumulated JSON. Strip any leading prose / thinking tags
+        // and extract the first balanced JSON object to be defensive against
+        // model output variations (markdown fences, leading commentary, etc.).
+        let json = full
+          .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
           .replace(/^```(?:json)?\s*\n?/, "")
           .replace(/\n?```\s*$/, "")
           .trim();
+        const firstBrace = json.indexOf("{");
+        const lastBrace = json.lastIndexOf("}");
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+          json = json.slice(firstBrace, lastBrace + 1);
+        }
 
         let result;
         try {
