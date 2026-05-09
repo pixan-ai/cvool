@@ -5,7 +5,8 @@ import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { t, dimName } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
-import type { AnalysisResult } from "@/types/analysis";
+import type { AnalysisResult, PartialResult } from "@/types/analysis";
+import { parsePartial } from "@/lib/streamParse";
 import { CvoolBrand as Cv, CvoolText } from "@/components/CvoolBrand";
 import { FaviconIcon } from "@/components/FaviconIcon";
 import { GitHubIcon, XIcon, BuyMeACoffeeIcon } from "@/components/icons";
@@ -87,6 +88,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [partialResult, setPartialResult] = useState<PartialResult>({});
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [streamTokens, setStreamTokens] = useState(0);
@@ -94,6 +96,8 @@ export default function Home() {
   const [elapsedMs, setElapsedMs] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const chunkBufferRef = useRef("");
+  const seenLangRef = useRef(false);
 
   useEffect(() => { setLang(detectLang()); }, []);
 
@@ -129,7 +133,9 @@ export default function Home() {
 
   const analyze = async () => {
     if (!ready) return;
-    setLoading(true); setError(null); setResult(null); setStreamTokens(0); setStreamDone(false);
+    setLoading(true); setError(null); setResult(null); setPartialResult({}); setStreamTokens(0); setStreamDone(false);
+    chunkBufferRef.current = "";
+    seenLangRef.current = false;
     track("analysis_started", { has_role: targetRole.trim().length > 0 });
     try {
       const res = await fetch("/api/analyze", {
@@ -159,6 +165,19 @@ export default function Home() {
               if (currentEvent === "progress") {
                 setStreamTokens(parsed.tokens || 0);
                 if (parsed.done) setStreamDone(true);
+              }
+              else if (currentEvent === "chunk") {
+                chunkBufferRef.current += parsed.delta || "";
+                const partial = parsePartial(chunkBufferRef.current);
+                setPartialResult(partial);
+                // Switch UI language as soon as the model declares it.
+                // Only fire once per analysis to avoid fighting the user
+                // if the model emits something unexpected.
+                if (!seenLangRef.current && partial.detected_language) {
+                  seenLangRef.current = true;
+                  const dl = partial.detected_language as Lang;
+                  if (LANGS.includes(dl)) setLang(dl);
+                }
               }
               else if (currentEvent === "result") {
                 const r = parsed as AnalysisResult;
@@ -196,6 +215,18 @@ export default function Home() {
   const progressPct = streamDone ? 100 : Math.round(Math.max(timePct, tokenPct));
   const displayPct = progressPct === 0 ? 0 : Math.max(progressPct, 4);
 
+  // Merged view used during render. While streaming, partialResult fills in
+  // field-by-field; once event:result arrives, result is the source of truth.
+  // AnalysisResult is structurally a superset of PartialResult, so the cast
+  // is safe and the access pattern stays uniform.
+  const data: PartialResult = result ?? partialResult;
+  const hasContent = !!(
+    data.detected_language ||
+    data.inferred_role ||
+    data.score?.total != null ||
+    data.score?.summary
+  );
+
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
       <header>
@@ -221,7 +252,7 @@ export default function Home() {
         <p className="text-sm text-ink-500">{ui.heroExplain}</p>
       </section>
 
-      {(loading || parsing) && (
+      {(loading || parsing) && !hasContent && (
         <div className="text-center py-6 space-y-4" aria-live="polite">
           {parsing ? <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p> : (
             <>
@@ -310,7 +341,7 @@ export default function Home() {
         </section>
       )}
 
-      {result && (
+      {(result || hasContent) && (
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
@@ -322,133 +353,155 @@ export default function Home() {
             </details>
           </div>
 
-          <div className="flex gap-2 items-center">
-            <StepBadge n={2} />
-            <details className="flex-1 border border-ink-100 rounded-lg">
-              <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
-              <p className="px-4 pb-3 text-sm text-ink-500">
-                {targetRole || (result?.inferred_role
-                  ? <>{ui.inferredRoleNote} <strong className="text-ink-700">{result.inferred_role}</strong></>
-                  : ui.notSpecified
-                )}
-              </p>
-            </details>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <StepBadge n={3} />
-            <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
-              <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
-              <div className="p-4 space-y-4">
-                <details open className="border border-ink-100 rounded-lg">
-                  <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300" />{ui.scoreSummaryTitle}</summary>
-                  <div className="px-4 pb-4">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="font-[family-name:var(--font-mono)] text-ink-400">{result.score.total}/100</span>
-                      <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
-                    </div>
-                    <p className="text-sm text-ink-600 leading-relaxed">{result.score.summary}</p>
-                  </div>
-                </details>
-                {result.analysis.strengths.length > 0 && (
-                  <details className="border border-positive/20 rounded-lg bg-positive-ghost">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-positive hint-chevron" />{ui.strengthsTitle}</summary>
-                    <div className="px-4 pb-4 space-y-2">
-                      {result.analysis.strengths.map((s, i) => (
-                        <div key={i} className="border border-positive/20 rounded-lg p-3 bg-ink-000">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-ink-700">{dimName(s.dimension, lang)}</span>
-                            <span className="font-[family-name:var(--font-mono)] text-[11px] text-positive tracking-wide">{s.dimension_score}/100</span>
-                          </div>
-                          <p className="text-sm text-ink-600">{s.detail}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                )}
-                {result.analysis.improvements.length > 0 && (
-                  <details className="border border-ink-100 rounded-lg">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.improvementsTitle}</summary>
-                    <div className="px-4 pb-4 space-y-3">
-                      {result.analysis.improvements.map((imp, i) => (
-                        <div key={i} className="border border-ink-100 rounded-lg p-3 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-ink-700">{dimName(imp.dimension, lang)}</span>
-                            <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-400 tracking-wide uppercase">{imp.dimension_score}/100</span>
-                          </div>
-                          <p className="text-sm text-ink-600">{imp.issue}</p>
-                          <p className="text-sm text-ink-500">{imp.suggestion}</p>
-                          {imp.before && imp.after && (
-                            <div className="grid gap-2 text-xs">
-                              <div className="bg-ink-050 rounded-lg p-3">
-                                <span className="font-[family-name:var(--font-mono)] text-ink-400 uppercase tracking-wide text-[11px]">{ui.before}</span>
-                                <p className="text-ink-500 mt-1">{imp.before}</p>
-                              </div>
-                              <div className="bg-positive-ghost rounded-lg p-3">
-                                <span className="font-[family-name:var(--font-mono)] text-positive uppercase tracking-wide text-[11px]">{ui.after}</span>
-                                <p className="text-ink-700 mt-1">{imp.after}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                )}
-              </div>
-            </details>
-          </div>
-
-          <div className="flex gap-2 items-start">
-            <div className="pt-3"><StepBadge n={4} /></div>
-            <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
-              <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2"><Chevron className="text-white/70" />{ui.improvedCvTitle}</summary>
-              <div className="p-4 space-y-3">
-                {result.improved_cv.changes.length > 0 && (
-                  <details className="border border-ink-100 rounded-lg">
-                    <summary className="px-4 py-3 text-sm font-medium text-ink-600 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.changesTitle}</summary>
-                    <ul className="px-4 pb-3 space-y-1">
-                      {result.improved_cv.changes.map((c, i) => <li key={i} className="flex gap-2 text-sm text-ink-500"><span className="text-positive shrink-0">+</span>{c}</li>)}
-                    </ul>
-                  </details>
-                )}
-                <details open className="border border-accent/30 rounded-lg">
-                  <summary className="px-4 py-3 text-sm font-medium text-accent flex items-center gap-2"><Chevron className="text-accent" />{ui.newTextTitle}</summary>
-                  <div className="px-4 pb-4 space-y-3">
-                    <ResumeText text={result.improved_cv.text} />
-                    <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                      {copied ? ui.copied : ui.copy}
-                    </button>
-                  </div>
-                </details>
-              </div>
-            </details>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 border border-ink-100 rounded-xl bg-ink-050 px-4 py-3">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-ink-700 leading-snug">☕ {ui.donationLine1}</p>
-              <p className="text-xs text-ink-400 mt-0.5 leading-snug">{ui.donationLine2}</p>
+          {(targetRole || data.inferred_role || !loading) && (
+            <div className="flex gap-2 items-center">
+              <StepBadge n={2} />
+              <details className="flex-1 border border-ink-100 rounded-lg">
+                <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
+                {/* min-h reserves vertical space for up to 2 wrapped lines so
+                    the role growing left-to-right doesn't push content below. */}
+                <p className="px-4 pb-3 text-sm text-ink-500 min-h-[2.5em]">
+                  {targetRole || (data.inferred_role
+                    ? <>{ui.inferredRoleNote} <strong className="text-ink-700">{data.inferred_role}</strong></>
+                    : ui.notSpecified
+                  )}
+                </p>
+              </details>
             </div>
-            <a
-              href="https://buymeacoffee.com/cvool"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track("donation_clicked")}
-              className="shrink-0 px-3 py-2 rounded-lg text-xs font-bold text-ink-900 transition hover:opacity-90"
-              style={{ backgroundColor: "#FFDD00" }}
-            >
-              {ui.donationCta}
-            </a>
-          </div>
+          )}
 
-          <div className="text-center space-y-2">
-            <p className="text-xs text-ink-400 leading-relaxed">{ui.aiDisclaimer}</p>
-            <button onClick={reset} className="text-sm text-accent hover:text-accent-dim transition cursor-pointer">{ui.tryAgain}</button>
-          </div>
+          {(data.score?.total != null || data.score?.summary || data.analysis?.strengths || data.analysis?.improvements) && (
+            <div className="flex gap-2 items-center">
+              <StepBadge n={3} />
+              <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
+                <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
+                <div className="p-4 space-y-4">
+                  {(data.score?.total != null || data.score?.summary) && (
+                    <details open className="border border-ink-100 rounded-lg">
+                      <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300" />{ui.scoreSummaryTitle}</summary>
+                      <div className="px-4 pb-4">
+                        {data.score?.total != null && (
+                          <div className="flex items-baseline gap-2 mb-2">
+                            <span className="font-[family-name:var(--font-mono)] text-ink-400">{data.score.total}/100</span>
+                            <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
+                          </div>
+                        )}
+                        {/* min-h reserves space for the multi-line summary so
+                            growing text doesn't push later sections down. */}
+                        <p className="text-sm text-ink-600 leading-relaxed min-h-[5em]">{data.score?.summary ?? ""}</p>
+                      </div>
+                    </details>
+                  )}
+                  {(data.analysis?.strengths?.length ?? 0) > 0 && (
+                    <details className="border border-positive/20 rounded-lg bg-positive-ghost">
+                      <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-positive hint-chevron" />{ui.strengthsTitle}</summary>
+                      <div className="px-4 pb-4 space-y-2">
+                        {data.analysis!.strengths!.map((s, i) => (
+                          <div key={i} className="border border-positive/20 rounded-lg p-3 bg-ink-000">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium text-ink-700">{dimName(s.dimension, lang)}</span>
+                              <span className="font-[family-name:var(--font-mono)] text-[11px] text-positive tracking-wide">{s.dimension_score}/100</span>
+                            </div>
+                            <p className="text-sm text-ink-600">{s.detail}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                  {(data.analysis?.improvements?.length ?? 0) > 0 && (
+                    <details className="border border-ink-100 rounded-lg">
+                      <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.improvementsTitle}</summary>
+                      <div className="px-4 pb-4 space-y-3">
+                        {data.analysis!.improvements!.map((imp, i) => (
+                          <div key={i} className="border border-ink-100 rounded-lg p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-ink-700">{dimName(imp.dimension, lang)}</span>
+                              <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-400 tracking-wide uppercase">{imp.dimension_score}/100</span>
+                            </div>
+                            <p className="text-sm text-ink-600">{imp.issue}</p>
+                            <p className="text-sm text-ink-500">{imp.suggestion}</p>
+                            {imp.before && imp.after && (
+                              <div className="grid gap-2 text-xs">
+                                <div className="bg-ink-050 rounded-lg p-3">
+                                  <span className="font-[family-name:var(--font-mono)] text-ink-400 uppercase tracking-wide text-[11px]">{ui.before}</span>
+                                  <p className="text-ink-500 mt-1">{imp.before}</p>
+                                </div>
+                                <div className="bg-positive-ghost rounded-lg p-3">
+                                  <span className="font-[family-name:var(--font-mono)] text-positive uppercase tracking-wide text-[11px]">{ui.after}</span>
+                                  <p className="text-ink-700 mt-1">{imp.after}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              </details>
+            </div>
+          )}
+
+          {(data.improved_cv?.text || (data.improved_cv?.changes?.length ?? 0) > 0) && (
+            <div className="flex gap-2 items-start">
+              <div className="pt-3"><StepBadge n={4} /></div>
+              <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
+                <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2"><Chevron className="text-white/70" />{ui.improvedCvTitle}</summary>
+                <div className="p-4 space-y-3">
+                  {(data.improved_cv?.changes?.length ?? 0) > 0 && (
+                    <details className="border border-ink-100 rounded-lg">
+                      <summary className="px-4 py-3 text-sm font-medium text-ink-600 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.changesTitle}</summary>
+                      <ul className="px-4 pb-3 space-y-1">
+                        {data.improved_cv!.changes!.map((c, i) => <li key={i} className="flex gap-2 text-sm text-ink-500"><span className="text-positive shrink-0">+</span>{c}</li>)}
+                      </ul>
+                    </details>
+                  )}
+                  {data.improved_cv?.text && (
+                    <details open className="border border-accent/30 rounded-lg">
+                      <summary className="px-4 py-3 text-sm font-medium text-accent flex items-center gap-2"><Chevron className="text-accent" />{ui.newTextTitle}</summary>
+                      <div className="px-4 pb-4 space-y-3">
+                        <ResumeText text={data.improved_cv.text} />
+                        {result && (
+                          <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            {copied ? ui.copied : ui.copy}
+                          </button>
+                        )}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              </details>
+            </div>
+          )}
+
+          {result && (
+            <>
+              <div className="flex items-center justify-between gap-4 border border-ink-100 rounded-xl bg-ink-050 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink-700 leading-snug">☕ {ui.donationLine1}</p>
+                  <p className="text-xs text-ink-400 mt-0.5 leading-snug">{ui.donationLine2}</p>
+                </div>
+                <a
+                  href="https://buymeacoffee.com/cvool"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => track("donation_clicked")}
+                  className="shrink-0 px-3 py-2 rounded-lg text-xs font-bold text-ink-900 transition hover:opacity-90"
+                  style={{ backgroundColor: "#FFDD00" }}
+                >
+                  {ui.donationCta}
+                </a>
+              </div>
+
+              <div className="text-center space-y-2">
+                <p className="text-xs text-ink-400 leading-relaxed">{ui.aiDisclaimer}</p>
+                <button onClick={reset} className="text-sm text-accent hover:text-accent-dim transition cursor-pointer">{ui.tryAgain}</button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
