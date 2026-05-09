@@ -111,6 +111,9 @@ export async function POST(req: NextRequest) {
           ) {
             full += event.delta.text;
             tokens++;
+            // Stream raw delta so the client can progressively parse and
+            // reveal fields (detected_language, score, etc.) as they appear.
+            send("chunk", JSON.stringify({ delta: event.delta.text }));
             // Send progress every 10 tokens for smoother bar
             if (tokens % 10 === 0) {
               send("progress", JSON.stringify({ tokens }));
