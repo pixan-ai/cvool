@@ -356,7 +356,7 @@ export default function Home() {
           {(targetRole || data.inferred_role || !loading) && (
             <div className="flex gap-2 items-center">
               <StepBadge n={2} />
-              <details className="flex-1 border border-ink-100 rounded-lg">
+              <details open className="flex-1 border border-ink-100 rounded-lg">
                 <summary className="px-4 py-3 text-sm font-medium text-ink-700 flex items-center gap-2"><Chevron className="text-ink-300 hint-chevron" />{ui.targetRoleTitle}</summary>
                 {/* min-h reserves vertical space for up to 2 wrapped lines so
                     the role growing left-to-right doesn't push content below. */}
@@ -373,7 +373,7 @@ export default function Home() {
           {(data.score?.total != null || data.score?.summary || data.analysis?.strengths || data.analysis?.improvements) && (
             <div className="flex gap-2 items-center">
               <StepBadge n={3} />
-              <details className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
+              <details open className="flex-1 border border-ink-100 rounded-lg overflow-hidden">
                 <summary className="px-4 py-3 text-sm font-medium text-accent bg-accent-ghost cursor-pointer flex items-center gap-2"><Chevron className="text-accent" />{ui.analysisTitle}</summary>
                 <div className="p-4 space-y-4">
                   {(data.score?.total != null || data.score?.summary) && (
