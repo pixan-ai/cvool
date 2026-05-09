@@ -29,7 +29,7 @@ function MarkedList({ items, mark, color }: { items: readonly string[]; mark: st
   );
 }
 
-function Sub({ title, children }: { title: string; children: React.ReactNode }) {
+function Sub({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <section>
       <h3 className="text-sm font-medium text-ink-900 mb-2">{title}</h3>
