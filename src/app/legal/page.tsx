@@ -29,20 +29,23 @@ function MarkedList({ items, mark, color }: { items: readonly string[]; mark: st
   );
 }
 
+function Sub({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h3 className="text-sm font-medium text-ink-900 mb-2">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
 export default function LegalPage() {
   const [lang, setLang] = useSubLang();
   const t = T[lang];
 
-  // Auto-scroll to anchor when arriving from /security, /privacy, or /terms
-  // (the redirect in next.config.ts preserves the hash). Also handles direct
-  // links like /legal#privacy from external sources.
+  // /security, /privacy, /terms redirect to /legal#hash; smooth-scroll on arrival.
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const hash = window.location.hash.slice(1);
-    if (["security", "privacy", "terms"].includes(hash)) {
-      const el = document.getElementById(hash);
-      if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
-    }
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
   }, []);
 
   return (
@@ -54,7 +57,6 @@ export default function LegalPage() {
         <p className="text-sm text-ink-500">{t.sub}</p>
       </section>
 
-      {/* Quick anchor nav */}
       <nav className="flex justify-center gap-3 text-xs">
         <a href="#security" className="text-accent hover:text-accent-dim transition">{t.nav.security}</a>
         <span className="text-ink-300">{' · '}</span>
@@ -72,10 +74,9 @@ export default function LegalPage() {
         <div className="space-y-2">
           {t.security.sections.map(([title, body], i) => <Card key={i} title={title} body={body} />)}
         </div>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.security.neverTitle}</h3>
+        <Sub title={t.security.neverTitle}>
           <MarkedList items={t.security.never} mark={'✕'} color="text-red-500" />
-        </section>
+        </Sub>
         <div className="bg-ink-050 rounded-lg p-5">
           <h3 className="text-sm font-medium text-ink-900 mb-1">{t.security.reportTitle}</h3>
           <p className="text-sm text-ink-500">{t.security.reportBody}</p>
@@ -92,20 +93,17 @@ export default function LegalPage() {
           <h3 className="text-base font-medium text-ink-900">{t.privacy.heading}</h3>
           <p className="text-sm text-ink-500">{t.privacy.sub}</p>
         </div>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.responsable[0]}</h3>
+        <Sub title={t.privacy.responsable[0]}>
           <div className="border border-ink-100 rounded-lg p-4">
             <p className="text-sm text-ink-700 leading-relaxed">{t.privacy.responsable[1]}</p>
           </div>
-        </section>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.dataTitle}</h3>
+        </Sub>
+        <Sub title={t.privacy.dataTitle}>
           <div className="space-y-2">
             {t.privacy.data.map(([title, body], i) => <Card key={i} title={title} body={body} />)}
           </div>
-        </section>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.verifyCountersTitle}</h3>
+        </Sub>
+        <Sub title={t.privacy.verifyCountersTitle}>
           <div className="border border-ink-100 rounded-lg p-4">
             <p className="text-sm text-ink-700 leading-relaxed mb-3">{t.privacy.verifyCountersBody}</p>
             <ul className="space-y-2">
@@ -120,17 +118,14 @@ export default function LegalPage() {
               ))}
             </ul>
           </div>
-        </section>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.purposeTitle}</h3>
+        </Sub>
+        <Sub title={t.privacy.purposeTitle}>
           <MarkedList items={t.privacy.purposes} mark={'→'} color="text-accent" />
-        </section>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.neverTitle}</h3>
+        </Sub>
+        <Sub title={t.privacy.neverTitle}>
           <MarkedList items={t.privacy.never} mark={'✕'} color="text-red-500" />
-        </section>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.arcoTitle}</h3>
+        </Sub>
+        <Sub title={t.privacy.arcoTitle}>
           <div className="border border-ink-100 rounded-lg p-4">
             <p className="text-sm text-ink-700 mb-3">{t.privacy.arcoBody}</p>
             <ul className="space-y-2">
@@ -143,24 +138,21 @@ export default function LegalPage() {
             </ul>
             <p className="text-sm text-ink-500 mt-3">{t.privacy.arcoNote}</p>
           </div>
-        </section>
-        <section>
-          <h3 className="text-sm font-medium text-ink-900 mb-2">{t.privacy.intlTitle}</h3>
+        </Sub>
+        <Sub title={t.privacy.intlTitle}>
           <div className="space-y-2">
             {t.privacy.intl.map(([flag, law, body], i) => (
-              <div key={i} className="border border-ink-100 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-lg shrink-0">{flag}</span>
-                  <div>
-                    <h4 className="text-sm font-medium text-ink-900 mb-0.5">{law}</h4>
-                    <p className="text-sm text-ink-500 leading-relaxed">{body}</p>
-                  </div>
+              <div key={i} className="border border-ink-100 rounded-lg p-4 flex items-start gap-3">
+                <span className="text-lg shrink-0">{flag}</span>
+                <div>
+                  <h4 className="text-sm font-medium text-ink-900 mb-0.5">{law}</h4>
+                  <p className="text-sm text-ink-500 leading-relaxed">{body}</p>
                 </div>
               </div>
             ))}
           </div>
           <p className="text-sm text-ink-500 mt-3">{t.privacy.intlNote}</p>
-        </section>
+        </Sub>
       </section>
 
       {/* TERMS */}
@@ -173,8 +165,7 @@ export default function LegalPage() {
         <p className="text-sm text-ink-500 leading-relaxed border border-ink-100 rounded-lg p-4">{t.terms.aiDisclaimer}</p>
         <div className="space-y-4">
           {t.terms.sections.map((s, i) => (
-            <section key={i}>
-              <h3 className="text-sm font-medium text-ink-900 mb-2">{s.t}</h3>
+            <Sub key={i} title={s.t}>
               <div className="border border-ink-100 rounded-lg p-4">
                 {s.items ? (
                   <ul className="space-y-2">
@@ -189,7 +180,7 @@ export default function LegalPage() {
                   <p className="text-sm text-ink-700 leading-relaxed"><CvoolText text={s.b!} /></p>
                 )}
               </div>
-            </section>
+            </Sub>
           ))}
         </div>
       </section>
