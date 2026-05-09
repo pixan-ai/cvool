@@ -101,7 +101,14 @@ export async function POST(req: NextRequest) {
           max_tokens: 8_000,
           temperature: 0,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
-          messages: [{ role: "user", content: userMsg }],
+          // Prefill `{` forces Claude into raw JSON output and bypasses the
+          // prompt's <thinking> instruction, which (without native extended
+          // thinking enabled) caused Claude to write only the thinking tokens
+          // and end its turn with no JSON to parse.
+          messages: [
+            { role: "user", content: userMsg },
+            { role: "assistant", content: "{" },
+          ],
         });
 
         for await (const event of response) {
@@ -138,8 +145,9 @@ export async function POST(req: NextRequest) {
           console.warn("cache-stats failed:", e instanceof Error ? e.message : e);
         }
 
-        // Parse the accumulated JSON
-        const json = full
+        // Parse the accumulated JSON. Prefilled `{` is not in the stream
+        // (Anthropic prefills don't echo back), so prepend it before parse.
+        const json = ("{" + full)
           .replace(/^```(?:json)?\s*\n?/, "")
           .replace(/\n?```\s*$/, "")
           .trim();
