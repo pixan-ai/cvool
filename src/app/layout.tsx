@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     url: "https://cvool.org",
     siteName: "CVool",
     type: "website",
-    locale: "en_US",
-    alternateLocale: ["es_MX", "pt_BR", "fr_FR", "it_IT"],
+    locale: "es_MX",
+    alternateLocale: ["en_US", "pt_BR", "fr_FR", "it_IT"],
   },
   twitter: {
     card: "summary",

@@ -63,18 +63,30 @@ npm run dev
 ```
 src/
   app/
-    page.tsx              # Main UI
+    page.tsx              # Main UI (single file by design)
     layout.tsx            # Metadata, fonts, analytics, JSON-LD
     globals.css           # OKLCH tokens, animations
+    about/                # /about (founder, mission)
+    how/                  # /how (pipeline, stack, fork)
+    donate/               # /donate (BMC, promise)
+    legal/                # /legal (security, privacy, terms)
     api/
       analyze/route.ts    # Claude analysis (rate limited, SSE)
-      parse/route.ts      # PDF to text
+      parse/route.ts      # PDF to text (Sonnet)
+  components/             # Brand, icons, counters, step badge, sub-layout
+  content/
+    home.json             # Home UI strings (es, en, fr, pt, it)
+    about.json, how.json, donate.json, legal.json   # Sub-page copy (es, en)
   lib/
-    i18n/                 # ES, EN, FR, PT, IT translations
+    i18n.ts               # t() and dimName() helpers, Lang type
+    cors.ts               # Origin allowlist + CORS headers
+    rate-limit.ts         # In-memory limiter (7 req/hr per IP)
+    streamParse.ts        # Incremental JSON parser for SSE chunks
+    metadata.ts           # pageMeta() helper for sub-routes
     prompts/
       analyze.txt         # Constitutional AI prompt
   types/
-    analysis.ts           # AnalysisResult type
+    analysis.ts           # AnalysisResult, PartialResult types
 ```
 
 ## Contributing

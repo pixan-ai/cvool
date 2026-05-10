@@ -35,21 +35,27 @@ swap as a performance fix.
 
 src/
   app/
-    page.tsx              <- entire UI (~470 lines)
+    page.tsx              <- entire UI (~590 lines)
     layout.tsx            <- meta, fonts, analytics, schema
     globals.css           <- OKLCH tokens, details styling, animations
+    about/, how/, donate/, legal/   <- sub-routes (es/en only)
     api/
       analyze/route.ts    <- Claude analysis (rate limited, 7/hr best-effort)
       parse/route.ts      <- PDF to text (Sonnet)
+  components/             <- shared UI (PublicCounters, branding, icons, SubLayout)
+  content/
+    home.json             <- home UI copy, all 5 langs as sub-objects (es/en/fr/pt/it)
+    about.json, how.json, donate.json, legal.json   <- sub-page copy (es/en)
   lib/
-    i18n/
-      es.json, en.json, fr.json, pt.json, it.json
-      index.ts            <- t() and dimName() helpers
+    i18n.ts               <- t() and dimName() helpers, Lang type (re-exports keys of home.json)
+    cors.ts               <- origin allowlist + CORS headers
+    rate-limit.ts         <- in-memory limiter
+    streamParse.ts        <- incremental JSON parser for SSE chunks
+    metadata.ts           <- pageMeta() helper for sub-route layouts
     prompts/
-      analyze.txt         <- constitutional prompt (~230 lines)
+      analyze.txt         <- constitutional prompt (~550 lines)
   types/
-    analysis.ts           <- AnalysisResult type
-  components/             <- shared UI (PublicCounters, branding, icons)
+    analysis.ts           <- AnalysisResult, PartialResult types
 
 ## Design philosophy
 
@@ -125,10 +131,18 @@ designed" but can't point to any single decorative element.
 ## Bilingual (5 languages)
 
 - ES, EN, FR, PT, IT
-- JSON files in src/lib/i18n/ — one per language
+- All home UI copy is in src/content/home.json as one top-level key per
+  language (es, en, fr, pt, it). src/lib/i18n.ts re-exports the keys as
+  the Lang type.
+- Sub-pages (about, how, donate, legal) currently ship in es/en only —
+  see src/content/{about,how,donate,legal}.json and the Lang = "es" | "en"
+  in src/components/SubLayout.tsx.
 - Claude API detects CV language and responds in the same language
 - UI auto-switches lang on detection
-- Adding a language: create xx.json, add import to index.ts
+- Adding a language to home: append a new top-level key to home.json
+  (mirroring the existing es/en shape) and add it to LANGS in page.tsx.
+- Adding a language to sub-pages: also widen Lang in SubLayout.tsx and
+  add the key to about.json, how.json, donate.json, legal.json.
 
 ## Constitutional prompt
 

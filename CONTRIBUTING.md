@@ -21,7 +21,7 @@ The app runs at `http://localhost:3000`. Hot reload works for everything except 
 
 ## Where help is most useful
 
-- **Translations.** Five languages live in `src/lib/i18n/`. Native speakers spotting awkward copy is high-value, low-effort.
+- **Translations.** Home UI copy for all five languages (es, en, fr, pt, it) lives in `src/content/home.json`; sub-page copy (about, how, donate, legal) lives in the other `src/content/*.json` files and currently ships in es/en only. Native speakers spotting awkward copy is high-value, low-effort.
 - **The analysis prompt** in `src/lib/prompts/analyze.txt`. This is the actual product. If you're a recruiter, ATS engineer, or career coach and see something that would mislead users, open an issue with concrete examples.
 - **Country-specific CV conventions.** LATAM resume norms vary (photo expectations, personal data, header naming). If you're in a country we don't handle well, tell us.
 - **Accessibility and mobile.** Real device testing on slow connections always finds something.
