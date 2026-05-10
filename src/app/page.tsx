@@ -59,6 +59,37 @@ function ResumeText({ text }: { text: string }) {
   );
 }
 
+// Builds an HTML representation of the improved CV used as the text/html
+// flavor on the clipboard. <ul><li> ensures Word/Docs/Outlook apply their
+// native list style with hanging indent — fixes the wrap-to-margin issue
+// that plain text causes when bullets contain multi-line content.
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function cvTextToHtml(text: string): string {
+  const lines = text.split("\n");
+  const out: string[] = [];
+  let inList = false;
+  for (const raw of lines) {
+    const trimmed = raw.trimStart();
+    const isBullet = /^[\u2022\u00b7\u2023]/.test(trimmed) || trimmed.startsWith("- ");
+    if (isBullet) {
+      if (!inList) { out.push("<ul>"); inList = true; }
+      const content = trimmed.replace(/^[\u2022\u00b7\u2023]\s*|^- /, "");
+      out.push(`<li>${escapeHtml(content)}</li>`);
+      continue;
+    }
+    if (inList) { out.push("</ul>"); inList = false; }
+    if (trimmed === "") { out.push("<p>&nbsp;</p>"); continue; }
+    const isHeader = raw === raw.toUpperCase() && raw.trim().length > 2 && /^[A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00dc\s&/\-:]+$/.test(raw.trim());
+    if (isHeader) { out.push(`<p><strong>${escapeHtml(raw)}</strong></p>`); continue; }
+    out.push(`<p>${escapeHtml(raw)}</p>`);
+  }
+  if (inList) out.push("</ul>");
+  return out.join("");
+}
+
 function extractCvMetadata(cv: string) {
   const words = cv.trim().split(/\s+/).filter(Boolean).length;
   const bullets = (cv.match(/^[\s]*[\u2022\u00b7\u2023\-*]/gm) ?? []).length;
@@ -202,24 +233,44 @@ export default function Home() {
   const copy = async () => {
     if (!result) return;
     try {
-      await navigator.clipboard.writeText(result.improved_cv.text);
+      const text = result.improved_cv.text;
+      // Provide both flavors: text/html so Word/Docs/Outlook render the
+      // bullets as a list with hanging indent, text/plain as fallback for
+      // editors that don't accept HTML.
+      if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
+        const html = cvTextToHtml(text);
+        await navigator.clipboard.write([new ClipboardItem({
+          "text/plain": new Blob([text], { type: "text/plain" }),
+          "text/html": new Blob([html], { type: "text/html" }),
+        })]);
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
       setCopied(true); setTimeout(() => setCopied(false), 2000);
       track("cv_copied");
     } catch { /* clipboard API unavailable */ }
   };
 
-  const reset = () => { setCvText(""); setTargetRole(""); setResult(null); setError(null); setCopied(false); track("reset_clicked"); };
+  const reset = () => {
+    setCvText(""); setTargetRole(""); setResult(null); setPartialResult({});
+    setError(null); setCopied(false); setStreamTokens(0); setStreamDone(false);
+    chunkBufferRef.current = ""; seenLangRef.current = false;
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+    track("reset_clicked");
+  };
 
   const timePct = Math.min(80, (elapsedMs / 25000) * 80);
   const tokenPct = streamTokens > 0 ? Math.min(80, (streamTokens / 1000) * 100) : 0;
   const progressPct = streamDone ? 100 : Math.round(Math.max(timePct, tokenPct));
   const displayPct = progressPct === 0 ? 0 : Math.max(progressPct, 4);
 
-  // partialResult and seenLangRef keep the streaming parser running so the
-  // loader can swap labels into the detected language as soon as the model
-  // declares it, but the result UI itself only renders once the full result
-  // arrives — no piecewise reveal of sections 3/4.
-  const data: PartialResult = result ?? {};
+  // Streaming preview: when the model has started writing improved_cv.text,
+  // sections 1-3 are already fully populated in partialResult (they precede
+  // improved_cv in the JSON), so we reveal the full results block. Section 4
+  // grows letter by letter; copy button stays gated by `result` so users
+  // can't grab a half-written CV.
+  const data: PartialResult = result ?? partialResult;
+  const streamingPreview = !result && !!data.improved_cv?.text;
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
@@ -246,7 +297,7 @@ export default function Home() {
         <p className="text-sm text-ink-500">{ui.heroExplain}</p>
       </section>
 
-      {(loading || parsing) && !result && (
+      {(loading || parsing) && !result && !streamingPreview && (
         <div className="text-center py-6 space-y-4" aria-live="polite">
           {parsing ? <p className="text-sm text-ink-400 animate-pulse">{ui.uploadingPdf}</p> : (
             <>
@@ -335,7 +386,7 @@ export default function Home() {
         </section>
       )}
 
-      {result && (
+      {(result || streamingPreview) && (
         <div ref={resultsRef} className="space-y-3">
           <p className="text-xs text-accent font-medium">{ui.expandHint}</p>
 
@@ -440,7 +491,11 @@ export default function Home() {
             <div className="flex gap-2 items-start">
               <div className="pt-3"><StepBadge n={4} /></div>
               <details open className="flex-1 border border-accent/30 rounded-lg overflow-hidden">
-                <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2"><Chevron className="text-white/70" />{ui.improvedCvTitle}</summary>
+                <summary className="px-4 py-3 text-sm font-medium text-white bg-accent cursor-pointer flex items-center gap-2">
+                  <Chevron className="text-white/70" />
+                  {ui.improvedCvTitle}
+                  {streamingPreview && <span className="ml-auto inline-block w-2 h-2 rounded-full bg-white/70 animate-pulse" aria-label="streaming" />}
+                </summary>
                 <div className="p-4 space-y-3">
                   {(data.improved_cv?.changes?.length ?? 0) > 0 && (
                     <details className="border border-ink-100 rounded-lg">
