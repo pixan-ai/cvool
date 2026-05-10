@@ -45,10 +45,10 @@ No sign-up. No data stored. No tracking. Free forever.
 ```bash
 git clone https://github.com/pixan-ai/cvool.git
 cd cvool
-pnpm install
+npm install
 cp .env.example .env.local
 # Edit .env.local with your Anthropic API key
-pnpm dev
+npm run dev
 ```
 
 ### Environment variables
@@ -79,13 +79,7 @@ src/
 
 ## Contributing
 
-Contributions are welcome! Please open an issue first to discuss what you'd like to change.
-
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up the project locally, areas where help is most useful, and the small rules that keep the codebase calm.
 
 ## License
 
@@ -96,5 +90,5 @@ Contributions are welcome! Please open an issue first to discuss what you'd like
 - General: alfredo@cvool.org
 - Security: security@cvool.org
 - GitHub: [pixan-ai/cvool](https://github.com/pixan-ai/cvool)
-- X: [@maxcvorg](https://x.com/maxcvorg)
+- X: [@cvoolorg](https://x.com/cvoolorg)
 - Donate: [buymeacoffee.com/cvool](https://buymeacoffee.com/cvool)
