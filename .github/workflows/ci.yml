@@ -9,6 +9,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci --no-audit --no-fund
+      # Regenerate node_modules from package.json so platform-specific
+      # optional deps (lightningcss/swc/oxide native binaries) resolve
+      # for the runner OS. The committed lockfile is generated on Windows
+      # and only carries win32 integrity entries; npm ci on Linux fails
+      # to install the linux-x64-gnu native binaries that Tailwind/Next
+      # need at build time. Tried switching to `npm ci` (commit 8a9c1be)
+      # and CI broke with `Cannot find module '../lightningcss.linux-x64-gnu.node'`.
+      # Proper fix is a multi-platform lockfile committed from a Linux env;
+      # parking that for after launch.
+      - run: rm -f package-lock.json && npm install --no-audit --no-fund
       - run: npm run lint
       - run: npm run build
