@@ -232,11 +232,13 @@ export default function Home() {
 
   const copy = async () => {
     if (!result) return;
+    const text = result.improved_cv.text;
+    // Provide both flavors: text/html so Word/Docs/Outlook render the
+    // bullets as a list with hanging indent, text/plain as fallback for
+    // editors that don't accept HTML. Safari can throw on clipboard.write
+    // even when ClipboardItem is defined, so retry as plain text before
+    // giving up — otherwise the UI stays on "Copy" with no signal.
     try {
-      const text = result.improved_cv.text;
-      // Provide both flavors: text/html so Word/Docs/Outlook render the
-      // bullets as a list with hanging indent, text/plain as fallback for
-      // editors that don't accept HTML.
       if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
         const html = cvTextToHtml(text);
         await navigator.clipboard.write([new ClipboardItem({
@@ -246,9 +248,11 @@ export default function Home() {
       } else {
         await navigator.clipboard.writeText(text);
       }
-      setCopied(true); setTimeout(() => setCopied(false), 2000);
-      track("cv_copied");
-    } catch { /* clipboard API unavailable */ }
+    } catch {
+      try { await navigator.clipboard.writeText(text); } catch { return; }
+    }
+    setCopied(true); setTimeout(() => setCopied(false), 2000);
+    track("cv_copied");
   };
 
   const reset = () => {
