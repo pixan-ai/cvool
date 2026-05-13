@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "rate_limit" }, { status: 429, headers: corsHeaders(req) });
   }
 
-  let body: { cvText?: string; targetRole?: string };
+  let body: { cvText?: string; targetRole?: string; jobDescription?: string };
   try {
     body = await req.json();
   } catch {
@@ -74,8 +74,14 @@ export async function POST(req: NextRequest) {
   }
 
   const role = clean((body.targetRole ?? "").slice(0, 200));
-  let userMsg = `Here is the resume to analyze:\n\n${cv}`;
-  if (role) userMsg += `\n\nTarget role: ${role}`;
+  const jd = clean((body.jobDescription ?? "").slice(0, 10_000));
+
+  // XML tags help Claude unambiguously distinguish the CV content from
+  // the prompt instructions, and separate the job description (when provided)
+  // from the resume text. Recommended by Anthropic for multi-input prompts.
+  let userMsg = `<cv_text>\n${cv}\n</cv_text>`;
+  if (role) userMsg += `\n\n<target_role>${role}</target_role>`;
+  if (jd) userMsg += `\n\n<job_description>\n${jd}\n</job_description>`;
 
   const headers = {
     ...corsHeaders(req),
