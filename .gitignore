@@ -16,6 +16,11 @@
 .env*.local
 .vercel
 
+# local verification artifacts (screenshots, recorded payloads)
+.playwright-mcp/
+/*.png
+/verify_out/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
