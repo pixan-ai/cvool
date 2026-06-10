@@ -1,6 +1,7 @@
 "use client";
 import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 import { CvoolText } from "@/components/CvoolBrand";
+import TechMap from "@/components/TechMap";
 import T from "@/content/how.json";
 
 export default function HowPage() {
@@ -59,6 +60,21 @@ export default function HowPage() {
           <span className="text-xs text-ink-400">{t.contactLabel} <a href={`mailto:${t.email}`} className="text-accent hover:text-accent-dim transition">{t.email}</a></span>
         </div>
       </section>
+
+      {/* In-depth technical schematic — the request lifecycle, code map,
+          SSE streaming, and design decisions. */}
+      <div className="border-t border-ink-100 pt-10 space-y-10">
+        <div>
+          <h2 className="text-2xl font-medium text-ink-900 tracking-tight">{lang === "es" ? "Mapa técnico" : "Technical map"}</h2>
+          <p className="text-sm text-ink-500 mt-2 leading-relaxed">
+            {lang === "es"
+              ? "Cómo viaja tu CV por cvool, capa por capa — desde tu navegador hasta Claude y de vuelta."
+              : "How your CV travels through cvool, layer by layer — from your browser to Claude and back."}
+          </p>
+        </div>
+        <TechMap lang={lang} />
+      </div>
+
       <SubFooter lang={lang} />
     </div>
   );

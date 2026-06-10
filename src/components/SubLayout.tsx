@@ -32,7 +32,6 @@ export function SubFooter({ lang }: { lang: Lang }) {
     <footer className="pt-8 pb-4 space-y-3">
       <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1.5 text-xs text-ink-400">
         <Link href="/how" className="hover:text-ink-700 transition">{lang === "es" ? "C\u00f3mo funciona" : "How it works"}</Link>
-        <Link href="/map" className="hover:text-ink-700 transition">{lang === "es" ? "Mapa t\u00e9cnico" : "Tech map"}</Link>
         <Link href="/about" className="hover:text-ink-700 transition">{lang === "es" ? "Sobre m\u00ed" : "About"}</Link>
         <Link href="/legal" className="hover:text-ink-700 transition">Legal</Link>
       </div>

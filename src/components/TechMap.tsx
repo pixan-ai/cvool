@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 import type { ReactNode } from "react";
-import { SubHeader, SubFooter, useSubLang } from "@/components/SubLayout";
 
 /* ---------------------------------------------------------------------------
-   Language-neutral structure (code identifiers stay in English — they're code).
-   Translatable prose lives in COPY, keyed by id so the two never drift apart.
+   TechMap — the in-depth technical schematic of how cvool works, rendered
+   below the "How it works" page. Bilingual (es/en). Code identifiers stay in
+   English (they're code); only human prose is translated.
 --------------------------------------------------------------------------- */
 const PIPELINE = ["you", "page", "api", "claude", "result"] as const;
 
@@ -18,6 +18,7 @@ const STACK = [
   { name: "Claude Sonnet 4.6", id: "claude" },
   { name: "Server-Sent Events", id: "sse" },
   { name: "partial-json", id: "pjson" },
+  { name: "@vercel/analytics", id: "analytics" },
   { name: "Vercel", id: "vercel" },
 ] as const;
 
@@ -69,17 +70,8 @@ const SSE_EVENTS = ["chunk", "progress", "result", "error"] as const;
 const REVEAL = ["detected_language", "inferred_role", "score", "strengths", "improvements", "improved_cv"] as const;
 const DECISIONS = ["model", "duration", "stream", "error"] as const;
 
-/* ---------------------------------------------------------------------------
-   Bilingual copy. Code identifiers are NOT here (they're literals in the JSX);
-   only human prose is translated.
---------------------------------------------------------------------------- */
 const COPY = {
   es: {
-    kicker: "Arquitectura",
-    title: "Mapa",
-    accent: "técnico",
-    sub: "Cómo viaja tu CV por cvool — capa por capa, desde tu navegador hasta Claude y de vuelta. Escrito para entenderse con nociones básicas de programación y aguantar la mirada de un experto.",
-
     ovKicker: "Vista de 10 segundos",
     ovTitle: "El flujo, de un vistazo",
     ovLead: "Sin base de datos y sin cuentas. Tu CV entra, se analiza en memoria y se descarta. Todo ocurre en una sola petición que transmite la respuesta mientras se genera.",
@@ -102,8 +94,10 @@ const COPY = {
       claude: "El modelo que analiza el CV y también extrae el texto de los PDF.",
       sse: "El canal que transmite la respuesta en vivo, fragmento a fragmento.",
       pjson: "Lee el JSON cuando aún está a medio escribir, sin romperse.",
+      analytics: "Analítica anónima y agregada: cuántas visitas, sin ningún dato personal.",
       vercel: "Donde vive el sitio y se ejecutan las funciones del servidor.",
     } as Record<string, string>,
+    stackNote: "Seis dependencias de producción y cero librerías de UI — eso es deliberado. Herramientas de desarrollo (no llegan al navegador): TypeScript, ESLint, Turbopack y npm.",
 
     treeKicker: "El código",
     treeTitle: "El árbol de src/",
@@ -193,15 +187,9 @@ const COPY = {
       "Los contadores públicos (visitas, CVs analizados) no contienen ningún dato personal y cualquiera puede verificarlos.",
     ],
     outro: "Eso es todo: una app pequeña, defensas claras, un stream y un prompt cuidado. La elegancia está en lo que no tiene.",
-    legend: "Cliente → Servidor → Claude",
   },
 
   en: {
-    kicker: "Architecture",
-    title: "Technical",
-    accent: "map",
-    sub: "How your CV travels through cvool — layer by layer, from your browser to Claude and back. Written to make sense with basic programming knowledge and to hold up to an expert's eye.",
-
     ovKicker: "The 10-second view",
     ovTitle: "The flow, at a glance",
     ovLead: "No database, no accounts. Your CV comes in, is analyzed in memory, and is discarded. It all happens in a single request that streams the answer as it's generated.",
@@ -224,8 +212,10 @@ const COPY = {
       claude: "The model that analyzes the CV and also extracts text from PDFs.",
       sse: "The channel that streams the answer live, chunk by chunk.",
       pjson: "Reads the JSON while it's still half-written, without breaking.",
+      analytics: "Anonymous, aggregate analytics: how many visits, with no personal data.",
       vercel: "Where the site lives and the server functions run.",
     } as Record<string, string>,
+    stackNote: "Six production dependencies and zero UI libraries — that's deliberate. Dev tooling (never ships to the browser): TypeScript, ESLint, Turbopack, and npm.",
 
     treeKicker: "The code",
     treeTitle: "The src/ tree",
@@ -315,13 +305,9 @@ const COPY = {
       "The public counters (visits, CVs analyzed) contain no personal data and anyone can verify them.",
     ],
     outro: "That's all: a small app, clear defenses, one stream, and a carefully written prompt. The elegance is in what it leaves out.",
-    legend: "Client → Server → Claude",
   },
 } as const;
 
-/* ---------------------------------------------------------------------------
-   Small presentational helpers
---------------------------------------------------------------------------- */
 function Chevron() {
   return (
     <svg className="summary-chevron w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -352,8 +338,7 @@ function TechDetail({ label, children }: { label: string; children: ReactNode })
   );
 }
 
-export default function MapPage() {
-  const [lang, setLang] = useSubLang();
+export default function TechMap({ lang }: { lang: "es" | "en" }) {
   const t = COPY[lang];
 
   // Reveal-on-scroll: add .map-in once when each element enters the viewport.
@@ -372,22 +357,11 @@ export default function MapPage() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [lang]);
 
   return (
-    <div className="max-w-3xl mx-auto px-5 py-8 space-y-16">
-      <SubHeader lang={lang} setLang={setLang} />
-
-      {/* Hero */}
-      <section className="space-y-3">
-        <div className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.18em] text-accent">{t.kicker}</div>
-        <h1 className="text-3xl sm:text-[40px] font-medium text-ink-900 tracking-tight leading-[1.05]">
-          {t.title} <span className="text-accent">{t.accent}</span>
-        </h1>
-        <p className="text-sm sm:text-base text-ink-600 max-w-2xl leading-relaxed">{t.sub}</p>
-      </section>
-
-      {/* 1 · 10-second overview pipeline */}
+    <div className="space-y-16">
+      {/* 10-second overview pipeline */}
       <section className="space-y-6">
         <SectionHead kicker={t.ovKicker} title={t.ovTitle} lead={t.ovLead} />
         <div className="map-reveal overflow-x-auto pb-1">
@@ -414,7 +388,7 @@ export default function MapPage() {
         </div>
       </section>
 
-      {/* 2 · Stack */}
+      {/* Stack */}
       <section className="space-y-6">
         <SectionHead kicker={t.stackKicker} title={t.stackTitle} lead={t.stackLead} />
         <div className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
@@ -425,9 +399,10 @@ export default function MapPage() {
             </div>
           ))}
         </div>
+        <p className="map-reveal text-[13px] text-ink-400 leading-relaxed max-w-2xl">{t.stackNote}</p>
       </section>
 
-      {/* 3 · Code tree */}
+      {/* Code tree */}
       <section className="space-y-6">
         <SectionHead kicker={t.treeKicker} title={t.treeTitle} lead={t.treeLead} />
         <div className="map-reveal space-y-3">
@@ -451,7 +426,7 @@ export default function MapPage() {
         </div>
       </section>
 
-      {/* 4 · The journey (vertical sequence) */}
+      {/* The journey (vertical sequence) */}
       <section className="space-y-6">
         <SectionHead kicker={t.journeyKicker} title={t.journeyTitle} lead={t.journeyLead} />
         <ol className="relative mt-2">
@@ -471,7 +446,7 @@ export default function MapPage() {
         </ol>
       </section>
 
-      {/* 5 · How it reaches Claude (the call) */}
+      {/* How it reaches Claude (the call) */}
       <section className="space-y-6">
         <SectionHead kicker={t.claudeKicker} title={t.claudeTitle} lead={t.claudeLead} />
         <pre className="map-reveal font-[family-name:var(--font-mono)] text-[12.5px] leading-relaxed text-ink-600 bg-ink-050 border border-ink-100 rounded-lg p-4 overflow-x-auto">
@@ -495,7 +470,7 @@ export default function MapPage() {
         </div>
       </section>
 
-      {/* 6 · SSE events + reveal order */}
+      {/* SSE events + reveal order */}
       <section className="space-y-6">
         <SectionHead kicker={t.sseKicker} title={t.sseTitle} lead={t.sseLead} />
         <div className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
@@ -522,7 +497,7 @@ export default function MapPage() {
         </div>
       </section>
 
-      {/* 7 · Design decisions */}
+      {/* Design decisions */}
       <section className="space-y-6">
         <SectionHead kicker={t.decKicker} title={t.decTitle} lead={t.decLead} />
         <div className="map-reveal space-y-2">
@@ -542,7 +517,7 @@ export default function MapPage() {
         </div>
       </section>
 
-      {/* 8 · Privacy */}
+      {/* Privacy */}
       <section className="space-y-6">
         <SectionHead kicker={t.privKicker} title={t.privTitle} lead={t.privLead} />
         <ul className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
@@ -555,8 +530,6 @@ export default function MapPage() {
         </ul>
         <p className="map-reveal text-sm text-ink-500 leading-relaxed max-w-2xl bg-ink-050 border border-ink-100 rounded-lg p-4">{t.outro}</p>
       </section>
-
-      <SubFooter lang={lang} />
     </div>
   );
 }

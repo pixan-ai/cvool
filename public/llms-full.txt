@@ -38,6 +38,44 @@ The backend parses the JSON, validates score + analysis + improved_cv, and retur
 ### Step 6: Results in browser
 User sees their score, 6 dimensions, suggestions with before/after, and their improved CV ready to copy. Everything stays in the browser. Nothing is stored.
 
+## Architecture (deep dive): how the data travels
+
+The whole analysis is a single streaming request. No data is stored at any point. A visual, interactive version of this walkthrough lives on the How it works page (https://cvool.org/how).
+
+### The src/ code map (what each block does)
+
+- src/app/page.tsx — the entire UI in one file (~590 lines): the form, the React state, the SSE stream reader, and the progressive reveal of the result.
+- src/app/layout.tsx — metadata, fonts (Geist + Geist Mono), analytics, and the JSON-LD schema for search engines.
+- src/app/globals.css — OKLCH color tokens, the <details> styling, and the CSS animations. No loose CSS in components.
+- src/app/api/analyze/route.ts — the route that talks to Claude: input defenses, prompt assembly, streaming, and re-emission as SSE. The heart of the backend.
+- src/app/api/parse/route.ts — turns a PDF into plain text by sending it to Claude as a base64 document.
+- src/lib/streamParse.ts — incremental JSON parser (built on partial-json): assembles the result from the half-written JSON as it streams, without waiting for the end.
+- src/lib/cors.ts — origin allowlist + CORS headers.
+- src/lib/rate-limit.ts — in-memory, best-effort limiter (7 requests/hour per IP).
+- src/lib/i18n.ts — t() and dimName() helpers and the Lang type; copy lives in src/content/.
+- src/lib/prompts/analyze.txt — the constitutional prompt (~550 lines): principles, scoring framework, and the exact JSON output format.
+- src/types/analysis.ts — the AnalysisResult and PartialResult types: the JSON contract shared by server and client.
+
+### The request lifecycle (browser → server → Claude → browser)
+
+1. Paste or upload. The user types text or attaches a PDF. PDFs go to /api/parse first, where Claude extracts the text. Files are never written to disk.
+2. Client validation. The analyze button stays disabled until cvText.trim().length >= 50. Nothing leaves the browser before that.
+3. POST /api/analyze with a JSON body { cvText, targetRole? }. The response is not a normal JSON — it is a stream, read on the client via res.body.getReader().
+4. Server defenses, in order, BEFORE spending a single token: reject content-length > 4MB (HTTP 413); validateOrigin() against an allowlist (only cvool.org may call the endpoint); isRateLimited() (7/hour per IP); clean() strips null bytes and control characters and truncates to 35,000 characters.
+5. Prompt assembly. system = analyze.txt marked with cache_control: ephemeral (prompt caching). The user message wraps the CV in <cv_text>…</cv_text> tags (plus an optional <target_role>) so the model cleanly separates content from instructions.
+6. anthropic.messages.stream({ model: "claude-sonnet-4-6", max_tokens: 8000, temperature: 0 }). Claude writes the analysis JSON token by token; each delta is emitted immediately.
+7. The server re-emits each delta to the browser as a Server-Sent Event. Four event types travel over the same open channel: chunk { delta } (raw text fragments), progress { tokens, done } (drives the progress bar), result { AnalysisResult } (the final, validated JSON), error { code } (parse_error | incomplete | api_error | rate_limit).
+8. The client parses the half-written JSON incrementally with parsePartial() and reveals fields in the order they arrive: detected_language → inferred_role → score → strengths → improvements → improved_cv. Numbers stay hidden until complete so the UI never flickers.
+9. isValidResult() checks the final shape (score.total is a number, summary is a string, strengths/improvements are arrays, improved_cv is present) before the server emits event: result.
+10. setResult() paints the final UI. The CV lived only in memory during the request; when it ends, it is discarded. There is no database.
+
+### Design decisions worth knowing
+
+- Model choice: Sonnet 4.6 is a settled decision (compared against Haiku 4.5 and Opus). Latency is output-bound (~5,600 output tokens at ~55 tokens/sec ≈ 100s), so the model is NOT a performance lever — a smaller model would not make it faster. Prompt caching lowers cost, not latency.
+- maxDuration is 300 seconds: a real analysis takes 60–120s. Lowering it would silently truncate the SSE stream mid-generation, and the final result event would never arrive — with no visible error.
+- SSE instead of one buffered JSON: 100 seconds on a spinner reads as broken. Streaming shows real progress and section-by-section reveal, and it avoids request timeouts.
+- Any non-OK response is surfaced to the user as a visible error rather than silently returning to the form. A mute failure is worse than a clear error.
+
 ## Scoring dimensions (detailed)
 
 ### 1. ATS Compatibility (Compatibilidad ATS)
