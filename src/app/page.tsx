@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
-import { t, dimName } from "@/lib/i18n";
+import { t, dimName, langStore } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 import type { AnalysisResult, PartialResult } from "@/types/analysis";
 import { parsePartial } from "@/lib/streamParse";
@@ -87,7 +87,7 @@ function detectLang(): Lang {
   // SSR fallback stays "es" (largest segment, minimizes hydration flicker);
   // unlisted browser locales fall back to "en" — see CLAUDE.md before changing.
   if (typeof navigator === "undefined") return "es";
-  const stored = localStorage.getItem("lang") as Lang | null;
+  const stored = langStore.get() as Lang | null;
   if (stored && LANGS.includes(stored)) return stored;
   const raw = navigator.language?.toLowerCase() ?? "";
   return LANGS.find((l) => raw.startsWith(l)) ?? "en";
@@ -266,7 +266,7 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
           <div className="flex items-center gap-3">
-            <select value={lang} onChange={(e) => { setLang(e.target.value as Lang); localStorage.setItem("lang", e.target.value); }} aria-label="Language"
+            <select value={lang} onChange={(e) => { setLang(e.target.value as Lang); langStore.set(e.target.value); }} aria-label="Language"
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
               {LANGS.map((l) => <option key={l} value={l}>{l.toUpperCase()}</option>)}
             </select>
