@@ -49,3 +49,29 @@ details[open] .summary-chevron { transform: rotate(90deg); }
 }
 .donation-fade-in { animation: donation-fade 0.6s ease-out; }
 
+/* ── /map technical schematic ─────────────────────────────────────────
+   Sober, world-class motion: scroll-reveal, a self-drawing rail, and a
+   single accent dot gliding along hairline connectors. No spinners, no
+   glow, no bounce. All motion is gated behind prefers-reduced-motion. */
+.map-reveal { opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.map-reveal.map-in { opacity: 1; transform: none; }
+
+.map-rail { transform: scaleY(0); transform-origin: top; }
+.map-rail.map-in { animation: map-draw 1s ease forwards; }
+@keyframes map-draw { to { transform: scaleY(1); } }
+
+/* Hairline connector with one accent dot crossing it. */
+.map-conn { position: relative; min-width: 40px; }
+.map-conn::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--color-ink-200); }
+.map-dot { position: absolute; top: 50%; left: 0; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: var(--color-accent); opacity: 0; }
+
+@keyframes map-dot { 0% { left: 0; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .map-dot { animation: map-dot 3.4s linear infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-reveal { opacity: 1; transform: none; transition: none; }
+  .map-rail { transform: none; animation: none; }
+}
+
