@@ -3,6 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { validateOrigin, corsHeaders } from "@/lib/cors";
 import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
+export const maxDuration = 300;
+
 const anthropic = new Anthropic();
 
 export async function OPTIONS(req: NextRequest) {
@@ -13,6 +15,12 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Reject oversized payloads before reading the body into memory.
+  // 7MB ceiling = 5MB PDF limit + multipart/base64 overhead.
+  if (parseInt(req.headers.get("content-length") ?? "0") > 7_000_000) {
+    return NextResponse.json({ error: "too_large" }, { status: 413, headers: corsHeaders(req) });
+  }
+
   // CORS check
   const originError = validateOrigin(req);
   if (originError) return originError;

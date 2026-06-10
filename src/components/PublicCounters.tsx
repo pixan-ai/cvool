@@ -11,7 +11,6 @@ import type { Lang } from "@/lib/i18n";
 const NS = "cvool";
 const HIT = (key: string) => `https://abacus.jasoncameron.dev/hit/${NS}/${key}`;
 const GET = (key: string) => `https://abacus.jasoncameron.dev/get/${NS}/${key}`;
-const PUBLIC_URL = (key: string) => `https://abacus.jasoncameron.dev/get/${NS}/${key}`;
 
 const VERIFY_TITLE: Record<Lang, string> = {
   es: "Verifica este contador público",
@@ -29,15 +28,23 @@ function format(n: number, lang: Lang): string {
   }
 }
 
-async function fetchValue(url: string): Promise<number | null> {
-  try {
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) return null;
-    const d = await r.json();
-    return typeof d?.value === "number" ? d.value : null;
-  } catch {
-    return null;
-  }
+// Fetches a counter once on mount. Pass GET() to read without incrementing,
+// HIT() to increment-and-read.
+function useCounter(url: string): number | null {
+  const [n, setN] = useState<number | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch(url, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (alive && typeof d?.value === "number") setN(d.value);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [url]);
+  return n;
 }
 
 /**
@@ -50,25 +57,14 @@ async function fetchValue(url: string): Promise<number | null> {
  * Sized to sit inline with the pill label (text-sm), not as a hero number.
  */
 export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
-  const [n, setN] = useState<number | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    fetchValue(GET("cvs-analyzed")).then((v) => {
-      if (alive && v !== null) setN(v);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
-
+  const n = useCounter(GET("cvs-analyzed"));
   return (
     <a
-      href={PUBLIC_URL("cvs-analyzed")}
+      href={GET("cvs-analyzed")}
       target="_blank"
       rel="noopener noreferrer"
       title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}
-      className="text-sm font-semibold text-ink-900 tabular-nums hover:text-ink-600 transition"
+      className="text-sm font-medium text-ink-900 tabular-nums hover:text-ink-600 transition"
     >
       {n === null ? "—" : format(n, lang)}
     </a>
@@ -81,22 +77,11 @@ export function CvsAnalyzedCount({ lang }: { lang: Lang }) {
  */
 export function FooterPublicCounters({ lang }: { lang: Lang }) {
   const ui = t(lang);
-  const [visits, setVisits] = useState<number | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    fetchValue(HIT("visits")).then((v) => {
-      if (alive && v !== null) setVisits(v);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
-
+  const visits = useCounter(HIT("visits"));
   return (
     <p className="text-[11px] text-ink-300 text-center">
       <a
-        href={PUBLIC_URL("visits")}
+        href={GET("visits")}
         target="_blank"
         rel="noopener noreferrer"
         title={VERIFY_TITLE[lang] ?? VERIFY_TITLE.es}

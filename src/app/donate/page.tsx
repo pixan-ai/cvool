@@ -60,7 +60,7 @@ export default function DonatePage() {
         </div>
       </section>
       <div className="bg-ink-050 rounded-lg p-5 text-center space-y-2">
-        <p className="text-sm text-ink-900 font-bold">{t.bottomTitle}</p>
+        <p className="text-sm text-ink-900 font-medium">{t.bottomTitle}</p>
         <p className="text-sm text-ink-500"><CvoolText text={t.bottomBody} /></p>
         <p className="text-xs text-ink-400">{t.contactLabel} <a href={`mailto:${t.email}`} className="text-accent hover:text-accent-dim transition">{t.email}</a></p>
       </div>

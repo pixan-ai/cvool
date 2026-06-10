@@ -14,16 +14,11 @@ const WINDOW_MS = 3_600_000; // 1 hour, always
 
 const store = new Map<string, { count: number; resetAt: number }>();
 
-// Periodic cleanup to avoid memory leaks on long-lived instances
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, val] of store) {
-    if (now > val.resetAt) store.delete(key);
-  }
-}, 60_000);
-
 export function isRateLimited(key: string): boolean {
   const now = Date.now();
+  // Opportunistic sweep of expired entries — a module-level setInterval
+  // would keep the serverless event loop alive between invocations.
+  if (store.size > 1000) for (const [k, v] of store) if (now > v.resetAt) store.delete(k);
   const r = store.get(key);
   if (!r || now > r.resetAt) {
     store.set(key, { count: 1, resetAt: now + WINDOW_MS });

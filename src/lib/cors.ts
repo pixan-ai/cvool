@@ -7,11 +7,8 @@ const ALLOWED_ORIGINS = new Set(
     .filter(Boolean)
 );
 
-// In development, allow localhost
-if (process.env.NODE_ENV === "development") {
-  ALLOWED_ORIGINS.add("http://localhost:3000");
-  ALLOWED_ORIGINS.add("http://localhost:3001");
-}
+if (process.env.NODE_ENV === "development")
+  ["http://localhost:3000", "http://localhost:3001"].forEach((o) => ALLOWED_ORIGINS.add(o));
 
 export function validateOrigin(req: NextRequest): NextResponse | null {
   const origin = req.headers.get("origin");

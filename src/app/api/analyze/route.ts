@@ -110,6 +110,10 @@ export async function POST(req: NextRequest) {
           messages: [{ role: "user", content: userMsg }],
         });
 
+        // Stop generating when the client disconnects — an abandoned tab
+        // would otherwise still burn the full multi-thousand-token generation.
+        req.signal.addEventListener("abort", () => response.controller.abort(), { once: true });
+
         for await (const event of response) {
           if (
             event.type === "content_block_delta" &&
@@ -181,6 +185,7 @@ export async function POST(req: NextRequest) {
         send("result", JSON.stringify(result));
         controller.close();
       } catch (e: unknown) {
+        if (req.signal.aborted) return; // client left; nobody is listening
         console.error("Claude API error:", e instanceof Error ? e.message : e);
         send("error", JSON.stringify({ error: "api_error" }));
         controller.close();

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { GitHubIcon, XIcon, BuyMeACoffeeIcon } from "@/components/icons";
@@ -15,7 +15,7 @@ export function SubHeader({ lang, setLang }: { lang: Lang; setLang: (l: Lang) =>
         <span className="text-ink-900">cv</span><span className="text-accent">ool</span>
       </span>
       <div className="flex items-center gap-3">
-        <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}
+        <select value={lang} onChange={(e) => { setLang(e.target.value as Lang); localStorage.setItem("lang", e.target.value); }}
           className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
           <option value="es">ES</option>
           <option value="en">EN</option>
@@ -51,8 +51,12 @@ export function SubFooter({ lang }: { lang: Lang }) {
 }
 
 export function useSubLang(): [Lang, (l: Lang) => void] {
-  const [lang, setLang] = useState<Lang>(() =>
-    typeof window !== "undefined" && navigator.language.startsWith("en") ? "en" : "es"
-  );
+  const [lang, setLang] = useState<Lang>("es");
+  // Resolved after mount (the server always renders "es") to avoid a
+  // hydration mismatch. Prefers the language picked on the home page.
+  useEffect(() => {
+    if ((localStorage.getItem("lang") ?? navigator.language).startsWith("en")) setLang("en");
+  }, []);
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   return [lang, setLang];
 }

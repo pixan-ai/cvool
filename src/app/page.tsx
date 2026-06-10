@@ -24,7 +24,7 @@ function BoldMarkers({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         part.startsWith("**") && part.endsWith("**")
-          ? <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+          ? <strong key={i} className="font-medium">{part.slice(2, -2)}</strong>
           : part
       )}
     </>
@@ -39,30 +39,12 @@ function Chevron({ className = "" }: { className?: string }) {
   );
 }
 
-function ResumeText({ text }: { text: string }) {
-  return (
-    <div className="text-sm leading-relaxed text-ink-700">
-      {text.split("\n").map((line, i) => {
-        const trimmed = line.trimStart();
-        const isBullet = trimmed.startsWith("\u2022") || trimmed.startsWith("\u00b7") || trimmed.startsWith("\u2023") || trimmed.startsWith("- ");
-        if (isBullet) {
-          const bulletChar = trimmed.match(/^(\u2022|\u00b7|\u2023|- )/)?.[0] ?? "\u2022";
-          const content = trimmed.slice(bulletChar.length).trimStart();
-          return <p key={i} className="m-0 ml-4"><span className="inline-block w-4 -ml-4 text-ink-400">{bulletChar.trim()}</span>{content}</p>;
-        }
-        if (line.trim() === "") return <div key={i} className="h-3" />;
-        const isHeader = line === line.toUpperCase() && line.trim().length > 2 && /^[A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00dc\s&/\-:]+$/.test(line.trim());
-        if (isHeader) return <p key={i} className="m-0 font-medium text-ink-900 mt-5 mb-1">{line}</p>;
-        return <p key={i} className="m-0">{line}</p>;
-      })}
-    </div>
-  );
-}
-
-// Builds an HTML representation of the improved CV used as the text/html
-// flavor on the clipboard. <ul><li> ensures Word/Docs/Outlook apply their
-// native list style with hanging indent — fixes the wrap-to-margin issue
-// that plain text causes when bullets contain multi-line content.
+// Builds the HTML representation of the improved CV, used both as the
+// on-screen render (styled via .resume in globals.css) and as the text/html
+// clipboard flavor — guaranteeing what you see is exactly what you copy.
+// <ul><li> ensures Word/Docs/Outlook apply their native list style with
+// hanging indent — fixes the wrap-to-margin issue that plain text causes
+// when bullets contain multi-line content.
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -82,7 +64,7 @@ function cvTextToHtml(text: string): string {
     }
     if (inList) { out.push("</ul>"); inList = false; }
     if (trimmed === "") { out.push("<p>&nbsp;</p>"); continue; }
-    const isHeader = raw === raw.toUpperCase() && raw.trim().length > 2 && /^[A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00dc\s&/\-:]+$/.test(raw.trim());
+    const isHeader = raw === raw.toUpperCase() && raw.trim().length > 2 && /^[\p{Lu}\s&/\-:]+$/u.test(raw.trim());
     if (isHeader) { out.push(`<p><strong>${escapeHtml(raw)}</strong></p>`); continue; }
     out.push(`<p>${escapeHtml(raw)}</p>`);
   }
@@ -96,20 +78,19 @@ function extractCvMetadata(cv: string) {
   const withMetrics = (cv.match(/\d+\s*%|[$\u20ac\u00a3]\s*\d|\d+\s*[KMB]\b/g) ?? []).length;
   const sections = cv.split("\n").filter(line => {
     const t = line.trim();
-    return t.length > 2 && t === t.toUpperCase() && /^[A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00dc\s&\/\-:]+$/.test(t);
+    return t.length > 2 && t === t.toUpperCase() && /^[\p{Lu}\s&/\-:]+$/u.test(t);
   }).length;
   return { words, bullets, withMetrics, sections };
 }
 
 function detectLang(): Lang {
+  // SSR fallback stays "es" (largest segment, minimizes hydration flicker);
+  // unlisted browser locales fall back to "en" — see CLAUDE.md before changing.
   if (typeof navigator === "undefined") return "es";
+  const stored = localStorage.getItem("lang") as Lang | null;
+  if (stored && LANGS.includes(stored)) return stored;
   const raw = navigator.language?.toLowerCase() ?? "";
-  if (raw.startsWith("es")) return "es";
-  if (raw.startsWith("pt")) return "pt";
-  if (raw.startsWith("fr")) return "fr";
-  if (raw.startsWith("it")) return "it";
-  if (raw.startsWith("en")) return "en";
-  return "en";
+  return LANGS.find((l) => raw.startsWith(l)) ?? "en";
 }
 
 export default function Home() {
@@ -131,6 +112,7 @@ export default function Home() {
   const seenLangRef = useRef(false);
 
   useEffect(() => { setLang(detectLang()); }, []);
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
 
   useEffect(() => {
     if (!loading) {
@@ -182,6 +164,7 @@ export default function Home() {
       const decoder = new TextDecoder();
       let buffer = "";
       let currentEvent = "";
+      let sawEnd = false; // set on result/error events; a stream that closes without either means the lambda died mid-generation
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -213,13 +196,13 @@ export default function Home() {
               else if (currentEvent === "result") {
                 const r = parsed as AnalysisResult;
                 fetch("https://abacus.jasoncameron.dev/hit/cvool/cvs-analyzed").catch(() => {});
-                setResult(r);
+                sawEnd = true; setResult(r);
                 track("analysis_completed", { score: r.score.total, lang: r.detected_language });
                 const dl = r.detected_language as Lang;
                 if (LANGS.includes(dl)) setLang(dl);
                 setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
               } else if (currentEvent === "error") {
-                setError(parsed.error === "parse_error" ? (ui.errorRetry || ui.errorGeneric) : ui.errorGeneric);
+                sawEnd = true; setError(parsed.error === "parse_error" ? (ui.errorRetry || ui.errorGeneric) : ui.errorGeneric);
               }
             } catch { /* ignore */ }
           } else if (line === "") {
@@ -227,6 +210,7 @@ export default function Home() {
           }
         }
       }
+      if (!sawEnd) setError(ui.errorGeneric);
     } catch { setError(ui.errorConnection); } finally { setLoading(false); setStreamTokens(0); setStreamDone(false); }
   };
 
@@ -282,7 +266,7 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
           <div className="flex items-center gap-3">
-            <select value={lang} onChange={(e) => setLang(e.target.value as Lang)} aria-label="Language"
+            <select value={lang} onChange={(e) => { setLang(e.target.value as Lang); localStorage.setItem("lang", e.target.value); }} aria-label="Language"
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
               {LANGS.map((l) => <option key={l} value={l}>{l.toUpperCase()}</option>)}
             </select>
@@ -309,7 +293,7 @@ export default function Home() {
                 {progressPct >= 80 ? ui.analyzingAlmostDone : streamTokens > 0 ? ui.analyzingWriting : ui.analyzingReading}
               </p>
               <div className="max-w-xs mx-auto">
-                <div className="h-1 bg-ink-100 rounded-full overflow-hidden">
+                <div role="progressbar" aria-valuenow={displayPct} aria-valuemin={0} aria-valuemax={100} className="h-1 bg-ink-100 rounded-full overflow-hidden">
                   <div className="h-full bg-accent rounded-full transition-all duration-200 ease-out" style={{ width: `${displayPct}%` }} />
                 </div>
               </div>
@@ -339,7 +323,7 @@ export default function Home() {
         </div>
       )}
 
-      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-center text-sm text-red-600">{error}</p>}
 
       {!result && !loading && !parsing && (
         <section className="space-y-3 pt-2">
@@ -360,6 +344,7 @@ export default function Home() {
                 </button>
                 <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
               </div>
+              {cvText.length > 35_000 && <p role="alert" className="text-xs text-ink-500 mt-1">{ui.cvTooLong}</p>}
             </div>
           </div>
 
@@ -370,7 +355,7 @@ export default function Home() {
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
                 placeholder={`${ui.targetRole}. ${ui.targetRoleHelp}`}
-                maxLength={500}
+                maxLength={200}
                 rows={2}
                 aria-label="Target role"
                 className="w-full p-3 text-sm text-ink-700 bg-ink-000 border border-ink-100 rounded-lg placeholder:text-ink-300 resize-none focus:outline-none focus:border-accent transition"
@@ -513,7 +498,7 @@ export default function Home() {
                     <details open className="border border-accent/30 rounded-lg">
                       <summary className="px-4 py-3 text-sm font-medium text-accent flex items-center gap-2"><Chevron className="text-accent" />{ui.newTextTitle}</summary>
                       <div className="px-4 pb-4 space-y-3">
-                        <ResumeText text={data.improved_cv.text} />
+                        <div className="resume" dangerouslySetInnerHTML={{ __html: cvTextToHtml(data.improved_cv.text) }} />
                         {result && (
                           <button onClick={copy} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ink-200 text-sm text-ink-600 hover:border-accent hover:text-accent transition cursor-pointer">
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -534,7 +519,7 @@ export default function Home() {
             <>
               <div className="flex items-center justify-between gap-4 border border-ink-100 rounded-xl bg-ink-050 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink-700 leading-snug">☕ {ui.donationLine1}</p>
+                  <p className="text-sm font-medium text-ink-700 leading-snug">{ui.donationLine1}</p>
                   <p className="text-xs text-ink-400 mt-0.5 leading-snug">{ui.donationLine2}</p>
                 </div>
                 <a
@@ -542,8 +527,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => track("donation_clicked")}
-                  className="shrink-0 px-3 py-2 rounded-lg text-xs font-bold text-ink-900 transition hover:opacity-90"
-                  style={{ backgroundColor: "#FFDD00" }}
+                  className="shrink-0 px-3 py-2 rounded-lg text-xs font-medium bg-accent text-white hover:bg-accent-dim transition"
                 >
                   {ui.donationCta}
                 </a>
@@ -582,7 +566,7 @@ export default function Home() {
           <a href="https://x.com/cvoolorg" target="_blank" rel="noopener noreferrer" className="hover:text-ink-600 transition" aria-label="X">
             <XIcon />
           </a>
-          <a href="https://buymeacoffee.com/cvool" target="_blank" rel="noopener noreferrer" onClick={() => track("donation_clicked")} className="hover:text-ink-600 transition">
+          <a href="https://buymeacoffee.com/cvool" target="_blank" rel="noopener noreferrer" onClick={() => track("donation_clicked")} className="hover:text-ink-600 transition" aria-label="Buy Me a Coffee">
             <BuyMeACoffeeIcon />
           </a>
         </div>
