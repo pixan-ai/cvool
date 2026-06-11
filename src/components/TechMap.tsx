@@ -78,7 +78,7 @@ const COPY = {
     pipeline: {
       you: { t: "Tú", d: "pegas o subes el CV" },
       page: { t: "page.tsx", d: "valida y envía" },
-      api: { t: "/api/analyze", d: "defiende y reenvía" },
+      api: { t: "/api/analyze", d: "filtra y reenvía" },
       claude: { t: "Claude", d: "analiza en streaming" },
       result: { t: "Resultado", d: "se revela token a token" },
     } as Record<string, { t: string; d: string }>,
@@ -97,7 +97,25 @@ const COPY = {
       analytics: "Analítica anónima y agregada: cuántas visitas, sin ningún dato personal.",
       vercel: "Donde vive el sitio y se ejecutan las funciones del servidor.",
     } as Record<string, string>,
-    stackNote: "Seis dependencias de producción y cero librerías de UI — eso es deliberado. Herramientas de desarrollo (no llegan al navegador): TypeScript, ESLint, Turbopack y npm.",
+    deps: {
+      title: "El footprint de dependencias",
+      intro: "Del stack de arriba, esta es la realidad en paquetes de npm — y tenerlos contados es una ventaja, no una limitación.",
+      prodLabel: "Producción · llega al navegador",
+      prodCount: "6 paquetes",
+      prod: ["next", "react", "react-dom", "@anthropic-ai/sdk", "partial-json", "@vercel/analytics"],
+      devLabel: "Solo desarrollo · nunca llega al navegador",
+      devCount: "9 paquetes",
+      dev: ["typescript", "eslint", "eslint-config-next", "tailwindcss", "@tailwindcss/postcss", "@types/node", "@types/react", "@eslint/js", "@eslint/eslintrc"],
+      uiLabel: "Librerías de componentes UI",
+      uiNote: "Ni shadcn, ni Radix, ni MUI. Cada pixel es HTML y CSS escritos a mano.",
+      uiCount: "0",
+      whyTitle: "Por qué menos es mejor",
+      why: [
+        "Auditable: una sola persona puede leer y entender todo el código y cada dependencia.",
+        "Más seguro: cada librería es código en el que confías — menos paquetes significan menor superficie de ataque y menos sustos de cadena de suministro.",
+        "Más rápido: menos JavaScript que descargar y ejecutar, así la página se mantiene ligera y carga al instante.",
+      ],
+    },
 
     treeKicker: "El código",
     treeTitle: "El árbol de src/",
@@ -135,7 +153,7 @@ const COPY = {
       paste: { t: "Pegas o subes tu CV", d: "Escribes el texto o adjuntas un PDF. Si es PDF, primero pasa por /api/parse, donde Claude extrae el texto.", tech: "handleFile() envía el archivo a /api/parse como multipart. El route manda el PDF a Claude como documento base64 y devuelve texto plano." },
       ready: { t: "El navegador valida", d: "Hasta que no hay al menos 50 caracteres, el botón sigue desactivado. Todavía no viaja nada.", tech: "ready = cvText.trim().length >= 50 && !loading && !parsing. Se recalcula en cada render." },
       post: { t: "Se envía a /api/analyze", d: "Una sola petición POST con tu CV (y el puesto objetivo, si lo diste). La respuesta no es un JSON normal: es un stream.", tech: "fetch('/api/analyze', { method:'POST', body: JSON.stringify({ cvText, targetRole }) }). Se lee con res.body.getReader()." },
-      guard: { t: "El servidor se defiende", d: "Antes de gastar un solo token: rechaza peticiones enormes, comprueba el origen, limita la frecuencia y limpia el texto.", tech: "content-length > 4MB → 413 · validateOrigin (allowlist) · isRateLimited (7/h por IP) · clean() quita caracteres de control y recorta a 35.000." },
+      guard: { t: "El servidor filtra cada petición", d: "Antes de gastar un solo token: rechaza peticiones enormes, comprueba el origen, limita la frecuencia y limpia el texto.", tech: "content-length > 4MB → 413 · validateOrigin (allowlist) · isRateLimited (7/h por IP) · clean() quita caracteres de control y recorta a 35.000." },
       prompt: { t: "Se arma el mensaje para Claude", d: "Tu CV se envuelve en etiquetas para que el modelo lo distinga de las instrucciones, y se le antepone el prompt constitucional.", tech: "system: analyze.txt con cache_control ephemeral. user: <cv_text>…</cv_text> + <target_role> opcional." },
       stream: { t: "Claude responde en streaming", d: "El modelo no contesta de golpe: va escribiendo el JSON del análisis token a token, y cada fragmento sale de inmediato.", tech: "anthropic.messages.stream({ model:'claude-sonnet-4-6', max_tokens:8000, temperature:0 }). Se itera sobre content_block_delta." },
       sse: { t: "El servidor lo reemite como SSE", d: "Cada fragmento se reenvía al navegador como un evento Server-Sent Event, etiquetado por tipo: fragmento, progreso, resultado o error.", tech: "event: chunk|progress|result|error, seguido de data: {…} y una línea en blanco. Connection keep-alive, Cache-Control no-cache." },
@@ -196,7 +214,7 @@ const COPY = {
     pipeline: {
       you: { t: "You", d: "paste or upload the CV" },
       page: { t: "page.tsx", d: "validates and sends" },
-      api: { t: "/api/analyze", d: "defends and relays" },
+      api: { t: "/api/analyze", d: "filters and relays" },
       claude: { t: "Claude", d: "analyzes, streaming" },
       result: { t: "Result", d: "revealed token by token" },
     } as Record<string, { t: string; d: string }>,
@@ -215,7 +233,25 @@ const COPY = {
       analytics: "Anonymous, aggregate analytics: how many visits, with no personal data.",
       vercel: "Where the site lives and the server functions run.",
     } as Record<string, string>,
-    stackNote: "Six production dependencies and zero UI libraries — that's deliberate. Dev tooling (never ships to the browser): TypeScript, ESLint, Turbopack, and npm.",
+    deps: {
+      title: "The dependency footprint",
+      intro: "Of the stack above, here's the reality in npm packages — and keeping them countable is an advantage, not a limitation.",
+      prodLabel: "Production · ships to the browser",
+      prodCount: "6 packages",
+      prod: ["next", "react", "react-dom", "@anthropic-ai/sdk", "partial-json", "@vercel/analytics"],
+      devLabel: "Dev-only · never reaches the browser",
+      devCount: "9 packages",
+      dev: ["typescript", "eslint", "eslint-config-next", "tailwindcss", "@tailwindcss/postcss", "@types/node", "@types/react", "@eslint/js", "@eslint/eslintrc"],
+      uiLabel: "UI component libraries",
+      uiNote: "No shadcn, no Radix, no MUI. Every pixel is hand-written HTML and CSS.",
+      uiCount: "0",
+      whyTitle: "Why fewer is better",
+      why: [
+        "Auditable: one person can read and understand the whole codebase and every dependency.",
+        "Safer: every library is code you have to trust — fewer packages mean a smaller attack surface and fewer supply-chain surprises.",
+        "Faster: less JavaScript to download and run, so the page stays light and loads instantly.",
+      ],
+    },
 
     treeKicker: "The code",
     treeTitle: "The src/ tree",
@@ -253,7 +289,7 @@ const COPY = {
       paste: { t: "You paste or upload your CV", d: "You type the text or attach a PDF. If it's a PDF, it first goes through /api/parse, where Claude extracts the text.", tech: "handleFile() sends the file to /api/parse as multipart. The route hands the PDF to Claude as a base64 document and returns plain text." },
       ready: { t: "The browser validates", d: "Until there are at least 50 characters, the button stays disabled. Nothing travels yet.", tech: "ready = cvText.trim().length >= 50 && !loading && !parsing. Recomputed on every render." },
       post: { t: "It's sent to /api/analyze", d: "A single POST request with your CV (and the target role, if you gave one). The response isn't a normal JSON: it's a stream.", tech: "fetch('/api/analyze', { method:'POST', body: JSON.stringify({ cvText, targetRole }) }). Read with res.body.getReader()." },
-      guard: { t: "The server defends itself", d: "Before spending a single token: it rejects huge requests, checks the origin, rate-limits, and cleans the text.", tech: "content-length > 4MB → 413 · validateOrigin (allowlist) · isRateLimited (7/h per IP) · clean() strips control chars and truncates to 35,000." },
+      guard: { t: "The server filters every request", d: "Before spending a single token: it rejects huge requests, checks the origin, rate-limits, and cleans the text.", tech: "content-length > 4MB → 413 · validateOrigin (allowlist) · isRateLimited (7/h per IP) · clean() strips control chars and truncates to 35,000." },
       prompt: { t: "The message to Claude is assembled", d: "Your CV is wrapped in tags so the model tells it apart from instructions, and the constitutional prompt is prepended.", tech: "system: analyze.txt with cache_control ephemeral. user: <cv_text>…</cv_text> + optional <target_role>." },
       stream: { t: "Claude responds, streaming", d: "The model doesn't answer all at once: it writes the analysis JSON token by token, and each chunk goes out immediately.", tech: "anthropic.messages.stream({ model:'claude-sonnet-4-6', max_tokens:8000, temperature:0 }). Iterating content_block_delta." },
       sse: { t: "The server re-emits it as SSE", d: "Each chunk is forwarded to the browser as a Server-Sent Event, tagged by type: chunk, progress, result, or error.", tech: "event: chunk|progress|result|error, followed by data: {…} and a blank line. Connection keep-alive, Cache-Control no-cache." },
@@ -399,7 +435,48 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
             </div>
           ))}
         </div>
-        <p className="map-reveal text-[13px] text-ink-400 leading-relaxed max-w-2xl">{t.stackNote}</p>
+
+        {/* Dependency footprint — explicit breakdown framed as an advantage. */}
+        <div className="map-reveal space-y-4 pt-2">
+          <div>
+            <h3 className="text-sm font-medium text-ink-900">{t.deps.title}</h3>
+            <p className="text-sm text-ink-500 mt-1 leading-relaxed max-w-2xl">{t.deps.intro}</p>
+          </div>
+          <div className="border border-ink-100 rounded-lg divide-y divide-ink-100">
+            <div className="p-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-sm text-ink-700">{t.deps.prodLabel}</span>
+                <span className="font-[family-name:var(--font-mono)] text-xs text-ink-400 shrink-0">{t.deps.prodCount}</span>
+              </div>
+              <p className="font-[family-name:var(--font-mono)] text-[12px] text-ink-400 mt-2 leading-relaxed break-words">{t.deps.prod.join("  ·  ")}</p>
+            </div>
+            <div className="p-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-sm text-ink-700">{t.deps.devLabel}</span>
+                <span className="font-[family-name:var(--font-mono)] text-xs text-ink-400 shrink-0">{t.deps.devCount}</span>
+              </div>
+              <p className="font-[family-name:var(--font-mono)] text-[12px] text-ink-400 mt-2 leading-relaxed break-words">{t.deps.dev.join("  ·  ")}</p>
+            </div>
+            <div className="p-3 flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <span className="text-sm text-ink-700">{t.deps.uiLabel}</span>
+                <p className="text-[12px] text-ink-400 mt-1 leading-relaxed">{t.deps.uiNote}</p>
+              </div>
+              <span className="font-[family-name:var(--font-mono)] text-3xl font-light text-accent shrink-0 leading-none tabular-nums">{t.deps.uiCount}</span>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-xs font-medium text-ink-700 mb-2">{t.deps.whyTitle}</h4>
+            <ul className="space-y-1.5">
+              {t.deps.why.map((w, i) => (
+                <li key={i} className="flex items-start gap-2 text-[13px] text-ink-500 leading-relaxed">
+                  <span className="text-accent shrink-0 mt-0.5">·</span>
+                  <span>{w}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       {/* Code tree */}

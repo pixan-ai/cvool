@@ -28,7 +28,7 @@
 - Database: None — zero data stored
 - Auth: None — no accounts, no cookies
 - Rate limit: 7 requests/hour per IP (in-memory)
-- Architecture: a single streaming request over Server-Sent Events (SSE). The server defends the call (size limit, origin allowlist, rate limit, input sanitization), relays the CV to Claude with temperature 0, and streams the JSON back; the browser parses it incrementally and reveals results as they generate. Nothing is stored. Full walkthrough at https://cvool.org/how
+- Architecture: a single streaming request over Server-Sent Events (SSE). The server filters the call (size limit, origin allowlist, rate limit, input sanitization), relays the CV to Claude with temperature 0, and streams the JSON back; the browser parses it incrementally and reveals results as they generate. Nothing is stored. Full walkthrough at https://cvool.org/how
 - License: MIT
 - Source: https://github.com/pixan-ai/cvool
 
