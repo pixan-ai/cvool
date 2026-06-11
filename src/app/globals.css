@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 @theme {
+  /* Map next/font's CSS variables into Tailwind's font namespace so the
+     idiomatic `font-sans` / `font-mono` utilities work — replacing dozens of
+     verbose `font-[family-name:var(--font-…)]` arbitrary classes site-wide. */
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+
   --color-ink-000: oklch(1 0 0);
   --color-ink-050: oklch(0.97 0 0);
   --color-ink-100: oklch(0.93 0 0);

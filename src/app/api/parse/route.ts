@@ -1,34 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
-import { validateOrigin, corsHeaders } from "@/lib/cors";
-import { isRateLimited, getClientIp } from "@/lib/rate-limit";
+import { anthropic, MODEL } from "@/lib/anthropic";
+import { guard, preflight } from "@/lib/guard";
+import { corsHeaders } from "@/lib/cors";
 
 export const maxDuration = 300;
 
-const anthropic = new Anthropic();
-
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(req),
-  });
+export function OPTIONS(req: NextRequest) {
+  return preflight(req);
 }
 
 export async function POST(req: NextRequest) {
-  // Reject oversized payloads before reading the body into memory.
-  // 7MB ceiling = 5MB PDF limit + multipart/base64 overhead.
-  if (parseInt(req.headers.get("content-length") ?? "0") > 7_000_000) {
-    return NextResponse.json({ error: "too_large" }, { status: 413, headers: corsHeaders(req) });
-  }
-
-  // CORS check
-  const originError = validateOrigin(req);
-  if (originError) return originError;
-
-  // Rate limit (shares the same window as /api/analyze)
-  if (isRateLimited(getClientIp(req.headers))) {
-    return NextResponse.json({ error: "rate_limit" }, { status: 429, headers: corsHeaders(req) });
-  }
+  // Size cap (7MB = 5MB PDF + multipart/base64 overhead) + origin + rate limit.
+  // Shares the rate-limit window with /api/analyze, so PDF parsing can't be
+  // used to bypass the per-IP budget.
+  const blocked = guard(req, 7_000_000);
+  if (blocked) return blocked;
 
   let formData: FormData;
   try {
@@ -47,11 +33,18 @@ export async function POST(req: NextRequest) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  // file.type is the client-declared MIME and is spoofable; verify the real
+  // PDF magic bytes before handing the file to Claude.
+  if (!buffer.subarray(0, 5).toString("latin1").startsWith("%PDF")) {
+    return NextResponse.json({ error: "invalid_file" }, { status: 400, headers: corsHeaders(req) });
+  }
+
   const base64 = buffer.toString("base64");
 
   try {
     const msg = await anthropic.messages.create({
-      model: process.env.CLAUDE_MODEL || "claude-sonnet-4-6",
+      model: MODEL,
       max_tokens: 8_000,
       messages: [
         {

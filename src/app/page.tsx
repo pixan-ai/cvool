@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
-import { t, dimName, langStore } from "@/lib/i18n";
+import { t, dimName, langStore, LANGS } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 import type { AnalysisResult, PartialResult } from "@/types/analysis";
 import { parsePartial } from "@/lib/streamParse";
@@ -13,7 +13,13 @@ import { GitHubIcon, XIcon, BuyMeACoffeeIcon } from "@/components/icons";
 import { CvsAnalyzedCount, FooterPublicCounters } from "@/components/PublicCounters";
 import { StepBadge } from "@/components/StepBadge";
 
-const LANGS: Lang[] = ["es", "en", "fr", "pt", "it"];
+// A CV section header: an ALL-CAPS line of letters/spaces/punctuation, e.g.
+// "EXPERIENCIA PROFESIONAL". Shared by the metadata counter and the HTML
+// renderer so the rule lives in exactly one place.
+function isHeaderLine(line: string): boolean {
+  const s = line.trim();
+  return s.length > 2 && s === s.toUpperCase() && /^[\p{Lu}\s&/\-:]+$/u.test(s);
+}
 
 // Renders a string that may contain **bold markers** as JSX with <strong>
 // tags around the marked sections. Lets us keep i18n keys as single strings
@@ -64,8 +70,7 @@ function cvTextToHtml(text: string): string {
     }
     if (inList) { out.push("</ul>"); inList = false; }
     if (trimmed === "") { out.push("<p>&nbsp;</p>"); continue; }
-    const isHeader = raw === raw.toUpperCase() && raw.trim().length > 2 && /^[\p{Lu}\s&/\-:]+$/u.test(raw.trim());
-    if (isHeader) { out.push(`<p><strong>${escapeHtml(raw)}</strong></p>`); continue; }
+    if (isHeaderLine(raw)) { out.push(`<p><strong>${escapeHtml(raw)}</strong></p>`); continue; }
     out.push(`<p>${escapeHtml(raw)}</p>`);
   }
   if (inList) out.push("</ul>");
@@ -76,10 +81,7 @@ function extractCvMetadata(cv: string) {
   const words = cv.trim().split(/\s+/).filter(Boolean).length;
   const bullets = (cv.match(/^[\s]*[\u2022\u00b7\u2023\-*]/gm) ?? []).length;
   const withMetrics = (cv.match(/\d+\s*%|[$\u20ac\u00a3]\s*\d|\d+\s*[KMB]\b/g) ?? []).length;
-  const sections = cv.split("\n").filter(line => {
-    const t = line.trim();
-    return t.length > 2 && t === t.toUpperCase() && /^[\p{Lu}\s&/\-:]+$/u.test(t);
-  }).length;
+  const sections = cv.split("\n").filter(isHeaderLine).length;
   return { words, bullets, withMetrics, sections };
 }
 
@@ -264,7 +266,7 @@ export default function Home() {
     <div className="max-w-2xl mx-auto px-5 py-5 space-y-4">
       <header>
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
+          <span className="inline-flex items-center gap-[2px] font-sans text-[24px] font-medium tracking-tight"><FaviconIcon size="w-[25px] h-[25px]" /><Cv /></span>
           <div className="flex items-center gap-3">
             <select value={lang} onChange={(e) => { setLang(e.target.value as Lang); langStore.set(e.target.value); }} aria-label="Language"
               className="text-xs font-medium text-ink-500 bg-transparent border border-ink-100 rounded-lg px-2 py-1 focus:outline-none focus:border-accent cursor-pointer">
@@ -416,8 +418,8 @@ export default function Home() {
                       <div className="px-4 pb-4">
                         {data.score?.total != null && (
                           <div className="flex items-baseline gap-2 mb-2">
-                            <span className="font-[family-name:var(--font-mono)] text-ink-400">{data.score.total}/100</span>
-                            <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
+                            <span className="font-mono text-ink-400">{data.score.total}/100</span>
+                            <span className="font-mono text-[11px] text-ink-300 tracking-wide">— {ui.scoreMeta}</span>
                           </div>
                         )}
                         {/* min-h reserves space for the multi-line summary so
@@ -434,7 +436,7 @@ export default function Home() {
                           <div key={i} className="border border-positive/20 rounded-lg p-3 bg-ink-000">
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-sm font-medium text-ink-700">{dimName(s.dimension, lang)}</span>
-                              <span className="font-[family-name:var(--font-mono)] text-[11px] text-positive tracking-wide">{s.dimension_score}/100</span>
+                              <span className="font-mono text-[11px] text-positive tracking-wide">{s.dimension_score}/100</span>
                             </div>
                             <p className="text-sm text-ink-600">{s.detail}</p>
                           </div>
@@ -450,18 +452,18 @@ export default function Home() {
                           <div key={i} className="border border-ink-100 rounded-lg p-3 space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-medium text-ink-700">{dimName(imp.dimension, lang)}</span>
-                              <span className="font-[family-name:var(--font-mono)] text-[11px] text-ink-400 tracking-wide uppercase">{imp.dimension_score}/100</span>
+                              <span className="font-mono text-[11px] text-ink-400 tracking-wide uppercase">{imp.dimension_score}/100</span>
                             </div>
                             <p className="text-sm text-ink-600">{imp.issue}</p>
                             <p className="text-sm text-ink-500">{imp.suggestion}</p>
                             {imp.before && imp.after && (
                               <div className="grid gap-2 text-xs">
                                 <div className="bg-ink-050 rounded-lg p-3">
-                                  <span className="font-[family-name:var(--font-mono)] text-ink-400 uppercase tracking-wide text-[11px]">{ui.before}</span>
+                                  <span className="font-mono text-ink-400 uppercase tracking-wide text-[11px]">{ui.before}</span>
                                   <p className="text-ink-500 mt-1">{imp.before}</p>
                                 </div>
                                 <div className="bg-positive-ghost rounded-lg p-3">
-                                  <span className="font-[family-name:var(--font-mono)] text-positive uppercase tracking-wide text-[11px]">{ui.after}</span>
+                                  <span className="font-mono text-positive uppercase tracking-wide text-[11px]">{ui.after}</span>
                                   <p className="text-ink-700 mt-1">{imp.after}</p>
                                 </div>
                               </div>

@@ -3,6 +3,10 @@ import home from "@/content/home.json";
 export type Lang = keyof typeof home;
 export type UI = typeof home.es;
 
+// Single source of truth for the supported languages, derived from home.json
+// so adding a top-level key there propagates everywhere (no hand-kept list).
+export const LANGS = Object.keys(home) as Lang[];
+
 export function t(lang: Lang): UI {
   return home[lang] ?? home.es;
 }

@@ -355,7 +355,7 @@ function Chevron() {
 function SectionHead({ kicker, title, lead }: { kicker: string; title: string; lead?: string }) {
   return (
     <div className="map-reveal">
-      <div className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-[0.18em] text-accent mb-3">{kicker}</div>
+      <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent mb-3">{kicker}</div>
       <h2 className="text-xl sm:text-2xl font-medium text-ink-900 tracking-tight leading-tight">{title}</h2>
       {lead && <p className="text-sm text-ink-500 mt-2 max-w-2xl leading-relaxed">{lead}</p>}
     </div>
@@ -365,11 +365,11 @@ function SectionHead({ kicker, title, lead }: { kicker: string; title: string; l
 function TechDetail({ label, children }: { label: string; children: ReactNode }) {
   return (
     <details className="mt-3">
-      <summary className="inline-flex items-center gap-1.5 text-xs font-[family-name:var(--font-mono)] text-accent cursor-pointer select-none hover:text-accent-dim transition">
+      <summary className="inline-flex items-center gap-1.5 text-xs font-mono text-accent cursor-pointer select-none hover:text-accent-dim transition">
         <Chevron />
         {label}
       </summary>
-      <div className="mt-2 ml-[18px] pl-3 border-l border-ink-100 text-[13px] leading-relaxed text-ink-500 font-[family-name:var(--font-mono)]">{children}</div>
+      <div className="mt-2 ml-[18px] pl-3 border-l border-ink-100 text-[13px] leading-relaxed text-ink-500 font-mono">{children}</div>
     </details>
   );
 }
@@ -409,7 +409,7 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
               return (
                 <div key={id} className="flex items-stretch">
                   <div className="shrink-0 w-[136px] border border-ink-100 rounded-lg bg-ink-000 p-3">
-                    <div className={`font-[family-name:var(--font-mono)] text-xs ${isClaude ? "text-accent" : "text-ink-900"}`}>{node.t}</div>
+                    <div className={`font-mono text-xs ${isClaude ? "text-accent" : "text-ink-900"}`}>{node.t}</div>
                     <div className="text-[11px] text-ink-400 mt-1 leading-snug">{node.d}</div>
                   </div>
                   {i < PIPELINE.length - 1 && (
@@ -430,7 +430,7 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
         <div className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
           {STACK.map((s) => (
             <div key={s.id} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 p-3">
-              <span className="font-[family-name:var(--font-mono)] text-[13px] text-ink-900 sm:w-48 shrink-0">{s.name}</span>
+              <span className="font-mono text-[13px] text-ink-900 sm:w-48 shrink-0">{s.name}</span>
               <span className="text-sm text-ink-500 leading-relaxed">{t.stack[s.id]}</span>
             </div>
           ))}
@@ -446,23 +446,23 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
             <div className="p-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm text-ink-700">{t.deps.prodLabel}</span>
-                <span className="font-[family-name:var(--font-mono)] text-xs text-ink-400 shrink-0">{t.deps.prodCount}</span>
+                <span className="font-mono text-xs text-ink-400 shrink-0">{t.deps.prodCount}</span>
               </div>
-              <p className="font-[family-name:var(--font-mono)] text-[12px] text-ink-400 mt-2 leading-relaxed break-words">{t.deps.prod.join("  ·  ")}</p>
+              <p className="font-mono text-[12px] text-ink-400 mt-2 leading-relaxed break-words">{t.deps.prod.join("  ·  ")}</p>
             </div>
             <div className="p-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm text-ink-700">{t.deps.devLabel}</span>
-                <span className="font-[family-name:var(--font-mono)] text-xs text-ink-400 shrink-0">{t.deps.devCount}</span>
+                <span className="font-mono text-xs text-ink-400 shrink-0">{t.deps.devCount}</span>
               </div>
-              <p className="font-[family-name:var(--font-mono)] text-[12px] text-ink-400 mt-2 leading-relaxed break-words">{t.deps.dev.join("  ·  ")}</p>
+              <p className="font-mono text-[12px] text-ink-400 mt-2 leading-relaxed break-words">{t.deps.dev.join("  ·  ")}</p>
             </div>
             <div className="p-3 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <span className="text-sm text-ink-700">{t.deps.uiLabel}</span>
                 <p className="text-[12px] text-ink-400 mt-1 leading-relaxed">{t.deps.uiNote}</p>
               </div>
-              <span className="font-[family-name:var(--font-mono)] text-3xl font-light text-accent shrink-0 leading-none tabular-nums">{t.deps.uiCount}</span>
+              <span className="font-mono text-3xl font-light text-accent shrink-0 leading-none tabular-nums">{t.deps.uiCount}</span>
             </div>
           </div>
           <div>
@@ -487,13 +487,13 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
             <details key={g.id} open={g.id === "app"} className="border border-ink-100 rounded-lg overflow-hidden">
               <summary className="px-4 py-3 flex items-center gap-2 cursor-pointer select-none">
                 <Chevron />
-                <span className="font-[family-name:var(--font-mono)] text-sm text-ink-700">{g.dir}</span>
+                <span className="font-mono text-sm text-ink-700">{g.dir}</span>
                 <span className="text-xs text-ink-400 ml-1">{t.treeGroups[g.id]}</span>
               </summary>
               <div className="px-4 pb-4 space-y-2">
                 {g.items.map((it, j) => (
                   <div key={it.id} className={`flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 ${j > 0 ? "border-t border-ink-100 pt-2" : ""}`}>
-                    <span className="font-[family-name:var(--font-mono)] text-[13px] text-accent sm:w-60 shrink-0">{it.p}</span>
+                    <span className="font-mono text-[13px] text-accent sm:w-60 shrink-0">{it.p}</span>
                     <span className="text-[13px] text-ink-500 leading-relaxed">{t.tree[it.id]}</span>
                   </div>
                 ))}
@@ -513,7 +513,7 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
             if (!s) return null;
             return (
               <li key={id} className="map-reveal relative pl-12 pb-8 last:pb-0">
-                <span className="absolute left-0 top-0 grid place-items-center w-8 h-8 rounded-full border border-ink-200 bg-ink-000 font-[family-name:var(--font-mono)] text-xs text-ink-500">{i + 1}</span>
+                <span className="absolute left-0 top-0 grid place-items-center w-8 h-8 rounded-full border border-ink-200 bg-ink-000 font-mono text-xs text-ink-500">{i + 1}</span>
                 <h3 className="text-sm font-medium text-ink-900 leading-snug pt-1">{s.t}</h3>
                 <p className="text-sm text-ink-500 mt-1 leading-relaxed">{s.d}</p>
                 <TechDetail label={t.detail}>{s.tech}</TechDetail>
@@ -526,7 +526,7 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
       {/* How it reaches Claude (the call) */}
       <section className="space-y-6">
         <SectionHead kicker={t.claudeKicker} title={t.claudeTitle} lead={t.claudeLead} />
-        <pre className="map-reveal font-[family-name:var(--font-mono)] text-[12.5px] leading-relaxed text-ink-600 bg-ink-050 border border-ink-100 rounded-lg p-4 overflow-x-auto">
+        <pre className="map-reveal font-mono text-[12.5px] leading-relaxed text-ink-600 bg-ink-050 border border-ink-100 rounded-lg p-4 overflow-x-auto">
 {`anthropic.messages.stream({
   model:       "claude-sonnet-4-6",
   max_tokens:  8_000,
@@ -538,7 +538,7 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
         <div className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
           {(["model", "temp", "cache", "maxtok"] as const).map((k) => (
             <div key={k} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 p-3">
-              <span className="font-[family-name:var(--font-mono)] text-[13px] text-accent sm:w-32 shrink-0">
+              <span className="font-mono text-[13px] text-accent sm:w-32 shrink-0">
                 {k === "model" ? "model" : k === "temp" ? "temperature" : k === "cache" ? "cache_control" : "max_tokens"}
               </span>
               <span className="text-[13px] text-ink-500 leading-relaxed">{t.claudeNotes[k]}</span>
@@ -553,7 +553,7 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
         <div className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
           {SSE_EVENTS.map((e) => (
             <div key={e} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 p-3">
-              <span className="font-[family-name:var(--font-mono)] text-[13px] text-ink-900 sm:w-36 shrink-0">event: {e}</span>
+              <span className="font-mono text-[13px] text-ink-900 sm:w-36 shrink-0">event: {e}</span>
               <span className="text-[13px] text-ink-500 leading-relaxed">{t.sse[e]}</span>
             </div>
           ))}
@@ -565,8 +565,8 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
           <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mt-4">
             {REVEAL.map((f, i) => (
               <span key={f} className="inline-flex items-center gap-2">
-                <span className="font-[family-name:var(--font-mono)] text-[12px] text-ink-600 border border-ink-100 rounded-lg px-2.5 py-1">{f}</span>
-                {i < REVEAL.length - 1 && <span className="text-ink-300 font-[family-name:var(--font-mono)] text-xs">→</span>}
+                <span className="font-mono text-[12px] text-ink-600 border border-ink-100 rounded-lg px-2.5 py-1">{f}</span>
+                {i < REVEAL.length - 1 && <span className="text-ink-300 font-mono text-xs">→</span>}
               </span>
             ))}
           </div>

@@ -20,7 +20,7 @@ export default function HowPage() {
           {t.steps.map((s, i) => (
             <div key={i} className="border border-ink-100 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <span className="font-[family-name:var(--font-mono)] text-xs text-accent font-medium mt-0.5 shrink-0">{s.n}</span>
+                <span className="font-mono text-xs text-accent font-medium mt-0.5 shrink-0">{s.n}</span>
                 <div><h3 className="text-sm font-medium text-ink-900 mb-0.5">{s.t}</h3><p className="text-sm text-ink-500 leading-relaxed">{s.b}</p></div>
               </div>
             </div>
@@ -32,7 +32,7 @@ export default function HowPage() {
         <div className="border border-ink-100 rounded-lg p-4 space-y-2">
           {t.stackItems.map(([l, v], i) => (
             <div key={i} className="flex items-baseline gap-3 text-sm">
-              <span className="text-ink-400 font-[family-name:var(--font-mono)] text-xs shrink-0 w-24">{l}</span>
+              <span className="text-ink-400 font-mono text-xs shrink-0 w-24">{l}</span>
               <span className="text-ink-700">{v}</span>
             </div>
           ))}
@@ -53,7 +53,7 @@ export default function HowPage() {
         <h2 className="text-sm font-medium text-ink-900 mb-2">{t.fork}</h2>
         <p className="text-sm text-ink-500 mb-3"><CvoolText text={t.forkBody} /></p>
         <div className="border border-ink-100 rounded-lg p-4 bg-ink-050 mb-3">
-          <pre className="text-xs font-[family-name:var(--font-mono)] text-ink-600 leading-relaxed overflow-x-auto">{t.forkCode}</pre>
+          <pre className="text-xs font-mono text-ink-600 leading-relaxed overflow-x-auto">{t.forkCode}</pre>
         </div>
         <div className="flex items-center justify-between">
           <a href="https://github.com/pixan-ai/cvool" target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:text-accent-dim transition font-medium">{t.forkLink}</a>

@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { isRateLimited, getClientIp } from "@/lib/rate-limit";
-import { validateOrigin, corsHeaders } from "@/lib/cors";
+import { anthropic, MODEL } from "@/lib/anthropic";
+import { guard, preflight } from "@/lib/guard";
+import { corsHeaders } from "@/lib/cors";
 
 export const maxDuration = 300;
 
 const PROMPT = readFileSync(join(process.cwd(), "src/lib/prompts/analyze.txt"), "utf-8");
-const anthropic = new Anthropic();
 
 function clean(s: string): string {
-  return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "").trim();
+  return s
+    // Strip control characters that would corrupt the prompt or the JSON.
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")
+    // Neutralize the XML delimiters so a CV that literally contains
+    // "</cv_text>" can't break out of its wrapper and inject instructions.
+    .replace(/<\/?(cv_text|target_role)>/gi, "")
+    .trim();
 }
 
 // Validate the shape of the AnalysisResult JSON Claude produces.
@@ -38,30 +43,16 @@ function isValidResult(r: unknown): boolean {
   );
 }
 
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(req),
-  });
+export function OPTIONS(req: NextRequest) {
+  return preflight(req);
 }
 
 export async function POST(req: NextRequest) {
-  // Reject oversized payloads before reading the body into memory.
-  const contentLength = req.headers.get("content-length");
-  if (contentLength && parseInt(contentLength) > 4_000_000) {
-    return new Response(JSON.stringify({ error: "payload_too_large" }), { status: 413 });
-  }
+  // Size cap + origin allowlist + rate limit, before spending a token.
+  const blocked = guard(req, 4_000_000);
+  if (blocked) return blocked;
 
-  // CORS check
-  const originError = validateOrigin(req);
-  if (originError) return originError;
-
-  // Rate limit
-  if (isRateLimited(getClientIp(req.headers))) {
-    return NextResponse.json({ error: "rate_limit" }, { status: 429, headers: corsHeaders(req) });
-  }
-
-  let body: { cvText?: string; targetRole?: string; jobDescription?: string };
+  let body: { cvText?: string; targetRole?: string };
   try {
     body = await req.json();
   } catch {
@@ -74,14 +65,11 @@ export async function POST(req: NextRequest) {
   }
 
   const role = clean((body.targetRole ?? "").slice(0, 200));
-  const jd = clean((body.jobDescription ?? "").slice(0, 10_000));
 
-  // XML tags help Claude unambiguously distinguish the CV content from
-  // the prompt instructions, and separate the job description (when provided)
-  // from the resume text. Recommended by Anthropic for multi-input prompts.
+  // XML tags help Claude unambiguously distinguish the CV content from the
+  // prompt instructions. Recommended by Anthropic for delimiting untrusted input.
   let userMsg = `<cv_text>\n${cv}\n</cv_text>`;
   if (role) userMsg += `\n\n<target_role>${role}</target_role>`;
-  if (jd) userMsg += `\n\n<job_description>\n${jd}\n</job_description>`;
 
   const headers = {
     ...corsHeaders(req),
@@ -103,7 +91,7 @@ export async function POST(req: NextRequest) {
         let tokens = 0;
 
         const response = await anthropic.messages.stream({
-          model: process.env.CLAUDE_MODEL || "claude-sonnet-4-6",
+          model: MODEL,
           max_tokens: 8_000,
           temperature: 0,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
@@ -169,7 +157,9 @@ export async function POST(req: NextRequest) {
         try {
           result = JSON.parse(json);
         } catch {
-          console.error("Claude returned invalid JSON:", json.slice(0, 500));
+          // Log only the length, never the content — the JSON is derived from
+          // the user's CV and could contain PII. (Zero data retention.)
+          console.error("Claude returned invalid JSON · chars:", json.length);
           send("error", JSON.stringify({ error: "parse_error" }));
           controller.close();
           return;

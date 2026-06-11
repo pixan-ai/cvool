@@ -11,7 +11,7 @@ type Lang = "es" | "en";
 export function SubHeader({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   return (
     <header className="flex items-center justify-between">
-      <span className="inline-flex items-center gap-[2px] font-[family-name:var(--font-geist)] text-[24px] font-medium tracking-tight">
+      <span className="inline-flex items-center gap-[2px] font-sans text-[24px] font-medium tracking-tight">
         <FaviconIcon size="w-[25px] h-[25px]" />
         <span className="text-ink-900">cv</span><span className="text-accent">ool</span>
       </span>

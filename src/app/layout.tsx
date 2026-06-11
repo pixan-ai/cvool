@@ -9,7 +9,7 @@ const geist = Geist({
 });
 
 const mono = Geist_Mono({
-  variable: "--font-mono",
+  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -109,7 +109,7 @@ const jsonLd = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${geist.variable} ${mono.variable}`}>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         {jsonLd.map((schema, i) => (
@@ -120,9 +120,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         ))}
       </head>
-      <body
-        className={`${geist.variable} ${mono.variable} font-[family-name:var(--font-geist)] antialiased`}
-      >
+      {/* Font CSS vars live on <html> (root scope) so the @theme mapping
+          --font-sans: var(--font-geist) resolves — a var() chain only resolves
+          where the referenced var is defined, and @theme emits into :root. */}
+      <body className="font-sans antialiased">
         {children}
         <Analytics />
       </body>
