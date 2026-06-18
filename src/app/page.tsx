@@ -116,6 +116,22 @@ export default function Home() {
   useEffect(() => { setLang(detectLang()); }, []);
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
 
+  // Notify the operator (best-effort, WhatsApp via /api/visit) that a new
+  // session landed. Once per browser session — sessionStorage dedupes refreshes
+  // and in-session navigation. Storage access is guarded so blocked storage
+  // (private mode / strict webviews) never crashes the UI; it just falls
+  // through and pings on load. Fully fire-and-forget: failures are ignored.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("cvool_visited")) return;
+      sessionStorage.setItem("cvool_visited", "1");
+    } catch { /* storage blocked: skip dedupe, still ping once per load */ }
+    const params = new URLSearchParams({ lang: detectLang() });
+    const ref = document.referrer;
+    if (ref && !ref.includes(location.host)) params.set("ref", ref);
+    fetch(`/api/visit?${params}`, { method: "POST", keepalive: true }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!loading) {
       setElapsedMs(0);
