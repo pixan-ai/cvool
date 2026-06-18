@@ -75,7 +75,17 @@ export async function sendWhatsApp(text: string): Promise<void> {
     const timer = setTimeout(() => ctrl.abort(), 8_000);
     const res = await fetch(url, { signal: ctrl.signal });
     clearTimeout(timer);
-    if (!res.ok) console.warn("callmebot non-ok status:", res.status);
+    // CallMeBot signals failures in the BODY, not the status: an invalid
+    // apikey or unrecognized number returns HTTP 203 (which is still "ok") with
+    // an error message in the HTML. Confirm the body says the message was
+    // accepted, otherwise surface what it actually said so misconfiguration
+    // (e.g. wrong phone format) is debuggable instead of silently dropped.
+    const body = await res.text().catch(() => "");
+    const accepted = /message queued|message sent/i.test(body);
+    if (!accepted) {
+      const reason = body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+      console.warn(`callmebot did not accept (status ${res.status}): ${reason}`);
+    }
   } catch (e) {
     console.warn("callmebot send failed:", e instanceof Error ? e.message : e);
   }
