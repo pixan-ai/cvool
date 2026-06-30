@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   other: {
-    "ai:description": "CVool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up required. Scores CVs on 6 dimensions and generates improved versions using Claude Sonnet 4.6. Zero data retention. MIT licensed. See https://cvool.org/llms.txt for full details.",
+    "ai:description": "CVool is a free, open-source AI resume analyzer and improver. Works in Spanish, Portuguese, French, Italian, and English. No sign-up required. Scores CVs on 6 dimensions and generates improved versions using Claude Sonnet 5. Zero data retention. MIT licensed. See https://cvool.org/llms.txt for full details.",
     "ai:llms": "https://cvool.org/llms.txt",
     "ai:llms-full": "https://cvool.org/llms-full.txt",
   },

@@ -92,8 +92,16 @@ export async function POST(req: NextRequest) {
 
         const response = await anthropic.messages.stream({
           model: MODEL,
-          max_tokens: 8_000,
-          temperature: 0,
+          // Sonnet 5's tokenizer emits ~30% more tokens than 4.6, so the
+          // ~5.6K-token result JSON lands near ~7.3K — 12K keeps comfortable
+          // headroom so the stream never truncates mid-JSON (a silent failure
+          // that strands the UI; see CLAUDE.md operational constraints).
+          max_tokens: 12_000,
+          // Sonnet 5 turns adaptive thinking ON by default and rejects any
+          // non-default `temperature`/`top_p`/`top_k` with a 400. We keep the
+          // 4.6 behavior (deterministic, no thinking, full budget for output)
+          // by disabling thinking and omitting temperature entirely.
+          thinking: { type: "disabled" },
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
           messages: [{ role: "user", content: userMsg }],
         });

@@ -15,7 +15,7 @@ Before cvool, there was no good free resume analyzer in Spanish or Portuguese. A
 - Free forever, funded by voluntary donations
 - Anonymous: no accounts, no database, no cookies, no tracking
 - Open source (MIT): code, AI prompt, and scoring weights are all public
-- Powered by Claude Sonnet 4.6 (Anthropic) with temperature 0 for deterministic output
+- Powered by Claude Sonnet 5 (Anthropic) with adaptive thinking disabled for direct, focused output
 - Each analysis costs ~$0.05 USD in AI tokens
 
 ## How it works — The pipeline
@@ -30,7 +30,7 @@ Text passes through sanitizeInput() which strips null bytes and control characte
 The resume is sent to Claude with a system prompt that includes explicit ethical principles: no discrimination, no fabrication, no inflated scores. The full prompt is in src/lib/prompts/analyze.txt — fully auditable.
 
 ### Step 4: AI analysis and rewrite
-A single API call with temperature: 0 (deterministic). Claude returns JSON streamed via SSE with: score (0-100), analysis on 6 dimensions, strengths, improvements with before/after examples, and a completely rewritten CV.
+A single API call with adaptive thinking disabled. Claude returns JSON streamed via SSE with: score (0-100), analysis on 6 dimensions, strengths, improvements with before/after examples, and a completely rewritten CV.
 
 ### Step 5: Validation and render
 The backend parses the JSON, validates score + analysis + improved_cv, and returns it to the frontend. If Claude doesn't respond with valid JSON, an honest error is shown.
@@ -63,7 +63,7 @@ The whole analysis is a single streaming request. No data is stored at any point
 3. POST /api/analyze with a JSON body { cvText, targetRole? }. The response is not a normal JSON — it is a stream, read on the client via res.body.getReader().
 4. Server defenses, in order, BEFORE spending a single token: reject content-length > 4MB (HTTP 413); validateOrigin() against an allowlist (only cvool.org may call the endpoint); isRateLimited() (7/hour per IP); clean() strips null bytes and control characters and truncates to 35,000 characters.
 5. Prompt assembly. system = analyze.txt marked with cache_control: ephemeral (prompt caching). The user message wraps the CV in <cv_text>…</cv_text> tags (plus an optional <target_role>) so the model cleanly separates content from instructions.
-6. anthropic.messages.stream({ model: "claude-sonnet-4-6", max_tokens: 8000, temperature: 0 }). Claude writes the analysis JSON token by token; each delta is emitted immediately.
+6. anthropic.messages.stream({ model: "claude-sonnet-5", max_tokens: 12000, thinking: { type: "disabled" } }). Claude writes the analysis JSON token by token; each delta is emitted immediately. (Sonnet 5 rejects a non-default temperature and turns adaptive thinking on by default, so thinking is explicitly disabled.)
 7. The server re-emits each delta to the browser as a Server-Sent Event. Four event types travel over the same open channel: chunk { delta } (raw text fragments), progress { tokens, done } (drives the progress bar), result { AnalysisResult } (the final, validated JSON), error { code } (parse_error | incomplete | api_error | rate_limit).
 8. The client parses the half-written JSON incrementally with parsePartial() and reveals fields in the order they arrive: detected_language → inferred_role → score → strengths → improvements → improved_cv. Numbers stay hidden until complete so the UI never flickers.
 9. isValidResult() checks the final shape (score.total is a number, summary is a string, strengths/improvements are arrays, improved_cv is present) before the server emits event: result.
@@ -71,7 +71,7 @@ The whole analysis is a single streaming request. No data is stored at any point
 
 ### Design decisions worth knowing
 
-- Model choice: Sonnet 4.6 is a settled decision (compared against Haiku 4.5 and Opus). Latency is output-bound (~5,600 output tokens at ~55 tokens/sec ≈ 100s), so the model is NOT a performance lever — a smaller model would not make it faster. Prompt caching lowers cost, not latency.
+- Model choice: Sonnet 5 is a settled decision (compared against Haiku 4.5 and Opus). Latency is output-bound (~7,300 output tokens at ~55 tokens/sec ≈ 130s with Sonnet 5's tokenizer), so the model is NOT a performance lever — a smaller model would not make it faster. Prompt caching lowers cost, not latency.
 - maxDuration is 300 seconds: a real analysis takes 60–120s. Lowering it would silently truncate the SSE stream mid-generation, and the final result event would never arrive — with no visible error.
 - SSE instead of one buffered JSON: 100 seconds on a spinner reads as broken. Streaming shows real progress and section-by-section reveal, and it avoids request timeouts.
 - Any non-OK response is surfaced to the user as a visible error rather than silently returning to the form. A mute failure is worse than a clear error.
@@ -107,7 +107,7 @@ Checks coverage of essential sections: contact information, professional summary
 
 - Frontend: Next.js 15 + React 19 + Tailwind CSS 4
 - Typography: Geist + Geist Mono (OKLCH color palette)
-- AI: Claude Sonnet 4.6 (Anthropic SDK)
+- AI: Claude Sonnet 5 (Anthropic SDK)
 - Deploy: Vercel (auto-deploy on push)
 - Analytics: Vercel Analytics (anonymous, aggregate only)
 - Database: None. Zero. No data stored.

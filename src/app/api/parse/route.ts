@@ -46,6 +46,9 @@ export async function POST(req: NextRequest) {
     const msg = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 8_000,
+      // Sonnet 5 enables adaptive thinking by default; PDF text extraction
+      // needs none of it, and thinking tokens would eat into max_tokens.
+      thinking: { type: "disabled" },
       messages: [
         {
           role: "user",

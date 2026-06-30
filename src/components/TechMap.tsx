@@ -15,7 +15,7 @@ const STACK = [
   { name: "React 19", id: "react" },
   { name: "Tailwind 4", id: "tw" },
   { name: "@anthropic-ai/sdk", id: "sdk" },
-  { name: "Claude Sonnet 4.6", id: "claude" },
+  { name: "Claude Sonnet 5", id: "claude" },
   { name: "Server-Sent Events", id: "sse" },
   { name: "partial-json", id: "pjson" },
   { name: "@vercel/analytics", id: "analytics" },
@@ -155,7 +155,7 @@ const COPY = {
       post: { t: "Se envía a /api/analyze", d: "Una sola petición POST con tu CV (y el puesto objetivo, si lo diste). La respuesta no es un JSON normal: es un stream.", tech: "fetch('/api/analyze', { method:'POST', body: JSON.stringify({ cvText, targetRole }) }). Se lee con res.body.getReader()." },
       guard: { t: "El servidor filtra cada petición", d: "Antes de gastar un solo token: rechaza peticiones enormes, comprueba el origen, limita la frecuencia y limpia el texto.", tech: "content-length > 4MB → 413 · validateOrigin (allowlist) · isRateLimited (7/h por IP) · clean() quita caracteres de control y recorta a 35.000." },
       prompt: { t: "Se arma el mensaje para Claude", d: "Tu CV se envuelve en etiquetas para que el modelo lo distinga de las instrucciones, y se le antepone el prompt constitucional.", tech: "system: analyze.txt con cache_control ephemeral. user: <cv_text>…</cv_text> + <target_role> opcional." },
-      stream: { t: "Claude responde en streaming", d: "El modelo no contesta de golpe: va escribiendo el JSON del análisis token a token, y cada fragmento sale de inmediato.", tech: "anthropic.messages.stream({ model:'claude-sonnet-4-6', max_tokens:8000, temperature:0 }). Se itera sobre content_block_delta." },
+      stream: { t: "Claude responde en streaming", d: "El modelo no contesta de golpe: va escribiendo el JSON del análisis token a token, y cada fragmento sale de inmediato.", tech: "anthropic.messages.stream({ model:'claude-sonnet-5', max_tokens:12000, thinking:{type:'disabled'} }). Se itera sobre content_block_delta." },
       sse: { t: "El servidor lo reemite como SSE", d: "Cada fragmento se reenvía al navegador como un evento Server-Sent Event, etiquetado por tipo: fragmento, progreso, resultado o error.", tech: "event: chunk|progress|result|error, seguido de data: {…} y una línea en blanco. Connection keep-alive, Cache-Control no-cache." },
       reveal: { t: "El navegador revela mientras llega", d: "En vez de esperar al final, el cliente lee el JSON a medio escribir y va mostrando cada sección en cuanto está lista.", tech: "parsePartial() (partial-json) sobre el buffer acumulado → PartialResult. Los números se ocultan hasta estar completos para no parpadear." },
       validate: { t: "Se valida la forma final", d: "Cuando el JSON está completo, el servidor comprueba que tenga la estructura correcta antes de marcarlo como resultado.", tech: "isValidResult() verifica score.total (number), summary (string), los arrays de strengths/improvements e improved_cv. Si falla → event:error." },
@@ -166,10 +166,10 @@ const COPY = {
     claudeTitle: "Cómo llega a Claude",
     claudeLead: "Una sola llamada a la API, en streaming. Esto es, en esencia, lo que recibe el modelo:",
     claudeNotes: {
-      model: "Sonnet 4.6 es una decisión cerrada (comparada con Haiku 4.5 y Opus). La espera depende de cuántos tokens escribe (~5.600 ≈ 100s), no del tamaño del modelo.",
-      temp: "temperature 0 hace la salida lo más determinista posible: el mismo CV produce un análisis estable.",
+      model: "Sonnet 5 es una decisión cerrada (comparada con Haiku 4.5 y Opus). La espera depende de cuántos tokens escribe (~7.300 ≈ 130s), no del tamaño del modelo.",
+      thinking: "thinking desactivado: Sonnet 5 razona por defecto, pero aquí no hace falta y consumiría del presupuesto de tokens. La salida es directa y determinista.",
       cache: "El prompt del sistema se marca como cacheable (ephemeral): repetirlo abarata el costo, aunque no acelera la generación.",
-      maxtok: "max_tokens 8.000 es un techo de seguridad; un análisis real ronda los 5.600 tokens.",
+      maxtok: "max_tokens 12.000 es un techo de seguridad; un análisis real ronda los 7.300 tokens con el tokenizer de Sonnet 5.",
     } as Record<string, string>,
 
     sseKicker: "El truco",
@@ -189,7 +189,7 @@ const COPY = {
     decTitle: "Por qué estas decisiones",
     decLead: "Cuatro elecciones que parecen pequeñas y sostienen todo lo demás.",
     decisions: {
-      model: { t: "¿Por qué Sonnet 4.6 y no un modelo más rápido?", d: "La espera es output-bound: casi todo el tiempo es el modelo escribiendo ~5.600 tokens. Un modelo más pequeño no lo arregla, así que cambiar de modelo no es una mejora de velocidad." },
+      model: { t: "¿Por qué Sonnet 5 y no un modelo más rápido?", d: "La espera es output-bound: casi todo el tiempo es el modelo escribiendo ~5.600 tokens. Un modelo más pequeño no lo arregla, así que cambiar de modelo no es una mejora de velocidad." },
       duration: { t: "¿Por qué la función dura hasta 300 segundos?", d: "Un análisis real tarda 60–120s. Si se bajara ese límite, el stream se cortaría a media generación y el resultado nunca llegaría — sin ningún error visible." },
       stream: { t: "¿Por qué SSE y no esperar el JSON completo?", d: "Cien segundos mirando un spinner se sienten rotos. Con SSE ves progreso real y secciones apareciendo; además evita que la petición caduque por timeout." },
       error: { t: "¿Por qué cualquier fallo se trata como error visible?", d: "Si la respuesta no es OK, el cliente muestra un mensaje en lugar de volver al formulario en silencio. Un fallo mudo es peor que un error claro." },
@@ -291,7 +291,7 @@ const COPY = {
       post: { t: "It's sent to /api/analyze", d: "A single POST request with your CV (and the target role, if you gave one). The response isn't a normal JSON: it's a stream.", tech: "fetch('/api/analyze', { method:'POST', body: JSON.stringify({ cvText, targetRole }) }). Read with res.body.getReader()." },
       guard: { t: "The server filters every request", d: "Before spending a single token: it rejects huge requests, checks the origin, rate-limits, and cleans the text.", tech: "content-length > 4MB → 413 · validateOrigin (allowlist) · isRateLimited (7/h per IP) · clean() strips control chars and truncates to 35,000." },
       prompt: { t: "The message to Claude is assembled", d: "Your CV is wrapped in tags so the model tells it apart from instructions, and the constitutional prompt is prepended.", tech: "system: analyze.txt with cache_control ephemeral. user: <cv_text>…</cv_text> + optional <target_role>." },
-      stream: { t: "Claude responds, streaming", d: "The model doesn't answer all at once: it writes the analysis JSON token by token, and each chunk goes out immediately.", tech: "anthropic.messages.stream({ model:'claude-sonnet-4-6', max_tokens:8000, temperature:0 }). Iterating content_block_delta." },
+      stream: { t: "Claude responds, streaming", d: "The model doesn't answer all at once: it writes the analysis JSON token by token, and each chunk goes out immediately.", tech: "anthropic.messages.stream({ model:'claude-sonnet-5', max_tokens:12000, thinking:{type:'disabled'} }). Iterating content_block_delta." },
       sse: { t: "The server re-emits it as SSE", d: "Each chunk is forwarded to the browser as a Server-Sent Event, tagged by type: chunk, progress, result, or error.", tech: "event: chunk|progress|result|error, followed by data: {…} and a blank line. Connection keep-alive, Cache-Control no-cache." },
       reveal: { t: "The browser reveals as it arrives", d: "Instead of waiting for the end, the client reads the half-written JSON and shows each section the moment it's ready.", tech: "parsePartial() (partial-json) over the accumulated buffer → PartialResult. Numbers stay hidden until complete so they don't flicker." },
       validate: { t: "The final shape is validated", d: "Once the JSON is complete, the server checks it has the right structure before marking it as the result.", tech: "isValidResult() checks score.total (number), summary (string), the strengths/improvements arrays, and improved_cv. On failure → event:error." },
@@ -302,10 +302,10 @@ const COPY = {
     claudeTitle: "How it reaches Claude",
     claudeLead: "A single API call, streaming. This is, in essence, what the model receives:",
     claudeNotes: {
-      model: "Sonnet 4.6 is a settled decision (compared against Haiku 4.5 and Opus). The wait depends on how many tokens it writes (~5,600 ≈ 100s), not on model size.",
-      temp: "temperature 0 makes the output as deterministic as possible: the same CV yields a stable analysis.",
+      model: "Sonnet 5 is a settled decision (compared against Haiku 4.5 and Opus). The wait depends on how many tokens it writes (~7,300 ≈ 130s), not on model size.",
+      thinking: "thinking disabled: Sonnet 5 reasons by default, but it's not needed here and would eat into the token budget. The output stays direct and deterministic.",
       cache: "The system prompt is marked cacheable (ephemeral): reusing it lowers cost, though it doesn't speed up generation.",
-      maxtok: "max_tokens 8,000 is a safety ceiling; a real analysis runs around 5,600 tokens.",
+      maxtok: "max_tokens 12,000 is a safety ceiling; a real analysis runs around 7,300 tokens with Sonnet 5's tokenizer.",
     } as Record<string, string>,
 
     sseKicker: "The trick",
@@ -325,7 +325,7 @@ const COPY = {
     decTitle: "Why these decisions",
     decLead: "Four choices that look small and hold up everything else.",
     decisions: {
-      model: { t: "Why Sonnet 4.6 and not a faster model?", d: "The wait is output-bound: almost all of it is the model writing ~5,600 tokens. A smaller model doesn't fix that, so swapping models isn't a speed improvement." },
+      model: { t: "Why Sonnet 5 and not a faster model?", d: "The wait is output-bound: almost all of it is the model writing ~5,600 tokens. A smaller model doesn't fix that, so swapping models isn't a speed improvement." },
       duration: { t: "Why does the function run up to 300 seconds?", d: "A real analysis takes 60–120s. Lower that limit and the stream would be cut mid-generation and the result would never arrive — with no visible error." },
       stream: { t: "Why SSE instead of waiting for the full JSON?", d: "A hundred seconds staring at a spinner feels broken. With SSE you see real progress and sections appearing; it also keeps the request from timing out." },
       error: { t: "Why is any failure treated as a visible error?", d: "If the response isn't OK, the client shows a message instead of silently returning to the form. A mute failure is worse than a clear error." },
@@ -528,18 +528,18 @@ export default function TechMap({ lang }: { lang: "es" | "en" }) {
         <SectionHead kicker={t.claudeKicker} title={t.claudeTitle} lead={t.claudeLead} />
         <pre className="map-reveal font-mono text-[12.5px] leading-relaxed text-ink-600 bg-ink-050 border border-ink-100 rounded-lg p-4 overflow-x-auto">
 {`anthropic.messages.stream({
-  model:       "claude-sonnet-4-6",
-  max_tokens:  8_000,
-  temperature: 0,
+  model:      "claude-sonnet-5",
+  max_tokens: 12_000,
+  thinking:   { type: "disabled" },
   system:   [{ text: analyze.txt, cache_control: "ephemeral" }],
   messages: [{ role: "user", content: "<cv_text>…</cv_text>" }],
 })`}
         </pre>
         <div className="map-reveal border border-ink-100 rounded-lg divide-y divide-ink-100">
-          {(["model", "temp", "cache", "maxtok"] as const).map((k) => (
+          {(["model", "thinking", "cache", "maxtok"] as const).map((k) => (
             <div key={k} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 p-3">
               <span className="font-mono text-[13px] text-accent sm:w-32 shrink-0">
-                {k === "model" ? "model" : k === "temp" ? "temperature" : k === "cache" ? "cache_control" : "max_tokens"}
+                {k === "model" ? "model" : k === "thinking" ? "thinking" : k === "cache" ? "cache_control" : "max_tokens"}
               </span>
               <span className="text-[13px] text-ink-500 leading-relaxed">{t.claudeNotes[k]}</span>
             </div>

@@ -35,7 +35,7 @@ No sign-up. No data stored. No tracking. Free forever.
 |-------|-----------|
 | Frontend | Next.js 15 + React 19 + Tailwind CSS 4 |
 | Typography | Geist + Geist Mono |
-| AI | Claude Sonnet 4.6 (Anthropic SDK) |
+| AI | Claude Sonnet 5 (Anthropic SDK) |
 | Deploy | Vercel (auto-deploy on push) |
 | Analytics | Vercel Analytics (anonymous, aggregate) |
 | Database | None |
@@ -56,7 +56,7 @@ npm run dev
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key |
-| `CLAUDE_MODEL` | No | Model to use (default: `claude-sonnet-4-6`) |
+| `CLAUDE_MODEL` | No | Model to use (default: `claude-sonnet-5`) |
 
 ## Architecture
 

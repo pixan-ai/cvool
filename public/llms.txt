@@ -1,8 +1,8 @@
 # cvool
 
-> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Sonnet 4.6 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking.
+> cvool is a free, open-source, anonymous AI-powered resume analyzer and improver. It uses Claude Sonnet 5 (Anthropic) to score resumes on 6 dimensions, provide actionable feedback, and generate a professionally rewritten CV. No sign-up, no database, no tracking.
 
-> cvool es un analizador y optimizador de CVs gratuito, open source y anónimo. Usa Claude Sonnet 4.6 (Anthropic) para calificar CVs en 6 dimensiones, dar retroalimentación accionable y generar un CV reescrito profesionalmente. Sin registro, sin base de datos, sin tracking.
+> cvool es un analizador y optimizador de CVs gratuito, open source y anónimo. Usa Claude Sonnet 5 (Anthropic) para calificar CVs en 6 dimensiones, dar retroalimentación accionable y generar un CV reescrito profesionalmente. Sin registro, sin base de datos, sin tracking.
 
 ## What makes cvool different
 
@@ -23,12 +23,12 @@
 
 ## Technical details
 
-- Stack: Next.js 15, React 19, Tailwind CSS 4, Claude Sonnet 4.6 (Anthropic SDK), Vercel
+- Stack: Next.js 15, React 19, Tailwind CSS 4, Claude Sonnet 5 (Anthropic SDK), Vercel
 - Fonts: Geist + Geist Mono
 - Database: None — zero data stored
 - Auth: None — no accounts, no cookies
 - Rate limit: 7 requests/hour per IP (in-memory)
-- Architecture: a single streaming request over Server-Sent Events (SSE). The server filters the call (size limit, origin allowlist, rate limit, input sanitization), relays the CV to Claude with temperature 0, and streams the JSON back; the browser parses it incrementally and reveals results as they generate. Nothing is stored. Full walkthrough at https://cvool.org/how
+- Architecture: a single streaming request over Server-Sent Events (SSE). The server filters the call (size limit, origin allowlist, rate limit, input sanitization), relays the CV to Claude with adaptive thinking disabled, and streams the JSON back; the browser parses it incrementally and reveals results as they generate. Nothing is stored. Full walkthrough at https://cvool.org/how
 - License: MIT
 - Source: https://github.com/pixan-ai/cvool
 
@@ -45,7 +45,7 @@
 
 - No discrimination for career gaps, non-linear paths, or non-traditional education
 - Anti-hallucination: every suggestion must reference real CV content
-- Temperature 0 for deterministic, reproducible output
+- Adaptive thinking disabled — the model writes the analysis directly, guided by the constitutional prompt
 - Constitutional prompt with explicit ethical principles (auditable in repo at src/lib/prompts/analyze.txt)
 
 ## Contact

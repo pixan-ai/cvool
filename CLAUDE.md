@@ -17,13 +17,24 @@ Operated by Pixan AI (pixan = soul in Maya).
 
 - Next.js 15+ (App Router, Turbopack)
 - React 19, Tailwind CSS 4 (OKLCH tokens)
-- Claude API (Sonnet 4.6 for both analysis and PDF parsing)
+- Claude API (Sonnet 5 for both analysis and PDF parsing)
 - Vercel Analytics, deployed on Vercel from main
 
-Sonnet 4.6 is the closed model decision (compared vs Haiku 4.5 and
-Opus 4.7). Latency is output-bound (~5,600 tokens at ~55 t/s ≈ 100s),
-so prompt cache hits help cost but not speed — don't propose a model
-swap as a performance fix.
+Sonnet 5 (`claude-sonnet-5`) is the closed model decision (compared vs
+Haiku 4.5 and Opus). Latency is output-bound (~7,300 tokens at ~55 t/s
+≈ 130s), so prompt cache hits help cost but not speed — don't propose a
+model swap as a performance fix.
+
+Sonnet 5 specifics that must not regress:
+- It rejects any non-default `temperature`/`top_p`/`top_k` with a 400.
+  Both routes omit `temperature` entirely (was `temperature: 0` on 4.6).
+- It turns adaptive thinking ON by default. Both routes pass
+  `thinking: { type: "disabled" }` to keep the 4.6 behavior (direct,
+  no thinking, full token budget for the output JSON). Don't remove it
+  unless you also raise `max_tokens` and re-test latency vs maxDuration.
+- Its tokenizer emits ~30% more tokens than 4.6, so analyze's
+  `max_tokens` was raised 8000→12000 to keep the result JSON from
+  truncating mid-stream (the silent failure described below).
 
 ## Commands
 
@@ -169,9 +180,9 @@ The analyze.txt prompt contains cvool's principles:
 
 ### /api/analyze maxDuration must stay at 300s
 
-A real, end-to-end CV analysis with the current setup (Sonnet 4.6,
-max_tokens=8000, ~14KB system prompt with ephemeral cache, multi-KB CV
-input) realistically takes 60–120 seconds to fully stream the result
+A real, end-to-end CV analysis with the current setup (Sonnet 5,
+max_tokens=12000, ~14KB system prompt with ephemeral cache, multi-KB CV
+input) realistically takes 60–130 seconds to fully stream the result
 JSON. The hard floor is well above 60s.
 
 Both `vercel.json` (`functions["src/app/api/analyze/route.ts"].maxDuration`)
