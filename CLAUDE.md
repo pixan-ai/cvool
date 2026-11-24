@@ -17,21 +17,26 @@ Operated by Pixan AI (pixan = soul in Maya).
 
 - Next.js 15+ (App Router, Turbopack)
 - React 19, Tailwind CSS 4 (OKLCH tokens)
-- Claude API (Sonnet 5 for both analysis and PDF parsing)
+- Claude API (Sonnet 5.5 for both analysis and PDF parsing)
 - Vercel Analytics, deployed on Vercel from main
 
-Sonnet 5 (`claude-sonnet-5`) is the closed model decision (compared vs
+Sonnet 5.5 (`claude-sonnet-5-5`) is the closed model decision (compared vs
 Haiku 4.5 and Opus). Latency is output-bound (~7,300 tokens at ~55 t/s
 ≈ 130s), so prompt cache hits help cost but not speed — don't propose a
 model swap as a performance fix.
 
-Sonnet 5 specifics that must not regress:
+Sonnet 5.5 specifics that must not regress:
 - It rejects any non-default `temperature`/`top_p`/`top_k` with a 400.
   Both routes omit `temperature` entirely (was `temperature: 0` on 4.6).
-- It turns adaptive thinking ON by default. Both routes pass
-  `thinking: { type: "disabled" }` to keep the 4.6 behavior (direct,
-  no thinking, full token budget for the output JSON). Don't remove it
-  unless you also raise `max_tokens` and re-test latency vs maxDuration.
+- It turns adaptive thinking ON by default, and `thinking: { type:
+  "disabled" }` is a 400 on this model (it was accepted on Sonnet 5). Both
+  routes pass `thinking: { type: "between_tools" }`, Sonnet 5.5's
+  thinking-off setting, to keep the direct behavior (no thinking, full
+  token budget for the output JSON). It only works at effort `high` or
+  below (the default) and takes no other field. SDK 0.39 types only
+  enabled/disabled, so the routes cast it. Don't remove it unless you
+  also raise `max_tokens` and re-test latency vs maxDuration.
+- Its tokenizer is the same as Sonnet 5's.
 - Its tokenizer emits ~30% more tokens than 4.6, so analyze's
   `max_tokens` was raised 8000→12000 to keep the result JSON from
   truncating mid-stream (the silent failure described below).
@@ -41,6 +46,8 @@ Sonnet 5 specifics that must not regress:
 - `npm run dev` — dev server (Turbopack)
 - `npm run build` — production build
 - `npm run lint` — ESLint
+- `npm test` — checks the model, thinking and sampling settings and the
+  model name on every page (no network, no API key)
 
 ## Architecture
 
@@ -180,7 +187,7 @@ The analyze.txt prompt contains cvool's principles:
 
 ### /api/analyze maxDuration must stay at 300s
 
-A real, end-to-end CV analysis with the current setup (Sonnet 5,
+A real, end-to-end CV analysis with the current setup (Sonnet 5.5,
 max_tokens=12000, ~14KB system prompt with ephemeral cache, multi-KB CV
 input) realistically takes 60–130 seconds to fully stream the result
 JSON. The hard floor is well above 60s.

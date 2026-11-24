@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Anthropic from "@anthropic-ai/sdk";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { anthropic, MODEL } from "@/lib/anthropic";
@@ -92,16 +93,18 @@ export async function POST(req: NextRequest) {
 
         const response = await anthropic.messages.stream({
           model: MODEL,
-          // Sonnet 5's tokenizer emits ~30% more tokens than 4.6, so the
-          // ~5.6K-token result JSON lands near ~7.3K — 12K keeps comfortable
+          // Sonnet 5.5 shares Sonnet 5's tokenizer (~30% more tokens than 4.6), so
+          // the ~5.6K-token result JSON lands near ~7.3K — 12K keeps comfortable
           // headroom so the stream never truncates mid-JSON (a silent failure
           // that strands the UI; see CLAUDE.md operational constraints).
           max_tokens: 12_000,
-          // Sonnet 5 turns adaptive thinking ON by default and rejects any
-          // non-default `temperature`/`top_p`/`top_k` with a 400. We keep the
-          // 4.6 behavior (deterministic, no thinking, full budget for output)
-          // by disabling thinking and omitting temperature entirely.
-          thinking: { type: "disabled" },
+          // Sonnet 5.5 thinks by default and rejects any non-default
+          // `temperature`/`top_p`/`top_k` with a 400. We keep the direct
+          // behavior (no thinking, full budget for the output JSON) with
+          // between_tools, its thinking-off setting — `disabled` is a 400 on
+          // this model — and omit temperature entirely. SDK 0.39 only types
+          // enabled/disabled, so the value goes through as-is with a cast.
+          thinking: { type: "between_tools" } as unknown as Anthropic.ThinkingConfigParam,
           system: [{ type: "text", text: PROMPT, cache_control: { type: "ephemeral" } }],
           messages: [{ role: "user", content: userMsg }],
         });

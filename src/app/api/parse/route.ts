@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Anthropic from "@anthropic-ai/sdk";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { guard, preflight } from "@/lib/guard";
 import { corsHeaders } from "@/lib/cors";
@@ -46,9 +47,10 @@ export async function POST(req: NextRequest) {
     const msg = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 8_000,
-      // Sonnet 5 enables adaptive thinking by default; PDF text extraction
-      // needs none of it, and thinking tokens would eat into max_tokens.
-      thinking: { type: "disabled" },
+      // Sonnet 5.5 thinks by default; PDF text extraction needs none of it,
+      // and thinking tokens would eat into max_tokens. between_tools is its
+      // thinking-off setting (`disabled` is a 400); SDK 0.39 needs the cast.
+      thinking: { type: "between_tools" } as unknown as Anthropic.ThinkingConfigParam,
       messages: [
         {
           role: "user",
@@ -66,7 +68,9 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const text = msg.content[0]?.type === "text" ? msg.content[0].text : "";
+    // A Sonnet 5.5 response can start with a thinking block: take the text by type.
+    const block = msg.content.find((block) => block.type === "text");
+    const text = block?.type === "text" ? block.text : "";
     return NextResponse.json({ text }, { headers: corsHeaders(req) });
   } catch (e: unknown) {
     console.error("PDF parse error:", e instanceof Error ? e.message : e);
