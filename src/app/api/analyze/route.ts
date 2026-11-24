@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
         const response = await anthropic.messages.stream({
           model: MODEL,
-          // Sonnet 5.5 shares Sonnet 5's tokenizer (~30% more tokens than 4.6), so
+          // Sonnet 5.5's tokenizer emits ~30% more tokens than 4.6, so
           // the ~5.6K-token result JSON lands near ~7.3K — 12K keeps comfortable
           // headroom so the stream never truncates mid-JSON (a silent failure
           // that strands the UI; see CLAUDE.md operational constraints).
