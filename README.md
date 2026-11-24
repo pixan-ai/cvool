@@ -35,7 +35,7 @@ No sign-up. No data stored. No tracking. Free forever.
 |-------|-----------|
 | Frontend | Next.js 15 + React 19 + Tailwind CSS 4 |
 | Typography | Geist + Geist Mono |
-| AI | Claude Sonnet 5 (Anthropic SDK) |
+| AI | Claude Sonnet 5.5 (Anthropic SDK) |
 | Deploy | Vercel (auto-deploy on push) |
 | Analytics | Vercel Analytics (anonymous, aggregate) |
 | Database | None |
@@ -51,12 +51,14 @@ cp .env.example .env.local
 npm run dev
 ```
 
+`npm test` checks the model settings and the model name on every page. It needs no network and no API key.
+
 ### Environment variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key |
-| `CLAUDE_MODEL` | No | Model to use (default: `claude-sonnet-5`) |
+| `CLAUDE_MODEL` | No | Model to use (default: `claude-sonnet-5-5`) |
 
 ## Architecture
 

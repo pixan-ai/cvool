@@ -16,7 +16,7 @@
     "stackItems": [
       ["Frontend", "Next.js 15 + React 19 + Tailwind CSS 4"],
       ["Tipografía", "Geist + Geist Mono"],
-      ["IA", "Claude Sonnet 5 (Anthropic SDK)"],
+      ["IA", "Claude Sonnet 5.5 (Anthropic SDK)"],
       ["Deploy", "Vercel (auto-deploy on push)"],
       ["Analytics", "Vercel Analytics (anónimo)"],
       ["Base de datos", "Ninguna. Cero. Nada."],
@@ -54,7 +54,7 @@
     "stackItems": [
       ["Frontend", "Next.js 15 + React 19 + Tailwind CSS 4"],
       ["Typography", "Geist + Geist Mono"],
-      ["AI", "Claude Sonnet 5 (Anthropic SDK)"],
+      ["AI", "Claude Sonnet 5.5 (Anthropic SDK)"],
       ["Deploy", "Vercel (auto-deploy on push)"],
       ["Analytics", "Vercel Analytics (anonymous)"],
       ["Database", "None. Zero. Not one."],
